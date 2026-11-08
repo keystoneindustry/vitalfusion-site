@@ -1,3 +1,4 @@
+import { site } from "../content/site";
 import { FITNESS_LEVELS, HELP_AREAS, labelFor, type Application } from "./application";
 
 function esc(s: string): string {
@@ -84,12 +85,63 @@ export function coachEmail(a: Application): { subject: string; html: string; tex
   return { subject: `💪 New Coaching Application — ${a.fullName}`, html, text };
 }
 
-/** Optional "we got it" email to the applicant. */
-export function applicantEmail(a: Application): { subject: string; html: string; text: string } {
+/** Pulls the video ID out of any common YouTube link format. */
+export function youTubeId(url: string): string | null {
+  const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/))([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+
+/** "We got your application" email to the applicant, with an optional video. */
+export function applicantEmail(
+  a: Application,
+  opts: { siteUrl?: string } = {},
+): { subject: string; html: string; text: string } {
+  const c = site.confirmationEmail;
   const first = a.fullName.split(/\s+/)[0];
-  const text = `Hi ${first},\n\nThanks for applying for coaching with Vital Fusion. We'll review your information and see if one-on-one coaching is the right fit for your goals, then reach out soon to schedule your consultation call.\n\n— Vital Fusion Coaching`;
-  const html = `<div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;color:#222;max-width:520px">${esc(text).replace(/\n/g, "<br>")}</div>`;
-  return { subject: "We got your coaching application", html, text };
+  const siteUrl = (opts.siteUrl || "https://vitalfusioncoaching.com").replace(/\/$/, "");
+  const video = c.videoUrl.trim();
+  const vid = video ? youTubeId(video) : null;
+
+  const text = [
+    `Hi ${first},`,
+    ``,
+    c.body,
+    ...(video ? [``, c.videoIntro, video] : []),
+    ``,
+    c.signOff,
+    site.coachName,
+    site.brand,
+  ].join("\n");
+
+  const videoBlock = video
+    ? `
+    <p style="margin:24px 0 14px;font-size:16px;line-height:1.6;color:#d4d7dd">${esc(c.videoIntro)}</p>
+    ${
+      vid
+        ? `<a href="${esc(video)}" style="display:block;text-decoration:none">
+      <img src="https://img.youtube.com/vi/${vid}/hqdefault.jpg" width="100%" alt="Watch the video" style="display:block;width:100%;max-width:480px;border-radius:12px;border:0">
+    </a>`
+        : ""
+    }
+    <a href="${esc(video)}" style="display:inline-block;margin-top:16px;background:#6a9fc6;color:#ffffff;font-weight:700;font-size:17px;text-decoration:none;border-radius:12px;padding:14px 26px">${esc(c.videoButton)}</a>`
+    : "";
+
+  const html = `<!doctype html><html><body style="margin:0;background:#0b0d12;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif">
+<div style="max-width:520px;margin:0 auto;padding:28px 16px">
+  <div style="text-align:center;margin-bottom:20px">
+    <img src="${siteUrl}/images/vf-logo.png" width="56" height="56" alt="${esc(site.brand)}" style="border-radius:12px">
+  </div>
+  <div style="background:#15171d;border:1px solid #2a2d35;border-radius:18px;padding:28px 24px;color:#f4f5f7">
+    <h1 style="margin:0 0 16px;font-size:26px;line-height:1.2">${esc(c.heading)}</h1>
+    <p style="margin:0 0 4px;font-size:16px;line-height:1.6;color:#d4d7dd">Hi ${esc(first)},</p>
+    <p style="margin:12px 0 0;font-size:16px;line-height:1.6;color:#d4d7dd">${esc(c.body)}</p>
+    ${videoBlock}
+    <p style="margin:28px 0 0;font-size:16px;line-height:1.6;color:#d4d7dd">${esc(c.signOff)}<br><strong style="color:#ffe7ab">${esc(site.coachName)}</strong><br>${esc(site.brand)}</p>
+  </div>
+  <p style="text-align:center;color:#6b707b;font-size:12px;margin:18px 0 0">You're receiving this because you applied at ${esc(siteUrl.replace(/^https?:\/\//, ""))}.</p>
+</div></body></html>`;
+
+  return { subject: c.subject, html, text };
 }
 
 /** Sends through Resend's REST API (no SDK needed). */

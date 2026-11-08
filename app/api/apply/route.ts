@@ -49,8 +49,13 @@ export async function POST(req: Request) {
     );
   }
 
-  if (process.env.SEND_APPLICANT_CONFIRMATION === "true") {
-    await sendEmail({ to: app.email, ...applicantEmail(app) }).catch((e) =>
+  // Resend's test sender (onboarding@resend.dev) can only email you, so the
+  // applicant email turns on once FROM_EMAIL uses your verified domain.
+  const from = process.env.FROM_EMAIL || "";
+  const canEmailApplicants = from !== "" && !from.includes("resend.dev");
+  if (canEmailApplicants && process.env.SEND_APPLICANT_CONFIRMATION !== "false") {
+    const siteUrl = process.env.SITE_URL || new URL(req.url).origin;
+    await sendEmail({ to: app.email, replyTo: process.env.NOTIFY_EMAIL, ...applicantEmail(app, { siteUrl }) }).catch((e) =>
       console.error("Applicant confirmation failed:", e),
     );
   }

@@ -30,8 +30,10 @@ saved to a Supabase database.
 
 ### Optional
 - **Branded sender + applicant confirmation:** in Resend, verify
-  `vitalfusioncoaching.com`, set `FROM_EMAIL=Vital Fusion <apply@vitalfusioncoaching.com>`
-  and `SEND_APPLICANT_CONFIRMATION=true`.
+  `vitalfusioncoaching.com` (GoDaddy: use Resend's Auto Configure button), then set
+  `FROM_EMAIL=Vital Fusion Coaching <coaching@vitalfusioncoaching.com>` in Vercel and redeploy.
+  Applicants then get the "we got your application" email (text + video link in
+  `content/site.ts` → `confirmationEmail`).
 - **Save applications to a database:** create a Supabase project, run
   `supabase/schema.sql` in its SQL editor, and add `SUPABASE_URL` and
   `SUPABASE_SERVICE_ROLE_KEY` in Vercel.

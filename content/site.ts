@@ -143,6 +143,18 @@ export const site = {
     cta: "Apply for Coaching",
   },
 
+  // Email the applicant gets right after applying.
+  confirmationEmail: {
+    subject: "We got your application 💪",
+    heading: "We got your application!",
+    body: "Thanks for applying for coaching with Vital Fusion. I'll personally review your answers and reach out soon to set up your free consultation call.",
+    videoIntro: "While you wait, watch this short video to see exactly what coaching with me looks like:",
+    // Paste your YouTube link between the quotes. Leave "" to send the email without a video.
+    videoUrl: "",
+    videoButton: "▶ Watch the video",
+    signOff: "Talk soon,",
+  },
+
   // The /vital-method promo page (used for ads / bio links)
   promo: {
     headline: "The VITAL Method",

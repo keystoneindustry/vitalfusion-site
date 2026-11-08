@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { validateApplication, sourceLabel } from "../lib/application";
-import { coachEmail, sendEmail } from "../lib/email";
+import { applicantEmail, coachEmail, sendEmail, youTubeId } from "../lib/email";
+import { site } from "../content/site";
 import { saveApplication } from "../lib/store";
 
 const good = {
@@ -67,5 +68,20 @@ assert.deepEqual(JSON.parse(calls[1].init.body).help_areas, ["diet", "training"]
 
 globalThis.fetch = (async () => new Response("bad", { status: 403 })) as any;
 await assert.rejects(sendEmail({ to: "x@y.co", subject: "s", html: "h", text: "t" }), /Resend error 403/);
+
+// Applicant email + YouTube links
+for (const u of ["https://www.youtube.com/watch?v=dQw4w9WgXcQ", "https://youtu.be/dQw4w9WgXcQ?si=abc", "https://youtube.com/shorts/dQw4w9WgXcQ", "https://m.youtube.com/watch?feature=share&v=dQw4w9WgXcQ"])
+  assert.equal(youTubeId(u), "dQw4w9WgXcQ", u);
+if (r.ok) {
+  const noVid = applicantEmail(r.data);
+  assert.ok(!noVid.html.includes("Watch the video") && noVid.html.includes("Hi Tyler,"));
+  site.confirmationEmail.videoUrl = "https://youtu.be/dQw4w9WgXcQ";
+  const withVid = applicantEmail(r.data, { siteUrl: "https://example.vercel.app/" });
+  assert.ok(withVid.html.includes("img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg"));
+  assert.ok(withVid.html.includes("https://example.vercel.app/images/vf-logo.png"));
+  assert.ok(withVid.text.includes("https://youtu.be/dQw4w9WgXcQ"));
+  require_preview: { const fs = await import("node:fs"); fs.writeFileSync("/tmp/applicant-email.html", withVid.html); }
+  site.confirmationEmail.videoUrl = "";
+}
 
 console.log("All tests passed");
