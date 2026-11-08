@@ -101,18 +101,9 @@ input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px
 /* Hero */
 .hero-home { max-width: 1120px; margin: 0 auto; padding: 28px var(--pad-x) 40px; display: grid; gap: 32px; align-items: center; }
 .hero-photo { display: none; }
-.hero-form { background: var(--card); border: 1px solid #2c3a52; border-radius: 20px; padding: 20px 18px 16px; box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.7); }
-.hero-form-title { margin: 0 0 4px; color: var(--gold); font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; }
-.hero-form-q { margin: 0 0 14px; font-size: 21px; font-weight: 700; }
-.age-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.age-btn {
-  display: flex; align-items: center; justify-content: center; min-height: 56px;
-  background: var(--card-2); border: 1.5px solid #343a46; border-radius: 14px;
-  color: var(--text); font-size: 19px; font-weight: 700; text-decoration: none;
-  transition: border-color 0.15s, background 0.15s;
-}
-.age-btn:hover, .age-btn:active { border-color: var(--accent); background: #1c2533; }
-.hero-form-note { margin: 12px 0 0; color: var(--muted); font-size: 13px; text-align: center; }
+.hero-cta { margin-top: 4px; }
+.btn-big { font-size: 20px; min-height: 62px; border-radius: 16px; }
+.hero-form-note { margin: 12px 0 0; color: var(--muted); font-size: 14px; text-align: center; }
 .trust { list-style: none; padding: 0; margin: 16px 0 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; color: var(--text-3); font-size: 14px; }
 
 /* Results */
@@ -254,8 +245,7 @@ input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px
 
   .hero-home { grid-template-columns: 1.1fr 0.9fr; gap: 56px; padding-top: 72px; padding-bottom: 80px; }
   .hero-photo { display: block; width: 100%; aspect-ratio: 4 / 5; max-height: 640px; object-fit: cover; object-position: center 20%; border-radius: 26px; border: 1px solid var(--card-border); }
-  .hero-form { padding: 24px; }
-  .age-grid { grid-template-columns: repeat(4, 1fr); }
+  .hero-cta .hero-form-note { text-align: left; }
   .trust { justify-content: flex-start; }
 
   .results { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; overflow: visible; margin: 0; padding: 0; }

@@ -14,9 +14,8 @@ export const site = {
     eyebrow: "1:1 Online Coaching for Busy Adults",
     headline: "Achieve Fat Loss With a Sustainable Process",
     sub: "Build muscle and lose fat without crash diets or giving up the foods you love.",
-    // The first application question sits right in the hero.
-    formTitle: "Start your application",
-    formNote: "Question 1 of 6 · Takes about 60 seconds",
+    startButton: "Start My Application →",
+    formNote: "6 quick questions · Takes about 60 seconds",
     trust: ["Free consultation call", "Personalized to you", "No crash diets"],
     photo: "/images/coach-photo.webp",
   },

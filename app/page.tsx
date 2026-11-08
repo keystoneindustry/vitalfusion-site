@@ -1,7 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { site } from "@/content/site";
-import { AGE_RANGES } from "@/lib/application";
 import StickyApply from "./components/StickyApply";
 
 // Homepage = sales page for the coaching application.
@@ -18,16 +17,8 @@ export default function Home() {
           <h1 className="display">{hero.headline}</h1>
           <p className="lead">{hero.sub}</p>
 
-          <div className="hero-form" id="hero-form">
-            <p className="hero-form-title">{hero.formTitle}</p>
-            <p className="hero-form-q">What is your age range?</p>
-            <div className="age-grid">
-              {AGE_RANGES.map((age) => (
-                <Link key={age} href={`/apply?age=${encodeURIComponent(age)}`} className="age-btn">
-                  {age}
-                </Link>
-              ))}
-            </div>
+          <div className="hero-cta" id="hero-form">
+            <Link href="/apply" className="btn btn-wide btn-big">{hero.startButton}</Link>
             <p className="hero-form-note">{hero.formNote}</p>
           </div>
 

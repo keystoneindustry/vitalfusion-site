@@ -7,8 +7,8 @@ is not a developer; explain changes plainly and keep the site simple.
   hosted on Vercel. Email via Resend REST API (`lib/email.ts`), optional Supabase via
   REST (`lib/store.ts`). Avoid adding dependencies unless they clearly earn their place.
 - The homepage is a sales page for the coaching application only (no free resources /
-  blueprint). Every CTA goes to `/apply`. The hero contains question 1 (age): tapping an age
-  links to `/apply?age=…`, which starts the form at question 2. A phone-only sticky Apply bar
+  blueprint). Every CTA goes to `/apply`. The hero has a "Start My Application" button
+  (`/apply?age=…` still works to pre-fill question 1 and start at question 2). A phone-only sticky Apply bar
   (`app/components/StickyApply.tsx`) appears after the hero scrolls away.
 - All homepage copy lives in `content/site.ts`; layout in `app/page.tsx`; promo landing page in
   `app/vital-method/`. Images are in `public/images/`. Only add real client results and testimonials.
