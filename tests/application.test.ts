@@ -1,0 +1,65 @@
+import assert from "node:assert/strict";
+import { validateApplication, sourceLabel } from "../lib/application";
+import { coachEmail, sendEmail } from "../lib/email";
+import { saveApplication } from "../lib/store";
+
+const good = {
+  ageRange: "22-25", fitnessLevel: "intermediate", helpAreas: ["diet", "training", "diet", "bogus"],
+  goal: "Lose 15 lbs <script>alert(1)</script>", whyNow: "New year, new me",
+  fullName: "Tyler Kendrick", email: "TKendrick1802@Gmail.com ", phone: "(443) 800-4593",
+  instagram: "@@tyler.k", source: "Instagram",
+};
+
+const r = validateApplication(good);
+assert.ok(r.ok);
+if (r.ok) {
+  assert.deepEqual(r.data.helpAreas, ["diet", "training"]);
+  assert.equal(r.data.email, "tkendrick1802@gmail.com");
+  assert.equal(r.data.instagram, "@tyler.k");
+  const e = coachEmail(r.data);
+  assert.ok(!e.html.includes("<script>"), "HTML must be escaped");
+  assert.ok(e.html.includes("&lt;script&gt;"));
+  assert.ok(e.html.includes("Source: Instagram"));
+  assert.ok(e.html.includes("Diet/Nutrition, Training"));
+  assert.ok(e.html.includes('href="tel:4438004593"'));
+  const fs = await import("node:fs");
+  fs.writeFileSync("/tmp/email-preview.html", e.html);
+}
+
+const bad = validateApplication({ helpAreas: [], email: "nope", phone: "123", instagram: "bad handle!" });
+assert.ok(!bad.ok);
+if (!bad.ok) {
+  for (const k of ["ageRange", "fitnessLevel", "helpAreas", "goal", "whyNow", "fullName", "email", "phone", "instagram"])
+    assert.ok(k in bad.errors, `expected error for ${k}`);
+}
+assert.ok(!validateApplication(null).ok);
+assert.ok(validateApplication({ ...good, instagram: "" }).ok);
+assert.equal(validateApplication({ ...good, source: "" }).ok && (validateApplication({ ...good, source: "" }) as any).data.source, "Main Website");
+
+assert.equal(sourceLabel(null), "Main Website");
+assert.equal(sourceLabel("instagram"), "Instagram");
+assert.equal(sourceLabel("tiktok_bio"), "Tiktok Bio");
+assert.equal(sourceLabel("<b>x</b>"), "Bxb");
+
+// sendEmail / saveApplication with mocked fetch
+const calls: { url: string; init: any }[] = [];
+globalThis.fetch = (async (url: string, init: any) => { calls.push({ url, init }); return new Response("{}", { status: 200 }); }) as any;
+process.env.RESEND_API_KEY = "re_test";
+await sendEmail({ to: "coach@example.com", subject: "s", html: "h", text: "t", replyTo: "a@b.co" });
+const body = JSON.parse(calls[0].init.body);
+assert.equal(calls[0].url, "https://api.resend.com/emails");
+assert.equal(body.reply_to, "a@b.co");
+assert.deepEqual(body.to, ["coach@example.com"]);
+
+await saveApplication((r as any).data); // storage disabled → no call
+assert.equal(calls.length, 1);
+process.env.SUPABASE_URL = "https://x.supabase.co/";
+process.env.SUPABASE_SERVICE_ROLE_KEY = "srk";
+await saveApplication((r as any).data);
+assert.equal(calls[1].url, "https://x.supabase.co/rest/v1/applications");
+assert.deepEqual(JSON.parse(calls[1].init.body).help_areas, ["diet", "training"]);
+
+globalThis.fetch = (async () => new Response("bad", { status: 403 })) as any;
+await assert.rejects(sendEmail({ to: "x@y.co", subject: "s", html: "h", text: "t" }), /Resend error 403/);
+
+console.log("All tests passed");
