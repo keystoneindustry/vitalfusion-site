@@ -54,7 +54,10 @@ export async function POST(req: Request) {
   const from = process.env.FROM_EMAIL || "";
   const canEmailApplicants = from !== "" && !from.includes("resend.dev");
   if (canEmailApplicants && process.env.SEND_APPLICANT_CONFIRMATION !== "false") {
-    const siteUrl = process.env.SITE_URL || new URL(req.url).origin;
+    // Links in the email must use the public address. The per-deployment
+    // *.vercel.app address is behind Vercel's login (Deployment Protection).
+    const prod = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+    const siteUrl = process.env.SITE_URL || (prod ? `https://${prod}` : new URL(req.url).origin);
     await sendEmail({ to: app.email, replyTo: process.env.NOTIFY_EMAIL, ...applicantEmail(app, { siteUrl }) }).catch((e) =>
       console.error("Applicant confirmation failed:", e),
     );
