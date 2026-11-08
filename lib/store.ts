@@ -26,6 +26,7 @@ export async function saveApplication(a: Application): Promise<void> {
       age_range: a.ageRange,
       fitness_level: a.fitnessLevel,
       help_areas: a.helpAreas,
+      other_area: a.otherArea || null,
       goal: a.goal,
       why_now: a.whyNow,
       full_name: a.fullName,

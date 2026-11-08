@@ -10,6 +10,8 @@ is not a developer; explain changes plainly and keep the site simple.
   site); layout in `app/page.tsx`; promo landing page in `app/vital-method/`. Images are in
   `public/images/`. Only add real client results and testimonials.
 - Old Emergent URLs (/application, /vital-method-application) redirect in `next.config.mjs`.
+- The application (`app/apply/ApplyForm.tsx`) is multi-step, one question per screen; step order
+  is `STEPS` in `lib/application.ts`. Picking "Other" reveals a required text box (`otherArea`).
 - Application questions live only in `lib/application.ts`; the form, validation and
   email all read from it.
 - Run `npm test` after touching `lib/`. Run `npm run build` before pushing.

@@ -35,6 +35,8 @@ export interface Application {
   ageRange: AgeRange;
   fitnessLevel: FitnessLevel;
   helpAreas: HelpArea[];
+  /** What they typed when "Other" is selected ("" otherwise). */
+  otherArea: string;
   goal: string;
   whyNow: string;
   fullName: string;
@@ -51,6 +53,16 @@ export type ValidationResult =
   | { ok: false; errors: FieldErrors };
 
 const LIMITS = { short: 120, long: 2000 };
+
+/** Which fields belong to each step of the multi-step form, in order. */
+export const STEPS: (keyof Application)[][] = [
+  ["ageRange"],
+  ["fitnessLevel"],
+  ["helpAreas", "otherArea"],
+  ["goal"],
+  ["whyNow"],
+  ["fullName", "email", "phone", "instagram"],
+];
 
 function str(v: unknown): string {
   return typeof v === "string" ? v.trim() : "";
@@ -86,6 +98,14 @@ export function validateApplication(input: unknown): ValidationResult {
     : [];
   if (helpAreas.length === 0)
     errors.helpAreas = "Please select at least one area.";
+
+  let otherArea = str(raw.otherArea);
+  if (helpAreas.includes("other")) {
+    if (otherArea.length < 2) errors.otherArea = "Tell us what else you need help with.";
+    else if (otherArea.length > 300) errors.otherArea = "Please keep this shorter.";
+  } else {
+    otherArea = "";
+  }
 
   const goal = str(raw.goal);
   if (goal.length < 3) errors.goal = "Tell us a bit about your goal.";
@@ -124,6 +144,7 @@ export function validateApplication(input: unknown): ValidationResult {
       ageRange: ageRange as AgeRange,
       fitnessLevel: fitnessLevel as FitnessLevel,
       helpAreas: helpAreas as HelpArea[],
+      otherArea,
       goal,
       whyNow,
       fullName,

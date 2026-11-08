@@ -1,57 +1,147 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import {
   AGE_RANGES,
   FITNESS_LEVELS,
   HELP_AREAS,
+  STEPS,
+  validateApplication,
   type FieldErrors,
 } from "@/lib/application";
 
-type Status = "idle" | "sending" | "done";
+// One question per screen. Single-choice questions advance on tap; the rest
+// have a Continue button. Contact details come last, once people are invested.
+
+type Answers = {
+  ageRange: string;
+  fitnessLevel: string;
+  helpAreas: string[];
+  otherArea: string;
+  goal: string;
+  whyNow: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  instagram: string;
+};
+
+const EMPTY: Answers = {
+  ageRange: "",
+  fitnessLevel: "",
+  helpAreas: [],
+  otherArea: "",
+  goal: "",
+  whyNow: "",
+  fullName: "",
+  email: "",
+  phone: "",
+  instagram: "",
+};
+
+const SAVE_KEY = "vf-apply-progress";
+const LAST = STEPS.length - 1;
+
+function errorsForStep(a: Answers, step: number): FieldErrors {
+  const res = validateApplication(a);
+  if (res.ok) return {};
+  const out: FieldErrors = {};
+  for (const k of STEPS[step]) if (res.errors[k]) out[k] = res.errors[k];
+  return out;
+}
 
 export default function ApplyForm({ source }: { source: string }) {
-  const [status, setStatus] = useState<Status>("idle");
+  const [a, setA] = useState<Answers>(EMPTY);
+  const [step, setStep] = useState(0);
   const [errors, setErrors] = useState<FieldErrors>({});
+  const [status, setStatus] = useState<"idle" | "sending" | "done">("idle");
   const [formError, setFormError] = useState("");
+  const [company, setCompany] = useState(""); // honeypot
+  const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const topRef = useRef<HTMLDivElement>(null);
 
-  async function onSubmit(e: FormEvent<HTMLFormElement>) {
+  // Restore progress if they refresh or come back in the same tab.
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(SAVE_KEY) || "null");
+      if (saved?.a) {
+        setA({ ...EMPTY, ...saved.a });
+        setStep(Math.min(Math.max(0, saved.step | 0), LAST));
+      }
+    } catch {}
+  }, []);
+  useEffect(() => {
+    if (status === "done") return;
+    try {
+      sessionStorage.setItem(SAVE_KEY, JSON.stringify({ a, step }));
+    } catch {}
+  }, [a, step, status]);
+
+  function set<K extends keyof Answers>(k: K, v: Answers[K]) {
+    setA((prev) => ({ ...prev, [k]: v }));
+    if (errors[k as keyof FieldErrors]) setErrors((e) => ({ ...e, [k]: undefined }));
+  }
+
+  function goTo(n: number) {
+    setErrors({});
+    setFormError("");
+    setStep(n);
+    topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function next() {
+    const errs = errorsForStep(a, step);
+    if (Object.keys(errs).length) {
+      setErrors(errs);
+      return;
+    }
+    goTo(Math.min(step + 1, LAST));
+  }
+
+  // Single-choice: select, show the highlight briefly, then move on.
+  function pick(k: "ageRange" | "fitnessLevel", v: string) {
+    set(k, v);
+    if (advanceTimer.current) clearTimeout(advanceTimer.current);
+    advanceTimer.current = setTimeout(() => goTo(step + 1), 280);
+  }
+
+  function toggleArea(v: string) {
+    const has = a.helpAreas.includes(v);
+    set("helpAreas", has ? a.helpAreas.filter((x) => x !== v) : [...a.helpAreas, v]);
+  }
+
+  async function submit(e: FormEvent) {
     e.preventDefault();
-    const fd = new FormData(e.currentTarget);
-    const payload = {
-      ageRange: fd.get("ageRange"),
-      fitnessLevel: fd.get("fitnessLevel"),
-      helpAreas: fd.getAll("helpAreas"),
-      goal: fd.get("goal"),
-      whyNow: fd.get("whyNow"),
-      fullName: fd.get("fullName"),
-      email: fd.get("email"),
-      phone: fd.get("phone"),
-      instagram: fd.get("instagram"),
-      company: fd.get("company"), // honeypot
-      source,
-    };
-
+    if (step !== LAST) return next();
+    const res = validateApplication(a);
+    if (!res.ok) {
+      // Jump back to the first step that has a problem.
+      const bad = Math.max(0, STEPS.findIndex((keys) => keys.some((k) => res.errors[k])));
+      setStep(bad);
+      setErrors(errorsForStep(a, bad));
+      return;
+    }
     setStatus("sending");
     setFormError("");
     try {
-      const res = await fetch("/api/apply", {
+      const r = await fetch("/api/apply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ ...a, company, source }),
       });
-      const json = await res.json().catch(() => ({}));
-      if (res.ok) {
+      const json = await r.json().catch(() => ({}));
+      if (r.ok) {
         setStatus("done");
+        try {
+          sessionStorage.removeItem(SAVE_KEY);
+        } catch {}
         window.scrollTo({ top: 0, behavior: "smooth" });
         return;
       }
-      setErrors(json.errors ?? {});
       setFormError(json.error ?? "Something went wrong. Please try again.");
+      if (json.errors) setErrors(json.errors);
       setStatus("idle");
-      const firstBad = Object.keys(json.errors ?? {})[0];
-      if (firstBad) document.getElementById(`q-${firstBad}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
     } catch {
       setFormError("Couldn't reach the server. Check your connection and try again.");
       setStatus("idle");
@@ -76,105 +166,182 @@ export default function ApplyForm({ source }: { source: string }) {
 
   const err = (k: keyof FieldErrors) =>
     errors[k] ? <p className="err" role="alert">{errors[k]}</p> : null;
+  const pct = Math.round(((step + 1) / STEPS.length) * 100);
 
   return (
-    <main className="wrap">
-      <header className="hero">
-        <h1 className="title">Apply for Coaching</h1>
-        <p className="sub">Take the first step towards your transformation</p>
+    <main className="wrap apply">
+      <div ref={topRef} />
+      <header className="apply-head">
+        <h1 className="apply-title">Apply for Coaching</h1>
+        <p className="apply-sub">Takes about 60 seconds</p>
       </header>
 
-      <form onSubmit={onSubmit} noValidate>
-        <fieldset className="card" id="q-ageRange">
-          <legend>What is your age range? <span className="req">*</span></legend>
-          {AGE_RANGES.map((a) => (
-            <label key={a} className="opt">
-              <input type="radio" name="ageRange" value={a} required />
-              <span>{a}</span>
-            </label>
-          ))}
-          {err("ageRange")}
-        </fieldset>
+      <div className="progress" aria-hidden>
+        <div className="progress-bar" style={{ width: `${pct}%` }} />
+      </div>
+      <div className="progress-row">
+        {step > 0 ? (
+          <button type="button" className="back" onClick={() => goTo(step - 1)}>← Back</button>
+        ) : (
+          <span />
+        )}
+        <span className="progress-label">Question {step + 1} of {STEPS.length}</span>
+      </div>
 
-        <fieldset className="card" id="q-fitnessLevel">
-          <legend>What best describes your current level of fitness? <span className="req">*</span></legend>
-          {FITNESS_LEVELS.map((l) => (
-            <label key={l.value} className="opt boxed">
-              <input type="radio" name="fitnessLevel" value={l.value} required />
-              <span>{l.label}</span>
-            </label>
-          ))}
-          {err("fitnessLevel")}
-        </fieldset>
+      <form onSubmit={submit} noValidate className="step-form">
+        <div className="step" key={step}>
+          {step === 0 && (
+            <fieldset>
+              <legend className="q">What is your age range?</legend>
+              <div className="choices">
+                {AGE_RANGES.map((v) => (
+                  <button
+                    type="button"
+                    key={v}
+                    className={`choice ${a.ageRange === v ? "on" : ""}`}
+                    aria-pressed={a.ageRange === v}
+                    onClick={() => pick("ageRange", v)}
+                  >
+                    {v}
+                  </button>
+                ))}
+              </div>
+              {err("ageRange")}
+            </fieldset>
+          )}
 
-        <fieldset className="card" id="q-helpAreas">
-          <legend>What areas do you feel you need the most help with? <span className="req">*</span></legend>
-          <p className="hint">Select all that apply</p>
-          {HELP_AREAS.map((h) => (
-            <label key={h.value} className="opt">
-              <input type="checkbox" name="helpAreas" value={h.value} />
-              <span>{h.label}</span>
-            </label>
-          ))}
-          {err("helpAreas")}
-        </fieldset>
+          {step === 1 && (
+            <fieldset>
+              <legend className="q">What best describes your current level of fitness?</legend>
+              <div className="choices">
+                {FITNESS_LEVELS.map((l) => (
+                  <button
+                    type="button"
+                    key={l.value}
+                    className={`choice long ${a.fitnessLevel === l.value ? "on" : ""}`}
+                    aria-pressed={a.fitnessLevel === l.value}
+                    onClick={() => pick("fitnessLevel", l.value)}
+                  >
+                    {l.label}
+                  </button>
+                ))}
+              </div>
+              {err("fitnessLevel")}
+            </fieldset>
+          )}
 
-        <div className="card" id="q-goal">
-          <label htmlFor="goal" className="q">
-            Fast-forward six to 12 months. What do you want to be able to say you achieved with your own
-            fitness? <span className="req">*</span>
-          </label>
-          <textarea id="goal" name="goal" rows={5} maxLength={2000} placeholder="Describe your ideal outcome..." required />
-          {err("goal")}
-        </div>
+          {step === 2 && (
+            <fieldset>
+              <legend className="q">What areas do you feel you need the most help with?</legend>
+              <p className="hint">Select all that apply</p>
+              <div className="choices">
+                {HELP_AREAS.map((h) => {
+                  const on = a.helpAreas.includes(h.value);
+                  return (
+                    <button
+                      type="button"
+                      key={h.value}
+                      className={`choice multi ${on ? "on" : ""}`}
+                      aria-pressed={on}
+                      onClick={() => toggleArea(h.value)}
+                    >
+                      <span className="tick" aria-hidden>{on ? "✓" : ""}</span>
+                      {h.label}
+                    </button>
+                  );
+                })}
+              </div>
+              {err("helpAreas")}
+              {a.helpAreas.includes("other") && (
+                <div className="other-box">
+                  <label htmlFor="otherArea">What else do you need help with?</label>
+                  <input
+                    id="otherArea"
+                    autoFocus
+                    maxLength={300}
+                    value={a.otherArea}
+                    onChange={(e) => set("otherArea", e.target.value)}
+                    placeholder="e.g. sleep, stress, injury recovery..."
+                  />
+                  {err("otherArea")}
+                </div>
+              )}
+            </fieldset>
+          )}
 
-        <div className="card" id="q-whyNow">
-          <label htmlFor="whyNow" className="q">
-            Why is now the right time for you to focus on this? <span className="req">*</span>
-          </label>
-          <textarea id="whyNow" name="whyNow" rows={5} maxLength={2000} placeholder="What's motivating you to start now..." required />
-          {err("whyNow")}
-        </div>
+          {step === 3 && (
+            <div>
+              <label htmlFor="goal" className="q">
+                Fast-forward six to 12 months. What do you want to be able to say you achieved with your own fitness?
+              </label>
+              <textarea
+                id="goal"
+                rows={5}
+                maxLength={2000}
+                autoFocus
+                value={a.goal}
+                onChange={(e) => set("goal", e.target.value)}
+                placeholder="Describe your ideal outcome..."
+              />
+              {err("goal")}
+            </div>
+          )}
 
-        <div className="card">
-          <h2 className="section">Contact Information</h2>
+          {step === 4 && (
+            <div>
+              <label htmlFor="whyNow" className="q">Why is now the right time for you to focus on this?</label>
+              <textarea
+                id="whyNow"
+                rows={5}
+                maxLength={2000}
+                autoFocus
+                value={a.whyNow}
+                onChange={(e) => set("whyNow", e.target.value)}
+                placeholder="What's motivating you to start now..."
+              />
+              {err("whyNow")}
+            </div>
+          )}
 
-          <div className="field" id="q-fullName">
-            <label htmlFor="fullName">Full Name <span className="req">*</span></label>
-            <input id="fullName" name="fullName" autoComplete="name" placeholder="John Doe" required />
-            {err("fullName")}
-          </div>
-
-          <div className="field" id="q-email">
-            <label htmlFor="email">Email Address <span className="req">*</span></label>
-            <input id="email" name="email" type="email" autoComplete="email" inputMode="email" placeholder="john@example.com" required />
-            {err("email")}
-          </div>
-
-          <div className="field" id="q-phone">
-            <label htmlFor="phone">Phone Number <span className="req">*</span></label>
-            <input id="phone" name="phone" type="tel" autoComplete="tel" inputMode="tel" placeholder="+1 (555) 123-4567" required />
-            {err("phone")}
-          </div>
-
-          <div className="field" id="q-instagram">
-            <label htmlFor="instagram">Instagram Handle <span className="muted">(Optional)</span></label>
-            <input id="instagram" name="instagram" autoCapitalize="none" autoCorrect="off" placeholder="@yourusername" />
-            {err("instagram")}
-          </div>
-
-          {/* Honeypot — hidden from people, tempting to bots */}
-          <div className="hp" aria-hidden>
-            <label htmlFor="company">Company</label>
-            <input id="company" name="company" tabIndex={-1} autoComplete="off" />
-          </div>
+          {step === 5 && (
+            <div>
+              <p className="q">Last step! Where should we reach you?</p>
+              <div className="field">
+                <label htmlFor="fullName">Full Name</label>
+                <input id="fullName" autoComplete="name" value={a.fullName} onChange={(e) => set("fullName", e.target.value)} placeholder="John Doe" />
+                {err("fullName")}
+              </div>
+              <div className="field">
+                <label htmlFor="email">Email Address</label>
+                <input id="email" type="email" autoComplete="email" inputMode="email" value={a.email} onChange={(e) => set("email", e.target.value)} placeholder="john@example.com" />
+                {err("email")}
+              </div>
+              <div className="field">
+                <label htmlFor="phone">Phone Number</label>
+                <input id="phone" type="tel" autoComplete="tel" inputMode="tel" value={a.phone} onChange={(e) => set("phone", e.target.value)} placeholder="+1 (555) 123-4567" />
+                {err("phone")}
+              </div>
+              <div className="field">
+                <label htmlFor="instagram">Instagram Handle <span className="muted">(Optional)</span></label>
+                <input id="instagram" autoCapitalize="none" autoCorrect="off" value={a.instagram} onChange={(e) => set("instagram", e.target.value)} placeholder="@yourusername" />
+                {err("instagram")}
+              </div>
+              <div className="hp" aria-hidden>
+                <label htmlFor="company">Company</label>
+                <input id="company" tabIndex={-1} autoComplete="off" value={company} onChange={(e) => setCompany(e.target.value)} />
+              </div>
+            </div>
+          )}
         </div>
 
         {formError && <p className="err form-err" role="alert">{formError}</p>}
 
-        <button type="submit" className="btn submit" disabled={status === "sending"}>
-          {status === "sending" ? "Submitting…" : "Submit Application"}
-        </button>
+        {step >= 2 && (
+          <button type="submit" className="btn submit" disabled={status === "sending"}>
+            {step === LAST ? (status === "sending" ? "Submitting…" : "Submit Application") : "Continue →"}
+          </button>
+        )}
+        {step === LAST && <p className="privacy">Your info stays private and is only used to contact you about coaching.</p>}
       </form>
     </main>
   );

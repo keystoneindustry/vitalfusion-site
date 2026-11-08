@@ -28,7 +28,9 @@ function section(emoji: string, title: string, body: string): string {
 /** Notification email sent to the coach. Mirrors the current Emergent email. */
 export function coachEmail(a: Application): { subject: string; html: string; text: string } {
   const level = SHORT_LEVEL[a.fitnessLevel] ?? a.fitnessLevel;
-  const areas = a.helpAreas.map((h) => labelFor(HELP_AREAS, h)).join(", ");
+  const areas = a.helpAreas
+    .map((h) => (h === "other" && a.otherArea ? `Other (${a.otherArea})` : labelFor(HELP_AREAS, h)))
+    .join(", ");
   const phoneHref = a.phone.replace(/[^\d+]/g, "");
   const igHandle = a.instagram.replace(/^@/, "");
 

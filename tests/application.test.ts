@@ -4,7 +4,7 @@ import { coachEmail, sendEmail } from "../lib/email";
 import { saveApplication } from "../lib/store";
 
 const good = {
-  ageRange: "22-25", fitnessLevel: "intermediate", helpAreas: ["diet", "training", "diet", "bogus"],
+  ageRange: "22-25", fitnessLevel: "intermediate", helpAreas: ["diet", "training", "diet", "bogus"], otherArea: "should be dropped",
   goal: "Lose 15 lbs <script>alert(1)</script>", whyNow: "New year, new me",
   fullName: "Tyler Kendrick", email: "TKendrick1802@Gmail.com ", phone: "(443) 800-4593",
   instagram: "@@tyler.k", source: "Instagram",
@@ -14,6 +14,7 @@ const r = validateApplication(good);
 assert.ok(r.ok);
 if (r.ok) {
   assert.deepEqual(r.data.helpAreas, ["diet", "training"]);
+  assert.equal(r.data.otherArea, "", "otherArea ignored unless Other is picked");
   assert.equal(r.data.email, "tkendrick1802@gmail.com");
   assert.equal(r.data.instagram, "@tyler.k");
   const e = coachEmail(r.data);
@@ -33,6 +34,11 @@ if (!bad.ok) {
     assert.ok(k in bad.errors, `expected error for ${k}`);
 }
 assert.ok(!validateApplication(null).ok);
+const needOther = validateApplication({ ...good, helpAreas: ["other"], otherArea: "" });
+assert.ok(!needOther.ok && "otherArea" in needOther.errors, "Other requires text");
+const withOther = validateApplication({ ...good, helpAreas: ["diet", "other"], otherArea: "Sleep & stress" });
+assert.ok(withOther.ok);
+if (withOther.ok) assert.ok(coachEmail(withOther.data).html.includes("Other (Sleep &amp; stress)"));
 assert.ok(validateApplication({ ...good, instagram: "" }).ok);
 assert.equal(validateApplication({ ...good, source: "" }).ok && (validateApplication({ ...good, source: "" }) as any).data.source, "Main Website");
 

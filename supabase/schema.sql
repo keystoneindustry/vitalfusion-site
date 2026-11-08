@@ -10,6 +10,7 @@ create table if not exists public.applications (
   age_range     text not null,
   fitness_level text not null,
   help_areas    text[] not null,
+  other_area    text,
   goal          text not null,
   why_now       text not null,
   full_name     text not null,
