@@ -1,6 +1,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // ALL WEBSITE TEXT LIVES HERE. Change the words between the quotes and the site
-// updates. Content was carried over from the original Emergent site.
+// updates. Every button on the homepage leads to the coaching application.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const site = {
@@ -8,30 +8,22 @@ export const site = {
   logo: "/images/vf-logo.png",
   coachName: "Tyler Kendrick",
   instagram: "", // e.g. "vitalfusioncoaching" (no @). Leave "" to hide the link.
+  applyCta: "Apply for Coaching",
 
   hero: {
-    eyebrow: "Transform Your Body & Life",
+    eyebrow: "1:1 Online Coaching for Busy Adults",
     headline: "Achieve Fat Loss With a Sustainable Process",
-    sub: "Helping busy adults build muscle & lose fat.",
-    cta: "Apply Now",
-    secondaryCta: "Learn More",
+    sub: "Build muscle and lose fat without crash diets or giving up the foods you love.",
+    // The first application question sits right in the hero.
+    formTitle: "Start your application",
+    formNote: "Question 1 of 6 · Takes about 60 seconds",
+    trust: ["Free consultation call", "Personalized to you", "No crash diets"],
     photo: "/images/coach-photo.webp",
   },
 
   results: {
     eyebrow: "Proven Results",
-    headline: "Real Results",
-    sub: "See the progress of clients who committed to the process",
-    images: [
-      { src: "/images/graph1.webp", alt: "Client progress graph 1" },
-      { src: "/images/graph2.webp", alt: "Client progress graph 2" },
-      { src: "/images/graph3.webp", alt: "Client progress graph 3" },
-    ],
-    quotes: [
-      "So far everything's been great. I feel better and I am getting comments from my family about my weight loss",
-      "Yes I didn't expect to still be able to eat chips and such and lose weight. But the macro plan and guides actually helped a lot with being able to include things like that.",
-      "Felt good. Never felt stuffed or that I wasn't eating enough. Perfect amount to feel full and recover the next day",
-    ],
+    headline: "Real people. Real results.",
     featured: {
       name: "Charlie G.",
       headline: "Lost 14 lbs in 12 weeks",
@@ -42,24 +34,43 @@ export const site = {
         "Family noticed the transformation",
       ],
     },
+    // Client check-ins (real quotes) with their weigh-in charts.
+    cards: [
+      {
+        image: "/images/graph1.webp",
+        headline: "Family noticed the weight loss",
+        quote: "So far everything's been great. I feel better and I am getting comments from my family about my weight loss",
+      },
+      {
+        image: "/images/graph2.webp",
+        headline: "Still eating chips. Still losing weight.",
+        quote: "I didn't expect to still be able to eat chips and such and lose weight. But the macro plan and guides actually helped a lot with being able to include things like that.",
+      },
+      {
+        image: "/images/graph3.webp",
+        headline: "Never felt hungry",
+        quote: "Never felt stuffed or that I wasn't eating enough. Perfect amount to feel full and recover the next day",
+      },
+    ],
   },
 
   problem: {
-    headline: "You're busy. Your fat loss plan shouldn't make it harder.",
+    headline: "You're busy. Your body is paying for it.",
     points: [
-      "You've tried diet after diet, and every one fell apart once real life got in the way.",
-      "You lose a few pounds, then it creeps right back as soon as you stop being strict.",
-      "Between work and family, you don't have hours a day for the gym or meal prep.",
-      "You're tired of guessing what to eat and whether your workouts are actually working.",
+      "You've tried diet after diet. None of them survived real life.",
+      "The weight comes off, then creeps right back.",
+      "Work and family leave no time for 2-hour workouts.",
+      "You're guessing what to eat and hoping it works.",
     ],
-    closer: "There's a more sustainable way.",
+    closer: "Ready to make it stick?",
   },
 
   mission: "Real transformation comes from consistency, not perfection.",
 
   method: {
-    eyebrow: "The V.I.T.A.L. Method",
-    headline: "A proven system for sustainable fat loss",
+    eyebrow: "How It Works",
+    headline: "The V.I.T.A.L. Method",
+    sub: "A proven system for sustainable fat loss, built around your life.",
     steps: [
       { letter: "V", title: "Verify the Barriers", text: "Identify what's actually holding you back from progress." },
       { letter: "I", title: "Install Simple Structure", text: "Create systems that fit YOUR life, not the other way around." },
@@ -67,28 +78,17 @@ export const site = {
       { letter: "A", title: "Audit and Adapt", text: "Regular check-ins to adjust your plan based on real results." },
       { letter: "L", title: "Learn to Maintain Long-Term", text: "Build habits that last beyond the program." },
     ],
-  },
-
-  included: {
-    headline: "What coaching includes",
-    items: [
-      { icon: "📋", title: "Initial Assessment", text: "We learn your habits, goals, and lifestyle to create a plan that works for YOU." },
-      { icon: "🍽️", title: "Nutrition Strategy", text: "Eat real food in sustainable portions. No crash diets — just results that stick." },
-      { icon: "🏋️", title: "Smart Training", text: "Workouts programmed for your level and schedule. Every rep drives progress." },
-      { icon: "🧠", title: "Mindset & Accountability", text: "We help you stay consistent, push past doubt, and show up on hard days." },
-    ],
+    included: ["Custom training program", "Flexible nutrition plan", "Weekly check-ins", "Direct access through the coaching app"],
   },
 
   about: {
     eyebrow: "Your Coach",
-    headline: "Meet Your Coach",
+    headline: "I've been where you are.",
     paragraphs: [
-      "I understand the struggle because I've been there. After years of trying every diet and workout program, I discovered what actually works: a sustainable, personalized approach that fits your life. Now, I help busy adults achieve the body and health they deserve without sacrificing everything they love.",
+      "After years of trying every diet and workout program, I discovered what actually works: a sustainable, personalized approach that fits your life.",
+      "Now I help busy adults build the body and health they deserve, without sacrificing everything they love.",
     ],
     credentials: ["Nutrition Specialist", "5+ Years Experience"],
-    missionTitle: "My Mission",
-    mission:
-      "To help you build a sustainable, healthy lifestyle that doesn't require giving up the things you love. Real transformation comes from consistency, not perfection.",
   },
 
   faq: {
@@ -124,23 +124,11 @@ export const site = {
         a: "Absolutely! The V.I.T.A.L. method is personalized to your current fitness level. Whether you're just starting out or getting back into fitness, we'll create a plan that challenges you appropriately and scales with your progress.",
       },
     ],
-    stillTitle: "Still have questions?",
-    stillText: "Fill out the application form and we'll answer any questions you have during our consultation call.",
-  },
-
-  blueprint: {
-    eyebrow: "Free Resource",
-    headline: "Get Your Free Fat Loss Blueprint",
-    sub: "Not ready for 1:1 coaching yet?",
-    text: "The exact framework I use with my clients to achieve sustainable fat loss",
-    cta: "Download Free Blueprint",
-    url: "https://whop.com/checkout/plan_D6Ulq0Ra5j2ni",
   },
 
   closing: {
-    headline: "Ready to Start Your Transformation?",
-    sub: "Join clients who have achieved sustainable fat loss with the Vital Method",
-    cta: "Apply for Coaching",
+    headline: "Your transformation starts with one application.",
+    sub: "It takes about 60 seconds. I'll personally review it and reach out to set up your free consultation call.",
   },
 
   // Email the applicant gets right after applying.

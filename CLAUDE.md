@@ -6,9 +6,14 @@ is not a developer; explain changes plainly and keep the site simple.
 - Stack: Next.js (App Router, TypeScript), plain CSS in `app/globals.css` (no Tailwind),
   hosted on Vercel. Email via Resend REST API (`lib/email.ts`), optional Supabase via
   REST (`lib/store.ts`). Avoid adding dependencies unless they clearly earn their place.
-- All homepage copy lives in `content/site.ts` (carried over from the original Emergent
-  site); layout in `app/page.tsx`; promo landing page in `app/vital-method/`. Images are in
-  `public/images/`. Only add real client results and testimonials.
+- The homepage is a sales page for the coaching application only (no free resources /
+  blueprint). Every CTA goes to `/apply`. The hero contains question 1 (age): tapping an age
+  links to `/apply?age=…`, which starts the form at question 2. A phone-only sticky Apply bar
+  (`app/components/StickyApply.tsx`) appears after the hero scrolls away.
+- All homepage copy lives in `content/site.ts`; layout in `app/page.tsx`; promo landing page in
+  `app/vital-method/`. Images are in `public/images/`. Only add real client results and testimonials.
+- CSS is phone-first: base rules are for phones, `@media (min-width: 860px)` for desktop.
+  Keep the page lean (short copy, proof early, one repeated CTA).
 - `/next-steps` is a hidden (noindex, not in nav) page linked only from the applicant
   confirmation email (`applicantEmail` in `lib/email.ts`). Copy in `content/site.ts` → `nextSteps`.
 - Old Emergent URLs (/application, /vital-method-application) redirect in `next.config.mjs`.

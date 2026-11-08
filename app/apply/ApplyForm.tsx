@@ -51,9 +51,9 @@ function errorsForStep(a: Answers, step: number): FieldErrors {
   return out;
 }
 
-export default function ApplyForm({ source }: { source: string }) {
-  const [a, setA] = useState<Answers>(EMPTY);
-  const [step, setStep] = useState(0);
+export default function ApplyForm({ source, initialAge = "" }: { source: string; initialAge?: string }) {
+  const [a, setA] = useState<Answers>(initialAge ? { ...EMPTY, ageRange: initialAge } : EMPTY);
+  const [step, setStep] = useState(initialAge ? 1 : 0);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [status, setStatus] = useState<"idle" | "sending" | "done">("idle");
   const [formError, setFormError] = useState("");
@@ -66,8 +66,9 @@ export default function ApplyForm({ source }: { source: string }) {
     try {
       const saved = JSON.parse(sessionStorage.getItem(SAVE_KEY) || "null");
       if (saved?.a) {
-        setA({ ...EMPTY, ...saved.a });
-        setStep(Math.min(Math.max(0, saved.step | 0), LAST));
+        // Coming from the homepage age buttons: keep their saved answers but use the new age.
+        setA({ ...EMPTY, ...saved.a, ...(initialAge ? { ageRange: initialAge } : {}) });
+        setStep(initialAge ? Math.max(1, Math.min(saved.step | 0, LAST)) : Math.min(Math.max(0, saved.step | 0), LAST));
       }
     } catch {}
   }, []);

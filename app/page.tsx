@@ -1,26 +1,41 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { site } from "@/content/site";
+import { AGE_RANGES } from "@/lib/application";
+import StickyApply from "./components/StickyApply";
 
-// Homepage. All text comes from content/site.ts — edit words there, not here.
+// Homepage = sales page for the coaching application.
+// All text comes from content/site.ts. Every button leads to /apply.
 export default function Home() {
-  const { hero, results, problem, mission, method, included, about, faq, blueprint, closing } = site;
+  const { hero, results, problem, mission, method, about, faq, closing, applyCta } = site;
 
   return (
     <main className="home">
-      {/* HERO */}
-      <section className="hero-home">
+      {/* HERO — headline + the first application question */}
+      <section className="hero-home" id="top">
         <div className="hero-copy">
-          <p className="pill">✦ {hero.eyebrow}</p>
+          <p className="pill">{hero.eyebrow}</p>
           <h1 className="display">{hero.headline}</h1>
           <p className="lead">{hero.sub}</p>
-          <div className="btn-row">
-            <Link href="/apply" className="btn">{hero.cta} →</Link>
-            <a href="#method" className="btn btn-ghost">{hero.secondaryCta}</a>
+
+          <div className="hero-form" id="hero-form">
+            <p className="hero-form-title">{hero.formTitle}</p>
+            <p className="hero-form-q">What is your age range?</p>
+            <div className="age-grid">
+              {AGE_RANGES.map((age) => (
+                <Link key={age} href={`/apply?age=${encodeURIComponent(age)}`} className="age-btn">
+                  {age}
+                </Link>
+              ))}
+            </div>
+            <p className="hero-form-note">{hero.formNote}</p>
           </div>
-          <p className="hint-gold">
-            Looking for the Free Fat Loss Blueprint? <a href="#blueprint">Scroll down 👇</a>
-          </p>
+
+          <ul className="trust">
+            {hero.trust.map((t) => (
+              <li key={t}>✓ {t}</li>
+            ))}
+          </ul>
         </div>
         <img className="hero-photo" src={hero.photo} alt={`${site.coachName}, ${site.brand} coach`} />
       </section>
@@ -29,7 +44,6 @@ export default function Home() {
       <section className="block" id="results">
         <p className="eyebrow center-text">{results.eyebrow}</p>
         <h2 className="h2 center-text">{results.headline}</h2>
-        <p className="lead center-text">{results.sub}</p>
 
         <article className="featured-result">
           <p className="result-name">{results.featured.name}</p>
@@ -41,14 +55,18 @@ export default function Home() {
           </ul>
         </article>
 
-        <div className="results">
-          {results.images.map((img, i) => (
-            <figure key={img.src} className="result">
-              <img src={img.src} alt={img.alt} loading="lazy" />
-              {results.quotes[i] && <figcaption>“{results.quotes[i]}”</figcaption>}
+        <div className="results" aria-label="Client results">
+          {results.cards.map((c) => (
+            <figure key={c.image} className="result">
+              <img src={c.image} alt={`Client weigh-in chart: ${c.headline}`} loading="lazy" />
+              <figcaption>
+                <strong>{c.headline}</strong>
+                <span>“{c.quote}”</span>
+              </figcaption>
             </figure>
           ))}
         </div>
+        <p className="swipe-hint" aria-hidden>Swipe for more →</p>
       </section>
 
       {/* PROBLEM */}
@@ -60,7 +78,7 @@ export default function Home() {
           ))}
         </ul>
         <p className="closer">{problem.closer}</p>
-        <Link href="/apply" className="btn">{closing.cta}</Link>
+        <Link href="/apply" className="btn btn-wide">{applyCta} →</Link>
       </section>
 
       {/* MISSION */}
@@ -69,9 +87,10 @@ export default function Home() {
       </section>
 
       {/* THE VITAL METHOD */}
-      <section className="block" id="method">
+      <section className="block narrow" id="method">
         <p className="eyebrow center-text">{method.eyebrow}</p>
         <h2 className="h2 center-text">{method.headline}</h2>
+        <p className="lead center-text">{method.sub}</p>
         <ol className="vital">
           {method.steps.map((s) => (
             <li key={s.letter}>
@@ -83,20 +102,15 @@ export default function Home() {
             </li>
           ))}
         </ol>
-
-        <h2 className="h2 center-text included-title">{included.headline}</h2>
-        <div className="pillars">
-          {included.items.map((p) => (
-            <article key={p.title} className="pillar">
-              <span className="pillar-icon" aria-hidden>{p.icon}</span>
-              <h3>{p.title}</h3>
-              <p>{p.text}</p>
-            </article>
-          ))}
+        <div className="included">
+          <p className="included-title">Every client gets</p>
+          <ul>
+            {method.included.map((i) => (
+              <li key={i}>✓ {i}</li>
+            ))}
+          </ul>
         </div>
-        <div className="center-text">
-          <Link href="/apply" className="btn">{closing.cta}</Link>
-        </div>
+        <Link href="/apply" className="btn btn-wide">{applyCta} →</Link>
       </section>
 
       {/* ABOUT */}
@@ -114,10 +128,6 @@ export default function Home() {
               <span key={c} className="cred">✓ {c}</span>
             ))}
           </div>
-          <div className="mission-card">
-            <h3>{about.missionTitle}</h3>
-            <p>{about.mission}</p>
-          </div>
         </div>
       </section>
 
@@ -133,30 +143,16 @@ export default function Home() {
             </details>
           ))}
         </div>
-        <div className="still center-text">
-          <h3>{faq.stillTitle}</h3>
-          <p>{faq.stillText}</p>
-          <Link href="/apply" className="btn">{closing.cta} →</Link>
-        </div>
-      </section>
-
-      {/* FREE BLUEPRINT */}
-      <section className="blueprint" id="blueprint">
-        <p className="eyebrow gold">{blueprint.eyebrow}</p>
-        <h2 className="h2">{blueprint.headline}</h2>
-        <p className="lead tight">{blueprint.sub}</p>
-        <p className="muted-text">{blueprint.text}</p>
-        <a href={blueprint.url} target="_blank" rel="noopener noreferrer" className="btn btn-gold">
-          {blueprint.cta} →
-        </a>
       </section>
 
       {/* CLOSING CTA */}
       <section className="closing">
         <h2 className="h2">{closing.headline}</h2>
         <p className="lead">{closing.sub}</p>
-        <Link href="/apply" className="btn">{closing.cta}</Link>
+        <Link href="/apply" className="btn btn-wide">{applyCta} →</Link>
       </section>
+
+      <StickyApply label={applyCta} />
     </main>
   );
 }

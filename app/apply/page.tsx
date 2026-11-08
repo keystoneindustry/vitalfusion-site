@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { sourceLabel } from "@/lib/application";
+import { AGE_RANGES, sourceLabel } from "@/lib/application";
 import ApplyForm from "./ApplyForm";
 
 export const metadata: Metadata = {
@@ -14,9 +14,12 @@ export const metadata: Metadata = {
 export default async function ApplyPage({
   searchParams,
 }: {
-  searchParams: Promise<{ source?: string | string[] }>;
+  searchParams: Promise<{ source?: string | string[]; age?: string | string[] }>;
 }) {
-  const { source } = await searchParams;
+  const { source, age } = await searchParams;
   const tag = Array.isArray(source) ? source[0] : source;
-  return <ApplyForm source={sourceLabel(tag)} />;
+  // ?age=22-25 comes from tapping an age on the homepage: skip to question 2.
+  const ageParam = Array.isArray(age) ? age[0] : age;
+  const initialAge = (AGE_RANGES as readonly string[]).includes(ageParam ?? "") ? ageParam! : "";
+  return <ApplyForm source={sourceLabel(tag)} initialAge={initialAge} />;
 }

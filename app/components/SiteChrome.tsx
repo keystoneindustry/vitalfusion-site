@@ -7,7 +7,7 @@ export function SiteHeader() {
     <header className="nav">
       <div className="nav-inner">
         <Link href="/" className="logo">
-          <img src={site.logo} alt="" width={36} height={36} className="logo-img" />
+          <img src={site.logo} alt="" width={34} height={34} className="logo-img" />
           <span className="logo-text">{site.brand}</span>
         </Link>
         <nav className="nav-links">
@@ -15,8 +15,7 @@ export function SiteHeader() {
           <Link href="/#method" className="hide-sm">Method</Link>
           <Link href="/#about" className="hide-sm">About</Link>
           <Link href="/#faq" className="hide-sm">FAQ</Link>
-          <Link href="/#blueprint" className="hide-sm">Free Blueprint</Link>
-          <Link href="/apply" className="btn btn-sm">Apply Now</Link>
+          <Link href="/apply" className="btn btn-sm">Apply</Link>
         </nav>
       </div>
     </header>
