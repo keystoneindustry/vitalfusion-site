@@ -91,7 +91,7 @@ export function youTubeId(url: string): string | null {
   return m ? m[1] : null;
 }
 
-/** "We got your application" email to the applicant, with an optional video. */
+/** "We got your application" email to the applicant, linking to /next-steps. */
 export function applicantEmail(
   a: Application,
   opts: { siteUrl?: string } = {},
@@ -99,32 +99,20 @@ export function applicantEmail(
   const c = site.confirmationEmail;
   const first = a.fullName.split(/\s+/)[0];
   const siteUrl = (opts.siteUrl || "https://vitalfusioncoaching.com").replace(/\/$/, "");
-  const video = c.videoUrl.trim();
-  const vid = video ? youTubeId(video) : null;
+  const nextUrl = `${siteUrl}/next-steps`;
 
   const text = [
     `Hi ${first},`,
     ``,
     c.body,
-    ...(video ? [``, c.videoIntro, video] : []),
+    ``,
+    c.linkIntro,
+    nextUrl,
     ``,
     c.signOff,
     site.coachName,
     site.brand,
   ].join("\n");
-
-  const videoBlock = video
-    ? `
-    <p style="margin:24px 0 14px;font-size:16px;line-height:1.6;color:#d4d7dd">${esc(c.videoIntro)}</p>
-    ${
-      vid
-        ? `<a href="${esc(video)}" style="display:block;text-decoration:none">
-      <img src="https://img.youtube.com/vi/${vid}/hqdefault.jpg" width="100%" alt="Watch the video" style="display:block;width:100%;max-width:480px;border-radius:12px;border:0">
-    </a>`
-        : ""
-    }
-    <a href="${esc(video)}" style="display:inline-block;margin-top:16px;background:#6a9fc6;color:#ffffff;font-weight:700;font-size:17px;text-decoration:none;border-radius:12px;padding:14px 26px">${esc(c.videoButton)}</a>`
-    : "";
 
   const html = `<!doctype html><html><body style="margin:0;background:#0b0d12;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif">
 <div style="max-width:520px;margin:0 auto;padding:28px 16px">
@@ -135,7 +123,8 @@ export function applicantEmail(
     <h1 style="margin:0 0 16px;font-size:26px;line-height:1.2">${esc(c.heading)}</h1>
     <p style="margin:0 0 4px;font-size:16px;line-height:1.6;color:#d4d7dd">Hi ${esc(first)},</p>
     <p style="margin:12px 0 0;font-size:16px;line-height:1.6;color:#d4d7dd">${esc(c.body)}</p>
-    ${videoBlock}
+    <p style="margin:24px 0 14px;font-size:16px;line-height:1.6;color:#d4d7dd">${esc(c.linkIntro)}</p>
+    <a href="${esc(nextUrl)}" style="display:inline-block;background:#6a9fc6;color:#ffffff;font-weight:700;font-size:17px;text-decoration:none;border-radius:12px;padding:14px 26px">${esc(c.linkButton)}</a>
     <p style="margin:28px 0 0;font-size:16px;line-height:1.6;color:#d4d7dd">${esc(c.signOff)}<br><strong style="color:#ffe7ab">${esc(site.coachName)}</strong><br>${esc(site.brand)}</p>
   </div>
   <p style="text-align:center;color:#6b707b;font-size:12px;margin:18px 0 0">You're receiving this because you applied at ${esc(siteUrl.replace(/^https?:\/\//, ""))}.</p>

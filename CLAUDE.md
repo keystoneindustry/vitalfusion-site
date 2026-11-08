@@ -9,6 +9,8 @@ is not a developer; explain changes plainly and keep the site simple.
 - All homepage copy lives in `content/site.ts` (carried over from the original Emergent
   site); layout in `app/page.tsx`; promo landing page in `app/vital-method/`. Images are in
   `public/images/`. Only add real client results and testimonials.
+- `/next-steps` is a hidden (noindex, not in nav) page linked only from the applicant
+  confirmation email (`applicantEmail` in `lib/email.ts`). Copy in `content/site.ts` → `nextSteps`.
 - Old Emergent URLs (/application, /vital-method-application) redirect in `next.config.mjs`.
 - The application (`app/apply/ApplyForm.tsx`) is multi-step, one question per screen; step order
   is `STEPS` in `lib/application.ts`. Picking "Other" reveals a required text box (`otherArea`).

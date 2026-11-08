@@ -148,11 +148,29 @@ export const site = {
     subject: "We got your application 💪",
     heading: "We got your application!",
     body: "Thanks for applying for coaching with Vital Fusion. I'll personally review your answers and reach out soon to set up your free consultation call.",
-    videoIntro: "While you wait, watch this short video to see exactly what coaching with me looks like:",
-    // Paste your YouTube link between the quotes. Leave "" to send the email without a video.
-    videoUrl: "",
-    videoButton: "▶ Watch the video",
+    linkIntro: "While you wait, take a minute to read what happens next:",
+    linkButton: "See what happens next →",
     signOff: "Talk soon,",
+  },
+
+  // Hidden page linked from the email above (vitalfusioncoaching.com/next-steps).
+  // It isn't in the menu and search engines are told not to list it.
+  nextSteps: {
+    eyebrow: "Application received",
+    headline: "You took the first step.",
+    intro:
+      "Most people think about changing their body for months, sometimes years, and never actually do anything about it. You just did. Filling out that application meant being honest about where you are and where you want to be, and that's the exact mindset that gets results.",
+    stepsTitle: "Here's what happens next",
+    steps: [
+      { title: "I review your application", text: "I read every application personally, so I know your goals before we ever talk." },
+      { title: "We reach out to schedule your call", text: "Keep an eye on your phone and email (check spam too). We'll get your free consultation call on the calendar." },
+      { title: "We talk about your goals and fit", text: "On the call we'll go over where you are, where you want to be, and whether 1:1 coaching is the right fit for you. No pressure, just an honest conversation." },
+    ],
+    closing:
+      "Whatever happened with past diets or programs doesn't decide what happens next. You don't need to be perfect to start, you just need to keep showing up, and you already proved you can. I'm looking forward to talking with you.",
+    signOff: "Talk soon,",
+    // Paste a YouTube link here later to show your video on this page.
+    videoUrl: "",
   },
 
   // The /vital-method promo page (used for ads / bio links)

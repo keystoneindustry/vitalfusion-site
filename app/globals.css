@@ -273,3 +273,14 @@ html { scroll-behavior: smooth; }
 .other-box label { display: block; font-size: 16px; margin-bottom: 8px; color: #d4d7dd; }
 .step-form .submit { margin-top: 22px; }
 .privacy { text-align: center; color: var(--muted); font-size: 13px; margin: 12px 0 0; }
+
+/* ───────── Hidden /next-steps page ───────── */
+.next-steps { max-width: 680px; padding-top: 48px; }
+.next-steps .display { font-size: clamp(36px, 9vw, 54px); }
+.lead-body { font-size: 19px; color: #d4d7dd; }
+.steps-title { margin-top: 40px; }
+.next-steps .vital { margin: 20px 0 28px; }
+.video { position: relative; aspect-ratio: 16 / 9; margin: 28px 0 8px; border-radius: 16px; overflow: hidden; border: 1px solid var(--card-border); background: #000; }
+.video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.sign { margin-top: 28px; font-size: 18px; line-height: 1.6; color: #d4d7dd; }
+.sign strong { color: var(--gold); }
