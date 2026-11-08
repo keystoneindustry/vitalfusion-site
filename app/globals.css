@@ -203,7 +203,7 @@ html { scroll-behavior: smooth; }
 .featured-result blockquote { margin: 20px 0 0; padding: 16px 18px; border-left: 4px solid var(--gold); background: #11141b; border-radius: 10px; color: #d4d7dd; line-height: 1.6; font-size: 16px; }
 .featured-result cite { display: block; margin-top: 10px; font-style: normal; color: var(--gold); font-weight: 600; }
 .result { margin: 0; padding: 0; overflow: hidden; }
-.result img { display: block; width: 100%; aspect-ratio: 3 / 4; object-fit: cover; object-position: top; background: #0f1218; }
+.result img { display: block; width: 100%; height: auto; background: #fff; }
 .result figcaption { padding: 16px 18px 20px; color: #d4d7dd; line-height: 1.55; font-size: 16px; font-style: italic; }
 
 .vital { list-style: none; padding: 0; margin: 28px auto 56px; max-width: 760px; display: grid; gap: 14px; }

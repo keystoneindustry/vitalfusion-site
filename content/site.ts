@@ -15,7 +15,7 @@ export const site = {
     sub: "Helping busy adults build muscle & lose fat.",
     cta: "Apply Now",
     secondaryCta: "Learn More",
-    photo: "/images/coach-photo.jpg",
+    photo: "/images/coach-photo.webp",
   },
 
   results: {
@@ -23,9 +23,9 @@ export const site = {
     headline: "Real Results",
     sub: "See the progress of clients who committed to the process",
     images: [
-      { src: "/images/graph1.jpg", alt: "Client progress graph 1" },
-      { src: "/images/graph2.jpg", alt: "Client progress graph 2" },
-      { src: "/images/graph3.jpg", alt: "Client progress graph 3" },
+      { src: "/images/graph1.webp", alt: "Client progress graph 1" },
+      { src: "/images/graph2.webp", alt: "Client progress graph 2" },
+      { src: "/images/graph3.webp", alt: "Client progress graph 3" },
     ],
     quotes: [
       "So far everything's been great. I feel better and I am getting comments from my family about my weight loss",
