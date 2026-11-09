@@ -15,9 +15,9 @@ export const ACTIVITY_LEVELS = [
 ] as const;
 
 export const GOALS = [
-  { value: "lose", label: "Lose fat" },
-  { value: "muscle", label: "Build muscle" },
-  { value: "maintain", label: "Maintain my weight" },
+  { value: "lose", label: "Lose fat", detail: "Drop body fat and keep your muscle" },
+  { value: "muscle", label: "Build muscle", detail: "Get bigger and stronger" },
+  { value: "maintain", label: "Maintain my weight", detail: "Stay where I am and feel my best" },
 ] as const;
 
 /** How hard to diet. `deficit` is the share of maintenance calories cut. */
@@ -34,44 +34,88 @@ export const TRYING_FOR = [
   { value: "3yplus", label: "3+ years", phrase: "more than 3 years" },
 ] as const;
 
+const ALL = ["lose", "muscle", "maintain"] as const;
+const CUT = ["lose", "maintain"] as const;
+const BULK = ["muscle"] as const;
+
+/** Every obstacle option. `goals` says which goal's quiz shows it. */
 export const OBSTACLES = [
   {
     value: "consistency",
     label: "Staying consistent",
     phrase: "staying consistent",
+    goals: ALL,
     tip: "Aim for 80%, not perfect. Hitting your protein and calories most days beats a perfect week followed by quitting.",
   },
   {
     value: "weekends",
     label: "Weekends & social events",
     phrase: "weekends",
+    goals: CUT,
     tip: "Plan your weekends ahead: keep earlier meals high-protein and simple so you have room for the dinner or drinks you actually care about.",
   },
   {
     value: "cravings",
     label: "Cravings & snacking",
     phrase: "cravings",
+    goals: CUT,
     tip: "Most cravings come from too little protein and fiber. Hit your protein target and add a fruit or vegetable to every meal.",
   },
   {
     value: "food",
     label: "Not knowing what to eat",
     phrase: "knowing what to eat",
+    goals: CUT,
     tip: "Build every meal the same way: a palm-size protein, a fist-size carb, and a big handful of fruit or vegetables. Start with the 3 meals below.",
+  },
+  {
+    value: "protein",
+    label: "Not getting enough protein",
+    phrase: "getting enough protein",
+    goals: BULK,
+    tip: "Get 30–50g of protein at every meal. Greek yogurt, lean meat, eggs and a protein shake make your daily target easy.",
+  },
+  {
+    value: "eatingEnough",
+    label: "Not eating enough",
+    phrase: "eating enough",
+    goals: BULK,
+    tip: "Add easy calories you don't have to chew much: milk, oats, rice, nut butter, and a shake between meals.",
+  },
+  {
+    value: "gym",
+    label: "Getting to the gym",
+    phrase: "getting to the gym",
+    goals: BULK,
+    tip: "Pick 3 set training days and treat them like appointments. Three focused hours a week is plenty to build muscle.",
+  },
+  {
+    value: "program",
+    label: "Not knowing what to do in the gym",
+    phrase: "knowing what to do in the gym",
+    goals: BULK,
+    tip: "Build around a few big lifts (squats, presses, rows, deadlifts) and add a little weight or one rep each week. Progress beats variety.",
   },
   {
     value: "busy",
     label: "Busy schedule",
     phrase: "a busy schedule",
+    goals: ALL,
     tip: "Cook protein in bulk twice a week (chicken, ground beef, salmon) so a good meal is 5 minutes away, not 45.",
   },
   {
     value: "accountability",
     label: "No accountability",
     phrase: "staying accountable",
+    goals: CUT,
     tip: "Weigh in at least 3 mornings a week and watch your weekly average, not single days. Seeing the trend keeps you honest.",
   },
 ] as const;
+
+/** The obstacle options shown for a goal. */
+export function obstaclesFor(goal: string) {
+  return OBSTACLES.filter((o) => (o.goals as readonly string[]).includes(goal));
+}
 
 export type Sex = (typeof SEXES)[number]["value"];
 export type Activity = (typeof ACTIVITY_LEVELS)[number]["value"];
@@ -112,6 +156,7 @@ export const RULES = {
   fiberPer1000: 14,
   calorieFloor: { male: 1500, female: 1200 },
   maxDailyDeficit: 1000,
+  muscleSurplus: 200,
   minAge: 13,
   adultAge: 18,
 };
@@ -154,7 +199,9 @@ export function calculate(q: Pick<QuizInput, "sex" | "age" | "heightFt" | "heigh
 
   let calories = maintenance;
   let floorApplied = false;
-  if (wantsLoss && !isMinor) {
+  if (q.goal === "muscle") {
+    calories = maintenance + RULES.muscleSurplus;
+  } else if (wantsLoss && !isMinor) {
     const pct = PACES.find((p) => p.value === q.pace)?.deficit ?? PACES[1].deficit;
     const deficit = Math.min(maintenance * pct, RULES.maxDailyDeficit);
     calories = round10(maintenance - deficit);
@@ -194,6 +241,8 @@ export function calculate(q: Pick<QuizInput, "sex" | "age" | "heightFt" | "heigh
   let weeksToGoal: number | null = null;
   if (wantsLoss && !isMinor && weeklyChangeLb < 0 && q.goalWeightLb < q.weightLb) {
     weeksToGoal = Math.ceil((q.weightLb - q.goalWeightLb) / -weeklyChangeLb);
+  } else if (q.goal === "muscle" && weeklyChangeLb > 0 && q.goalWeightLb > q.weightLb) {
+    weeksToGoal = Math.ceil((q.goalWeightLb - q.weightLb) / weeklyChangeLb);
   }
 
   return {
@@ -302,10 +351,6 @@ export function validateQuiz(
   if (check("weightLb") && (!Number.isFinite(weightLb) || weightLb < 80 || weightLb > 700))
     errors.weightLb = "Please enter your weight in pounds.";
 
-  const goalWeightLb = num(raw.goalWeightLb);
-  if (check("goalWeightLb") && (!Number.isFinite(goalWeightLb) || goalWeightLb < 80 || goalWeightLb > 700))
-    errors.goalWeightLb = "Please enter your goal weight in pounds.";
-
   const activity = str(raw.activity) as Activity;
   if (check("activity") && !ACTIVITY_LEVELS.some((a) => a.value === activity)) errors.activity = "Please choose one.";
 
@@ -319,8 +364,20 @@ export function validateQuiz(
   const tryingFor = str(raw.tryingFor) as TryingFor;
   if (check("tryingFor") && !TRYING_FOR.some((t) => t.value === tryingFor)) errors.tryingFor = "Please choose one.";
 
+  // Maintain has no goal-weight question: goal weight = current weight.
+  const goalWeightLb = goal === "maintain" ? weightLb : num(raw.goalWeightLb);
+  if (check("goalWeightLb") && goal !== "maintain") {
+    if (!Number.isFinite(goalWeightLb) || goalWeightLb < 80 || goalWeightLb > 700)
+      errors.goalWeightLb = "Please enter your goal weight in pounds.";
+    else if (Number.isFinite(weightLb) && goal === "lose" && goalWeightLb >= weightLb)
+      errors.goalWeightLb = "For fat loss, your goal weight should be below your current weight.";
+    else if (Number.isFinite(weightLb) && goal === "muscle" && goalWeightLb <= weightLb)
+      errors.goalWeightLb = "To build muscle, your goal weight should be above your current weight.";
+  }
+
+  const allowed = obstaclesFor(goal).map((o) => o.value as string);
   const obstacles = (Array.isArray(raw.obstacles) ? [...new Set(raw.obstacles.map(str))] : []).filter((o) =>
-    OBSTACLES.some((x) => x.value === o),
+    allowed.includes(o),
   ) as Obstacle[];
   if (check("obstacles") && obstacles.length === 0) errors.obstacles = "Pick at least one.";
 

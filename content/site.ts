@@ -113,39 +113,80 @@ export const site = {
   // Hidden macro calculator quiz at /macros (Instagram "comment MACROS" link).
   macroQuiz: {
     title: "Free Macro Calculator",
-    intro: "Answer a few quick questions and get your daily calories, protein, carbs and fat, plus the meals my clients eat for fat loss.",
+    intro: "Answer a few quick questions and get your daily calories, protein, carbs and fat, plus my clients' favorite meals.",
     startButton: "Calculate My Macros →",
     note: "Takes about 60 seconds · 100% free",
     leadTitle: "Where should I send your plan?",
     leadNote: "Your results show on the next screen, and I'll email you a copy.",
     resultsButton: "Show My Results →",
-    mealsTitle: "My top 3 fat-loss meals",
+    // Titles and "why it works" change with the goal they pick.
+    mealsTitle: {
+      lose: "My top 3 fat-loss meals",
+      muscle: "My top 3 muscle-building meals",
+      maintain: "My top 3 go-to meals",
+    },
     mealsSub: "These are the meals my clients eat most. They're not portioned to your macros, just great go-to options.",
     meals: [
       {
         name: "Sockeye salmon, sweet potatoes & vegetables",
-        why: [
-          "Salmon is lean protein packed with omega-3 fats",
-          "Sweet potatoes and vegetables add fiber, so you stay full longer",
-          "Lots of food on the plate for the calories",
-        ],
+        why: {
+          lose: [
+            "Salmon is lean protein packed with omega-3 fats",
+            "Sweet potatoes and vegetables add fiber, so you stay full longer",
+            "Lots of food on the plate for the calories",
+          ],
+          muscle: [
+            "Salmon is high-quality protein to build and repair muscle",
+            "Omega-3 fats support recovery and healthy joints",
+            "Sweet potatoes refuel your muscles with slow-digesting carbs",
+          ],
+          maintain: [
+            "Lean protein plus omega-3 fats for long-term health",
+            "Sweet potatoes and vegetables add fiber for steady energy",
+            "A balanced plate that's easy to repeat all week",
+          ],
+        },
       },
       {
         name: "Nonfat Greek yogurt bowl",
         detail: "with protein powder, fruit, honey & almond butter",
-        why: [
-          "Greek yogurt + protein powder = a huge hit of protein",
-          "Probiotics in the yogurt support healthy digestion",
-          "Fruit adds fiber, and it tastes like dessert, which kills cravings",
-        ],
+        why: {
+          lose: [
+            "Greek yogurt + protein powder = a huge hit of protein",
+            "Probiotics in the yogurt support healthy digestion",
+            "Fruit adds fiber, and it tastes like dessert, which kills cravings",
+          ],
+          muscle: [
+            "Greek yogurt + protein powder = 40g+ of protein in one bowl",
+            "Slow-digesting yogurt protein makes it a great pre-bed snack",
+            "Fruit, honey and almond butter add the extra calories you need to grow",
+          ],
+          maintain: [
+            "A high-protein breakfast or snack that keeps you full",
+            "Probiotics in the yogurt support healthy digestion",
+            "Satisfies your sweet tooth without throwing off your week",
+          ],
+        },
       },
       {
         name: "93/7 ground beef, potatoes & pineapple",
-        why: [
-          "Lean beef is high in protein, iron and B12",
-          "Potatoes are one of the most filling foods per calorie",
-          "Pineapple adds fiber, vitamin C and natural sweetness",
-        ],
+        why: {
+          lose: [
+            "Lean beef is high in protein, iron and B12",
+            "Potatoes are one of the most filling foods per calorie",
+            "Pineapple adds fiber, vitamin C and natural sweetness",
+          ],
+          muscle: [
+            "Beef is packed with protein, iron, B12 and natural creatine",
+            "Potatoes are an easy carb to fuel hard training",
+            "Pineapple adds quick carbs and vitamin C for recovery",
+          ],
+          maintain: [
+            "Lean beef is high in protein, iron and B12",
+            "Potatoes are filling and great fuel for your workouts",
+            "Pineapple adds fiber, vitamin C and natural sweetness",
+          ],
+        },
       },
     ],
     bridgeTitle: "That's where I come in.",

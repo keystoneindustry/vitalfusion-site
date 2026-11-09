@@ -12,6 +12,7 @@ import {
   REALITY_PUNCH,
   realityContext,
   tipsFor,
+  RULES,
   type MacroResults,
   type QuizInput,
 } from "./macros";
@@ -25,7 +26,9 @@ export function goalSummary(q: QuizInput, r: MacroResults): string {
     if (r.minorAtMaintenance) return "Maintenance calories + high protein";
     return `${labelOf(PACES, q.pace)} fat loss · about ${Math.abs(r.weeklyChangeLb).toFixed(1)} lb a week`;
   }
-  return q.goal === "muscle" ? "Build muscle · maintenance calories + high protein" : "Maintain your weight · high protein";
+  return q.goal === "muscle"
+    ? `Build muscle · ${RULES.muscleSurplus} calories above maintenance`
+    : "Maintain your weight · maintenance calories";
 }
 
 export function goalDateText(r: MacroResults, now: Date = new Date()): string {
@@ -72,7 +75,7 @@ export function macroResultsEmail(q: QuizInput, r: MacroResults, siteUrl: string
             .join("")}`
         : ""
     }
-    <h2 style="font-size:18px;margin:22px 0 6px">${esc(c.mealsTitle)}</h2>
+    <h2 style="font-size:18px;margin:22px 0 6px">${esc(c.mealsTitle[q.goal])}</h2>
     <p style="${P};font-size:14px;color:#a9aeb8">${esc(c.mealsSub)}</p>
     ${c.meals
       .map(
@@ -80,7 +83,7 @@ export function macroResultsEmail(q: QuizInput, r: MacroResults, siteUrl: string
       <div style="font-size:12px;font-weight:700;color:#6a9fc6;letter-spacing:.08em;text-transform:uppercase">Meal ${i + 1}</div>
       <div style="font-size:16px;font-weight:700;margin:2px 0">${esc(m.name)}</div>
       ${"detail" in m && m.detail ? `<div style="font-size:14px;color:#a9aeb8">${esc(m.detail)}</div>` : ""}
-      <div style="font-size:14px;color:#d4d7dd;line-height:1.55;margin-top:6px">${m.why.map((w) => `✓ ${esc(w)}`).join("<br>")}</div>
+      <div style="font-size:14px;color:#d4d7dd;line-height:1.55;margin-top:6px">${m.why[q.goal].map((w) => `✓ ${esc(w)}`).join("<br>")}</div>
     </div>`,
       )
       .join("")}
@@ -107,8 +110,8 @@ export function macroResultsEmail(q: QuizInput, r: MacroResults, siteUrl: string
     ...(date ? [``, `At this pace you could reach ${q.goalWeightLb} lbs by ${date} (about ${r.weeksToGoal} weeks).`] : []),
     ...(tips.length ? [``, `Based on what gets in your way:`, ...tips.map((t) => `- ${t.label}: ${t.tip}`)] : []),
     ``,
-    `${c.mealsTitle}:`,
-    ...c.meals.map((m, i) => `${i + 1}. ${m.name}${"detail" in m && m.detail ? ` (${m.detail})` : ""}\n   ${m.why.join(" · ")}`),
+    `${c.mealsTitle[q.goal]}:`,
+    ...c.meals.map((m, i) => `${i + 1}. ${m.name}${"detail" in m && m.detail ? ` (${m.detail})` : ""}\n   ${m.why[q.goal].join(" · ")}`),
     ``,
     reality,
     ``,

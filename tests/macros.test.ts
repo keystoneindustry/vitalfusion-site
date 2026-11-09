@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { calculate, validateQuiz, leadRating, realityMessage, tipsFor, ageRangeFor, goalDate, formatDate, RULES } from "../lib/macros";
+import { realityContext, calculate, validateQuiz, leadRating, realityMessage, tipsFor, ageRangeFor, goalDate, formatDate, RULES } from "../lib/macros";
 
 const base = { sex: "male" as const, age: 30, heightFt: 5, heightIn: 10, weightLb: 180, goalWeightLb: 165, activity: "moderate" as const, goal: "lose" as const, pace: "balanced" as const };
 
@@ -17,12 +17,18 @@ assert.equal(r.weeklyChangeLb, -1.1);          // 550 × 7 / 3500
 assert.equal(r.weeksToGoal, 14);               // 15 lb / 1.1 → 14 weeks
 console.log("180 lb man, balanced:", r);
 
-// 2) Maintain / build muscle → maintenance calories, no goal date
-for (const goal of ["maintain", "muscle"] as const) {
-  const m = calculate({ ...base, goal, pace: "" });
-  assert.equal(m.calories, m.maintenance);
-  assert.equal(m.weeksToGoal, null);
-}
+// 2) Maintain → maintenance; Build muscle → +200 and a goal date
+const keep = calculate({ ...base, goal: "maintain", pace: "", goalWeightLb: 180 });
+assert.equal(keep.calories, keep.maintenance);
+assert.equal(keep.weeksToGoal, null);
+const bulk = calculate({ ...base, goal: "muscle", pace: "", goalWeightLb: 190 });
+assert.equal(bulk.calories, bulk.maintenance + 200);
+assert.equal(bulk.weeklyChangeLb, 0.4);
+assert.equal(bulk.weeksToGoal, 25); // 10 lb / 0.4 lb a week
+assert.ok(bulk.carbs > r.carbs);
+console.log("180 lb man, build muscle to 190:", bulk);
+// teens can still build muscle (small surplus is fine)
+{ const t = calculate({ ...base, age: 16, goal: "muscle", pace: "", goalWeightLb: 190 }); assert.equal(t.calories, t.maintenance + 200); }
 
 // 3) Protein cap 180 g and fat cap 80 g (240 lb lean, very active man)
 const big = calculate({ ...base, weightLb: 240, goalWeightLb: 225, heightFt: 6, heightIn: 3, activity: "very" });
@@ -87,6 +93,29 @@ assert.equal(validateQuiz({ ...good, goal: "maintain", pace: "aggressive" }).ok 
 
 assert.equal(ageRangeFor(24), "22-25"); assert.equal(ageRangeFor(40), "30+"); assert.equal(ageRangeFor(14), "");
 assert.equal(formatDate(goalDate(14, new Date("2026-11-09T12:00:00Z"))), "February 15, 2027");
+// Goal-weight direction + maintain skips goal weight
+{
+  const g = { ...good, obstacles: ["consistency"] };
+  const lose = validateQuiz({ ...g, goal: "lose", weightLb: 180, goalWeightLb: 190 });
+  assert.ok(!lose.ok && lose.errors.goalWeightLb?.includes("below"));
+  const mus = validateQuiz({ ...g, goal: "muscle", weightLb: 180, goalWeightLb: 170 });
+  assert.ok(!mus.ok && mus.errors.goalWeightLb?.includes("above"));
+  const mus2 = validateQuiz({ ...g, goal: "muscle", weightLb: 180, goalWeightLb: 190 });
+  assert.ok(mus2.ok);
+  const mnt = validateQuiz({ ...g, goal: "maintain", weightLb: 180, goalWeightLb: "" });
+  assert.ok(mnt.ok && mnt.data.goalWeightLb === 180 && mnt.data.pace === "");
+}
+// Obstacles change with the goal
+import { obstaclesFor } from "../lib/macros";
+assert.deepEqual(obstaclesFor("muscle").map((o) => o.value), ["consistency", "protein", "eatingEnough", "gym", "program", "busy"]);
+assert.deepEqual(obstaclesFor("lose").map((o) => o.value), ["consistency", "weekends", "cravings", "food", "busy", "accountability"]);
+{
+  const wrong = validateQuiz({ ...good, goal: "muscle", goalWeightLb: 190, obstacles: ["weekends"] });
+  assert.ok(!wrong.ok && "obstacles" in wrong.errors, "fat-loss obstacle not allowed for muscle");
+  const right = validateQuiz({ ...good, goal: "muscle", goalWeightLb: 190, obstacles: ["protein", "gym"] });
+  assert.ok(right.ok);
+  if (right.ok) assert.equal(realityContext(right.data), "You've been at this for 1–3 years. Biggest struggles: getting enough protein and getting to the gym.");
+}
 console.log("All macro tests passed");
 
 // Emails + sheet row
@@ -100,7 +129,13 @@ import { macroResultsEmail, coachLeadEmail, leadRow, SHEET_COLUMNS } from "../li
     assert.ok(!em.html.includes("<b>Smith"), "escaped");
     assert.ok(em.html.includes("2,210") && em.html.includes("144g") && em.html.includes("by February") === false || true);
     assert.ok(em.html.includes("https://vitalfusioncoaching.com/apply?source=macro-email"));
-    assert.ok(em.html.includes("Sockeye salmon") && em.html.includes("93/7 ground beef"));
+    assert.ok(em.html.includes("Sockeye salmon") && em.html.includes("93/7 ground beef") && em.html.includes("My top 3 fat-loss meals"));
+    const mv = validateQuiz({ ...good, goal: "muscle", goalWeightLb: 190, obstacles: ["protein"] });
+    if (mv.ok) {
+      const me = macroResultsEmail(mv.data, calculate(mv.data), "https://vitalfusioncoaching.com");
+      assert.ok(me.html.includes("My top 3 muscle-building meals") && me.html.includes("200 calories above maintenance") && me.html.includes("natural creatine"));
+      assert.ok(!me.html.includes("fat-loss meals"));
+    }
     assert.ok(em.text.includes("Protein 144g"));
     const row = leadRow(v2.data, res);
     assert.deepEqual(Object.keys(row), [...SHEET_COLUMNS], "row matches sheet columns");

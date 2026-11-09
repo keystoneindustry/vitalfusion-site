@@ -20,7 +20,10 @@ is not a developer; explain changes plainly and keep the site simple.
 - `/macros` is a hidden (noindex) macro-calculator lead magnet for Instagram ("comment MACROS"
   via ManyChat → `/macros?source=macros`). Math + rules in `lib/macros.ts` (Mifflin-St Jeor;
   protein 0.8 g/lb max 180; fat 0.35 g/lb max 80, up to 100 if carbs ≥100; carbs ≥100 g;
-  fiber 14 g/1000 kcal; calorie floors; under-18 = maintenance). Emails in `lib/macro-email.ts`,
+  fiber 14 g/1000 kcal; calorie floors; under-18 = maintenance for fat loss). Goal is the first
+  question and branches the funnel: Lose fat → pace question + deficit; Build muscle → +200 kcal;
+  Maintain → maintenance, no goal-weight question. Obstacles (`obstaclesFor`) and meal
+  explanations (`content/site.ts` → `macroQuiz.meals[].why[goal]`) differ by goal. Emails in `lib/macro-email.ts`,
   API `app/api/macros/route.ts`, copy/meals in `content/site.ts` → `macroQuiz`. Leads go to the
   coach's email and a Google Sheet via an Apps Script webhook (`lib/sheets.ts`,
   `docs/google-sheet-setup.md`). Follow-up email series: not built yet.

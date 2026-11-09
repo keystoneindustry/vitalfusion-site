@@ -6,7 +6,8 @@ import { site } from "@/content/site";
 import {
   ACTIVITY_LEVELS,
   GOALS,
-  OBSTACLES,
+  RULES,
+  obstaclesFor,
   PACES,
   SEXES,
   TRYING_FOR,
@@ -67,12 +68,26 @@ const FIELDS: Record<StepId, (keyof QuizInput)[]> = {
 
 const APPLY_SAVE_KEY = "vf-apply-progress"; // read by the application form
 
+// Goal comes first; the rest of the path depends on it.
 function stepsFor(goal: string): StepId[] {
-  const s: StepId[] = ["sex", "age", "height", "weight", "goalWeight", "activity", "goal"];
-  if (goal === "lose") s.push("pace");
-  s.push("trying", "obstacles", "lead");
+  const s: StepId[] = ["goal"];
+  if (goal === "lose") s.push("pace"); // speed question is only for fat loss
+  s.push("sex", "age", "height", "weight");
+  if (goal !== "maintain") s.push("goalWeight"); // maintain has no goal weight
+  s.push("activity", "trying", "obstacles", "lead");
   return s;
 }
+
+const GOAL_WEIGHT_Q: Record<string, { q: string; hint: string; placeholder: string }> = {
+  lose: { q: "What's your goal weight?", hint: "Your best guess is fine. I'll show you when you could hit it.", placeholder: "e.g. 170" },
+  muscle: { q: "What weight do you want to build up to?", hint: "Your best guess is fine. I'll show you when you could hit it.", placeholder: "e.g. 190" },
+};
+
+const TRYING_Q: Record<string, string> = {
+  lose: "How long have you been trying to lose the weight?",
+  muscle: "How long have you been trying to build muscle?",
+  maintain: "How long have you been working on your health and fitness?",
+};
 
 export default function MacroQuiz({ source }: { source: string }) {
   const q = site.macroQuiz;
@@ -91,7 +106,11 @@ export default function MacroQuiz({ source }: { source: string }) {
   const stepId = steps[Math.min(idx, steps.length - 1)];
   const isLast = stepId === "lead";
 
-  const payload = (ans: Answers = a) => ({ ...ans, source });
+  const payload = (ans: Answers = a) => ({
+    ...ans,
+    goalWeightLb: ans.goal === "maintain" ? ans.weightLb : ans.goalWeightLb,
+    source,
+  });
 
   function scrollTop() {
     topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -121,6 +140,11 @@ export default function MacroQuiz({ source }: { source: string }) {
 
   function pick<K extends "sex" | "activity" | "goal" | "pace" | "tryingFor">(k: K, v: string) {
     const updated = { ...a, [k]: v };
+    if (k === "goal") {
+      if (v !== "lose") updated.pace = "";
+      const ok = obstaclesFor(v).map((o) => o.value as string);
+      updated.obstacles = updated.obstacles.filter((o) => ok.includes(o));
+    }
     setA(updated);
     setErrors({});
     if (timer.current) clearTimeout(timer.current);
@@ -172,6 +196,7 @@ export default function MacroQuiz({ source }: { source: string }) {
 
   function prefillApplication(input: QuizInput) {
     const helpAreas = new Set<string>(["diet"]);
+    if (input.goal === "muscle" || input.obstacles.some((o) => o === "program" || o === "gym")) helpAreas.add("training");
     if (input.obstacles.some((o) => o === "accountability" || o === "consistency")) helpAreas.add("accountability");
     const ageRange = ageRangeFor(input.age);
     try {
@@ -207,8 +232,8 @@ export default function MacroQuiz({ source }: { source: string }) {
           ? "Maintenance calories + high protein"
           : `${paceLabel} fat loss · about ${weekly.toFixed(1)} lb a week`
         : input.goal === "muscle"
-          ? "Build muscle · maintenance calories + high protein"
-          : "Maintain your weight · high protein";
+          ? `Build muscle · ${RULES.muscleSurplus} calories above maintenance`
+          : "Maintain your weight · maintenance calories";
     const total = r.protein * 4 + r.carbs * 4 + r.fat * 9;
     const pct = (g: number, cal: number) => Math.round(((g * cal) / total) * 100);
 
@@ -270,7 +295,7 @@ export default function MacroQuiz({ source }: { source: string }) {
         )}
 
         <section className="m-section">
-          <h2 className="m-h2">{q.mealsTitle}</h2>
+          <h2 className="m-h2">{q.mealsTitle[input.goal]}</h2>
           <p className="m-sub">{q.mealsSub}</p>
           <div className="m-meals">
             {q.meals.map((m, i) => (
@@ -279,7 +304,7 @@ export default function MacroQuiz({ source }: { source: string }) {
                 <h3>{m.name}</h3>
                 {"detail" in m && m.detail && <p className="m-meal-detail">{m.detail}</p>}
                 <ul>
-                  {m.why.map((w) => (
+                  {m.why[input.goal].map((w) => (
                     <li key={w}>✓ {w}</li>
                   ))}
                 </ul>
@@ -417,10 +442,10 @@ export default function MacroQuiz({ source }: { source: string }) {
 
           {stepId === "goalWeight" && (
             <div>
-              <label htmlFor="goalWeightLb" className="q">What&apos;s your goal weight?</label>
-              <p className="hint">Your best guess is fine. I&apos;ll show you when you could hit it.</p>
+              <label htmlFor="goalWeightLb" className="q">{(GOAL_WEIGHT_Q[a.goal] ?? GOAL_WEIGHT_Q.lose).q}</label>
+              <p className="hint">{(GOAL_WEIGHT_Q[a.goal] ?? GOAL_WEIGHT_Q.lose).hint}</p>
               <div className="unit-input">
-                <input id="goalWeightLb" inputMode="decimal" autoFocus placeholder="e.g. 170" value={a.goalWeightLb} onChange={(e) => set("goalWeightLb", e.target.value.replace(/[^\d.]/g, "").slice(0, 5))} />
+                <input id="goalWeightLb" inputMode="decimal" autoFocus placeholder={(GOAL_WEIGHT_Q[a.goal] ?? GOAL_WEIGHT_Q.lose).placeholder} value={a.goalWeightLb} onChange={(e) => set("goalWeightLb", e.target.value.replace(/[^\d.]/g, "").slice(0, 5))} />
                 <span>lbs</span>
               </div>
               {err("goalWeightLb")}
@@ -453,7 +478,7 @@ export default function MacroQuiz({ source }: { source: string }) {
 
           {stepId === "trying" && (
             <fieldset>
-              <legend className="q">How long have you been trying to reach this goal?</legend>
+              <legend className="q">{TRYING_Q[a.goal] ?? TRYING_Q.lose}</legend>
               {choice("tryingFor", TRYING_FOR)}
               {err("tryingFor")}
             </fieldset>
@@ -464,7 +489,7 @@ export default function MacroQuiz({ source }: { source: string }) {
               <legend className="q">What usually gets in the way?</legend>
               <p className="hint">Select all that apply</p>
               <div className="choices">
-                {OBSTACLES.map((o) => {
+                {obstaclesFor(a.goal).map((o) => {
                   const on = a.obstacles.includes(o.value);
                   return (
                     <button type="button" key={o.value} className={`choice multi ${on ? "on" : ""}`} aria-pressed={on} onClick={() => toggleObstacle(o.value)}>
