@@ -6,9 +6,10 @@ is not a developer; explain changes plainly and keep the site simple.
 - Stack: Next.js (App Router, TypeScript), plain CSS in `app/globals.css` (no Tailwind),
   hosted on Vercel. Email via Resend REST API (`lib/email.ts`), optional Supabase via
   REST (`lib/store.ts`). Avoid adding dependencies unless they clearly earn their place.
-- The homepage is a sales page for the coaching application only (no free resources /
-  blueprint). Every CTA goes to `/apply`. The hero has a "Start My Application" button
-  (`/apply?age=…` still works to pre-fill question 1 and start at question 2). A phone-only sticky Apply bar
+- The homepage is deliberately simple and only sells the coaching application (no free
+  resources / blueprint / FAQ). Order: full-screen hero ("Start Now" + "See client results ↓")
+  → client results → V.I.T.A.L. Method → your coach → closing Start Now. Every CTA goes to
+  `/apply` (`/apply?age=…` pre-fills question 1). A phone-only sticky Start Now bar
   (`app/components/StickyApply.tsx`) appears after the hero scrolls away.
 - All homepage copy lives in `content/site.ts`; layout in `app/page.tsx`; promo landing page in
   `app/vital-method/`. Images are in `public/images/`. Only add real client results and testimonials.

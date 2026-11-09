@@ -14,8 +14,7 @@ export function SiteHeader() {
           <Link href="/#results" className="hide-sm">Results</Link>
           <Link href="/#method" className="hide-sm">Method</Link>
           <Link href="/#about" className="hide-sm">About</Link>
-          <Link href="/#faq" className="hide-sm">FAQ</Link>
-          <Link href="/apply" className="btn btn-sm">Apply</Link>
+          <Link href="/apply" className="btn btn-sm">Start Now</Link>
         </nav>
       </div>
     </header>

@@ -8,21 +8,20 @@ export const site = {
   logo: "/images/vf-logo.png",
   coachName: "Tyler Kendrick",
   instagram: "", // e.g. "vitalfusioncoaching" (no @). Leave "" to hide the link.
-  applyCta: "Apply for Coaching",
+  applyCta: "Start Now",
 
   hero: {
-    eyebrow: "1:1 Online Coaching for Busy Adults",
-    headline: "Achieve Fat Loss With a Sustainable Process",
-    sub: "Build muscle and lose fat without crash diets or giving up the foods you love.",
-    startButton: "Start My Application →",
-    formNote: "6 quick questions · Takes about 60 seconds",
-    trust: ["Free consultation call", "Personalized to you", "No crash diets"],
+    headline: "Ready to take your goals to the next level?",
+    sub: "1:1 online coaching that helps busy adults lose fat and build muscle, without crash diets.",
+    button: "Start Now →",
+    note: "Free application · Takes about 60 seconds",
+    resultsLink: "See client results",
     photo: "/images/coach-photo.webp",
   },
 
   results: {
-    eyebrow: "Proven Results",
-    headline: "Real people. Real results.",
+    eyebrow: "Client Results",
+    headline: "Real clients. Real results.",
     featured: {
       name: "Charlie G.",
       headline: "Lost 14 lbs in 12 weeks",
@@ -53,81 +52,32 @@ export const site = {
     ],
   },
 
-  problem: {
-    headline: "You're busy. Your body is paying for it.",
-    points: [
-      "You've tried diet after diet. None of them survived real life.",
-      "The weight comes off, then creeps right back.",
-      "Work and family leave no time for 2-hour workouts.",
-      "You're guessing what to eat and hoping it works.",
-    ],
-    closer: "Ready to make it stick?",
-  },
-
-  mission: "Real transformation comes from consistency, not perfection.",
-
   method: {
     eyebrow: "How It Works",
     headline: "The V.I.T.A.L. Method",
-    sub: "A proven system for sustainable fat loss, built around your life.",
+    sub: "A simple system for fat loss that lasts.",
     steps: [
-      { letter: "V", title: "Verify the Barriers", text: "Identify what's actually holding you back from progress." },
-      { letter: "I", title: "Install Simple Structure", text: "Create systems that fit YOUR life, not the other way around." },
-      { letter: "T", title: "Target Sustainable Fat Loss", text: "Focus on steady progress you can maintain, not crash diets." },
-      { letter: "A", title: "Audit and Adapt", text: "Regular check-ins to adjust your plan based on real results." },
-      { letter: "L", title: "Learn to Maintain Long-Term", text: "Build habits that last beyond the program." },
+      { letter: "V", title: "Verify the Barriers", text: "Find what's really holding you back." },
+      { letter: "I", title: "Install Simple Structure", text: "A plan that fits YOUR life." },
+      { letter: "T", title: "Target Sustainable Fat Loss", text: "Steady progress, no crash diets." },
+      { letter: "A", title: "Audit and Adapt", text: "Regular check-ins to adjust your plan." },
+      { letter: "L", title: "Learn to Maintain Long-Term", text: "Habits that last beyond the program." },
     ],
-    included: ["Custom training program", "Flexible nutrition plan", "Weekly check-ins", "Direct access through the coaching app"],
   },
 
   about: {
     eyebrow: "Your Coach",
-    headline: "I've been where you are.",
+    headline: "Meet your coach",
     paragraphs: [
-      "After years of trying every diet and workout program, I discovered what actually works: a sustainable, personalized approach that fits your life.",
-      "Now I help busy adults build the body and health they deserve, without sacrificing everything they love.",
+      "I've been where you are. After years of trying every diet and workout program, I found what actually works: a sustainable, personalized approach that fits your life.",
+      "Now I help busy adults build the body and health they deserve, without giving up everything they love.",
     ],
     credentials: ["Nutrition Specialist", "5+ Years Experience"],
   },
 
-  faq: {
-    eyebrow: "Common Questions",
-    headline: "Frequently Asked Questions",
-    items: [
-      {
-        q: "How much time do I need to commit each week?",
-        a: "The program is designed for busy adults. Most clients spend 3-4 hours per week on workouts (3-4 sessions of 45-60 minutes). Meal prep typically takes 2-3 hours on weekends. It's about working smarter, not harder.",
-      },
-      {
-        q: "What if I've tried everything and nothing works?",
-        a: "You're not alone—this is exactly why I created the V.I.T.A.L. method. Most programs fail because they're not sustainable. We focus on building habits you can maintain for life, not quick fixes that lead to rebound weight gain.",
-      },
-      {
-        q: "Do I need a gym membership?",
-        a: "Not necessarily. I can design programs for home workouts with minimal equipment or for full gym access. We'll work with what you have and what fits your lifestyle.",
-      },
-      {
-        q: "How quickly will I see results?",
-        a: "Most clients notice changes in energy and strength within 2-3 weeks. Visible physical changes typically appear within 4-6 weeks. Remember, sustainable fat loss is about 1-2 lbs per week for long-term success.",
-      },
-      {
-        q: "What's included in the coaching program?",
-        a: "You'll receive personal guidance through our coaching app, including custom workout programs, nutrition, and accountability support. We track your progress together and adjust the plan as needed.",
-      },
-      {
-        q: "Will I have to give up foods I love?",
-        a: "Absolutely not. My approach is about learning to eat foods you love in sustainable portions. No elimination diets.",
-      },
-      {
-        q: "Is this program suitable for beginners?",
-        a: "Absolutely! The V.I.T.A.L. method is personalized to your current fitness level. Whether you're just starting out or getting back into fitness, we'll create a plan that challenges you appropriately and scales with your progress.",
-      },
-    ],
-  },
-
   closing: {
-    headline: "Your transformation starts with one application.",
-    sub: "It takes about 60 seconds. I'll personally review it and reach out to set up your free consultation call.",
+    headline: "Your next level starts today.",
+    sub: "Answer 6 quick questions. I'll personally review your application and reach out to set up a free call.",
   },
 
   // Email the applicant gets right after applying.

@@ -3,30 +3,27 @@ import Link from "next/link";
 import { site } from "@/content/site";
 import StickyApply from "./components/StickyApply";
 
-// Homepage = sales page for the coaching application.
-// All text comes from content/site.ts. Every button leads to /apply.
+// Homepage: one goal — start the application.
+// Order: Start Now → client results → V.I.T.A.L. Method → your coach → Start Now.
+// All text comes from content/site.ts.
 export default function Home() {
-  const { hero, results, problem, mission, method, about, faq, closing, applyCta } = site;
+  const { hero, results, method, about, closing, applyCta } = site;
 
   return (
     <main className="home">
-      {/* HERO — headline + the first application question */}
-      <section className="hero-home" id="top">
+      {/* HERO — fills the first phone screen */}
+      <section className="hero-home">
         <div className="hero-copy">
-          <p className="pill">{hero.eyebrow}</p>
           <h1 className="display">{hero.headline}</h1>
           <p className="lead">{hero.sub}</p>
-
           <div className="hero-cta" id="hero-form">
-            <Link href="/apply" className="btn btn-wide btn-big">{hero.startButton}</Link>
-            <p className="hero-form-note">{hero.formNote}</p>
+            <Link href="/apply" className="btn btn-wide btn-big">{hero.button}</Link>
+            <p className="hero-note">{hero.note}</p>
           </div>
-
-          <ul className="trust">
-            {hero.trust.map((t) => (
-              <li key={t}>✓ {t}</li>
-            ))}
-          </ul>
+          <a href="#results" className="see-results">
+            {hero.resultsLink}
+            <span aria-hidden>↓</span>
+          </a>
         </div>
         <img className="hero-photo" src={hero.photo} alt={`${site.coachName}, ${site.brand} coach`} />
       </section>
@@ -60,23 +57,6 @@ export default function Home() {
         <p className="swipe-hint" aria-hidden>Swipe for more →</p>
       </section>
 
-      {/* PROBLEM */}
-      <section className="block narrow">
-        <h2 className="h2">{problem.headline}</h2>
-        <ul className="pain">
-          {problem.points.map((p) => (
-            <li key={p}>{p}</li>
-          ))}
-        </ul>
-        <p className="closer">{problem.closer}</p>
-        <Link href="/apply" className="btn btn-wide">{applyCta} →</Link>
-      </section>
-
-      {/* MISSION */}
-      <section className="mission">
-        <p>{mission}</p>
-      </section>
-
       {/* THE VITAL METHOD */}
       <section className="block narrow" id="method">
         <p className="eyebrow center-text">{method.eyebrow}</p>
@@ -93,18 +73,9 @@ export default function Home() {
             </li>
           ))}
         </ol>
-        <div className="included">
-          <p className="included-title">Every client gets</p>
-          <ul>
-            {method.included.map((i) => (
-              <li key={i}>✓ {i}</li>
-            ))}
-          </ul>
-        </div>
-        <Link href="/apply" className="btn btn-wide">{applyCta} →</Link>
       </section>
 
-      {/* ABOUT */}
+      {/* YOUR COACH */}
       <section className="block about" id="about">
         <img className="about-photo" src={hero.photo} alt={site.coachName} loading="lazy" />
         <div>
@@ -122,25 +93,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FAQ */}
-      <section className="block narrow" id="faq">
-        <p className="eyebrow center-text">{faq.eyebrow}</p>
-        <h2 className="h2 center-text">{faq.headline}</h2>
-        <div className="faq">
-          {faq.items.map((f) => (
-            <details key={f.q}>
-              <summary>{f.q}</summary>
-              <p>{f.a}</p>
-            </details>
-          ))}
-        </div>
-      </section>
-
       {/* CLOSING CTA */}
       <section className="closing">
         <h2 className="h2">{closing.headline}</h2>
         <p className="lead">{closing.sub}</p>
-        <Link href="/apply" className="btn btn-wide">{applyCta} →</Link>
+        <Link href="/apply" className="btn btn-wide btn-big">{applyCta} →</Link>
       </section>
 
       <StickyApply label={applyCta} />
