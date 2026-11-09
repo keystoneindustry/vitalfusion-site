@@ -9,7 +9,8 @@ import {
   goalDate,
   labelOf,
   leadRating,
-  realityMessage,
+  REALITY_PUNCH,
+  realityContext,
   tipsFor,
   type MacroResults,
   type QuizInput,
@@ -40,7 +41,8 @@ export function macroResultsEmail(q: QuizInput, r: MacroResults, siteUrl: string
   const first = q.name.split(/\s+/)[0];
   const date = goalDateText(r);
   const tips = tipsFor(q.obstacles);
-  const reality = realityMessage(q);
+  const context = realityContext(q);
+  const reality = [context, REALITY_PUNCH].filter(Boolean).join(" ");
   const applyUrl = `${base}/apply?source=macro-email`;
 
   const stat = (label: string, value: string, color: string) =>
@@ -83,7 +85,8 @@ export function macroResultsEmail(q: QuizInput, r: MacroResults, siteUrl: string
       )
       .join("")}
     <div style="border-top:1px solid #2c3a52;margin:22px 0 0;padding-top:20px">
-      <p style="${P};color:#f4f5f7">${esc(reality)}</p>
+      ${context ? `<p style="${P};font-size:14px;color:#a9aeb8;margin-bottom:6px">${esc(context)}</p>` : ""}
+      <p style="margin:0 0 4px;font-size:19px;font-weight:800;line-height:1.3;color:#f4f5f7">${esc(REALITY_PUNCH)}</p>
       <h2 style="font-size:18px;margin:16px 0 8px">${esc(c.bridgeTitle)}</h2>
       <p style="${P}">${esc(c.bridge)}</p>
       <a href="${applyUrl}" style="display:inline-block;background:#6a9fc6;color:#ffffff;font-weight:700;font-size:16px;text-decoration:none;border-radius:12px;padding:14px 22px">${esc(c.bridgeButton)}</a>

@@ -70,8 +70,8 @@ assert.equal(leadRating({ tryingFor: "lt6m", obstacles: ["weekends", "busy"] }),
 
 // Reality message grammar
 console.log(realityMessage({ tryingFor: "1to3y", obstacles: ["weekends", "consistency"] }));
-assert.ok(realityMessage({ tryingFor: "1to3y", obstacles: ["consistency"] }).includes("your biggest struggle is staying consistent."));
-assert.ok(realityMessage({ tryingFor: "lt6m", obstacles: ["cravings"] }).startsWith("You're early in this, and you said your biggest struggle is cravings."));
+assert.equal(realityMessage({ tryingFor: "1to3y", obstacles: ["consistency"] }), "You've been at this for 1–3 years. Biggest struggle: staying consistent. The numbers were never the hard part. Sticking to them is.");
+assert.ok(realityMessage({ tryingFor: "lt6m", obstacles: ["weekends", "food", "busy"] }).startsWith("Biggest struggles: weekends, knowing what to eat, and a busy schedule."));
 assert.equal(tipsFor(["food", "weekends", "busy"]).length, 2);
 
 // Validation

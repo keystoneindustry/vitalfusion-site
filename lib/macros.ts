@@ -237,23 +237,22 @@ function joinPhrases(items: string[]): string {
   return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
 }
 
-/** The gentle "reality" paragraph, written from their own answers. */
-export function realityMessage(q: Pick<QuizInput, "tryingFor" | "obstacles">): string {
+/** The short "reality" check, written from their own answers. */
+export const REALITY_PUNCH = "The numbers were never the hard part. Sticking to them is.";
+
+export function realityContext(q: Pick<QuizInput, "tryingFor" | "obstacles">): string {
   const phrases = OBSTACLES.filter((o) => q.obstacles.includes(o.value)).map((o) => o.phrase);
   const obstacleText = phrases.length ? joinPhrases(phrases.slice(0, 3)) : "";
   const time = TRYING_FOR.find((t) => t.value === q.tryingFor)?.phrase ?? "";
+  const label = phrases.length > 1 ? "Biggest struggles" : "Biggest struggle";
+  const parts: string[] = [];
+  if (time) parts.push(`You've been at this for ${time}.`);
+  if (obstacleText) parts.push(`${label}: ${obstacleText}.`);
+  return parts.join(" ");
+}
 
-  const struggle = phrases.length > 1 ? "your biggest struggles are" : "your biggest struggle is";
-  const opener =
-    time && obstacleText
-      ? `You've been working toward this for ${time}, and you said ${struggle} ${obstacleText}.`
-      : time
-        ? `You've been working toward this for ${time}.`
-        : obstacleText
-          ? `You're early in this, and you said ${struggle} ${obstacleText}.`
-          : "You're early in this, which is the best time to build the right habits.";
-
-  return `${opener} Here's the honest truth: these numbers were never the hard part. Hitting them on a busy Tuesday, after a weekend out, or when motivation is gone — that's where most plans fall apart.`;
+export function realityMessage(q: Pick<QuizInput, "tryingFor" | "obstacles">): string {
+  return [realityContext(q), REALITY_PUNCH].filter(Boolean).join(" ");
 }
 
 /** Tips for the obstacles they picked (max 2). */

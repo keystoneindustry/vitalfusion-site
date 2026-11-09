@@ -15,7 +15,8 @@ import {
   formatDate,
   goalDate,
   labelOf,
-  realityMessage,
+  REALITY_PUNCH,
+  realityContext,
   tipsFor,
   validateQuiz,
   type MacroResults,
@@ -288,7 +289,10 @@ export default function MacroQuiz({ source }: { source: string }) {
         </section>
 
         <section className="m-bridge">
-          <p className="m-reality">{realityMessage(input)}</p>
+          <div className="m-reality">
+            {realityContext(input) && <p className="m-reality-context">{realityContext(input)}</p>}
+            <p className="m-reality-punch">{REALITY_PUNCH}</p>
+          </div>
           <h2 className="m-h2">{q.bridgeTitle}</h2>
           <p>{q.bridge}</p>
           <Link href="/apply?source=macro-quiz" className="btn btn-wide" onClick={() => prefillApplication(input)}>
