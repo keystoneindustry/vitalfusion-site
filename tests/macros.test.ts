@@ -26,6 +26,8 @@ assert.equal(bulk.calories, bulk.maintenance + 200);
 assert.equal(bulk.weeklyChangeLb, 0.4);
 assert.equal(bulk.weeksToGoal, 25); // 10 lb / 0.4 lb a week
 assert.ok(bulk.carbs > r.carbs);
+assert.equal(bulk.fat, 76); // 0.42 × 180
+assert.equal(bulk.carbs, Math.floor((bulk.calories - 144 * 4 - 76 * 9) / 4));
 console.log("180 lb man, build muscle to 190:", bulk);
 // teens can still build muscle (small surplus is fine)
 { const t = calculate({ ...base, age: 16, goal: "muscle", pace: "", goalWeightLb: 190 }); assert.equal(t.calories, t.maintenance + 200); }

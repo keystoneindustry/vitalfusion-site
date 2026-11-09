@@ -148,6 +148,7 @@ export const RULES = {
   proteinPerLb: 0.8,
   proteinMax: 180,
   fatPerLb: 0.35,
+  fatPerLbMuscle: 0.42, // build-muscle plans get a little more fat
   fatMax: 80,
   fatMaxHeavier: 100, // only allowed if carbs stay at or above carbMin
   carbMin: 100,
@@ -221,7 +222,7 @@ export function calculate(q: Pick<QuizInput, "sex" | "age" | "heightFt" | "heigh
   const protein = Math.min(Math.round(baseLb * RULES.proteinPerLb), RULES.proteinMax);
   const carbsFor = (p: number, f: number) => Math.floor((calories - p * 4 - f * 9) / 4);
 
-  const fatIdeal = baseLb * RULES.fatPerLb;
+  const fatIdeal = baseLb * (q.goal === "muscle" ? RULES.fatPerLbMuscle : RULES.fatPerLb);
   let fat = Math.round(Math.min(fatIdeal, RULES.fatMax));
   // Heavier people may go up to 100 g of fat, but only if carbs stay ≥ the minimum.
   if (fatIdeal > RULES.fatMax) {

@@ -19,7 +19,7 @@ is not a developer; explain changes plainly and keep the site simple.
   confirmation email (`applicantEmail` in `lib/email.ts`). Copy in `content/site.ts` → `nextSteps`.
 - `/macros` is a hidden (noindex) macro-calculator lead magnet for Instagram ("comment MACROS"
   via ManyChat → `/macros?source=macros`). Math + rules in `lib/macros.ts` (Mifflin-St Jeor;
-  protein 0.8 g/lb max 180; fat 0.35 g/lb max 80, up to 100 if carbs ≥100; carbs ≥100 g;
+  protein 0.8 g/lb max 180; fat 0.35 g/lb (0.42 for build muscle) max 80, up to 100 if carbs ≥100; carbs ≥100 g;
   fiber 14 g/1000 kcal; calorie floors; under-18 = maintenance for fat loss). Goal is the first
   question and branches the funnel: Lose fat → pace question + deficit; Build muscle → +200 kcal;
   Maintain → maintenance, no goal-weight question. Obstacles (`obstaclesFor`) and meal
