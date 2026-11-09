@@ -93,7 +93,6 @@ export function macroResultsEmail(q: QuizInput, r: MacroResults, siteUrl: string
       <h2 style="font-size:18px;margin:16px 0 8px">${esc(c.bridgeTitle)}</h2>
       <p style="${P}">${esc(c.bridge)}</p>
       <a href="${applyUrl}" style="display:inline-block;background:#6a9fc6;color:#ffffff;font-weight:700;font-size:16px;text-decoration:none;border-radius:12px;padding:14px 22px">${esc(c.bridgeButton)}</a>
-      <div style="font-size:11px;color:#6b707b;margin-top:8px">${esc(c.resultsVary)}</div>
     </div>
     <p style="margin:24px 0 0;font-size:16px;line-height:1.6;color:#d4d7dd">Talk soon,<br><strong style="color:#ffe7ab">${esc(site.coachName)}</strong><br>${esc(site.brand)}</p>
   </div>
@@ -117,7 +116,6 @@ export function macroResultsEmail(q: QuizInput, r: MacroResults, siteUrl: string
     ``,
     `${c.bridgeTitle} ${c.bridge}`,
     `Apply for 1:1 coaching: ${applyUrl}`,
-    `(${c.resultsVary})`,
     ``,
     `Talk soon,`,
     site.coachName,

@@ -190,7 +190,14 @@ export const site = {
       },
     ],
     bridgeTitle: "That's where I come in.",
-    bridge: "A plan built around your life, weekly check-ins, and someone in your corner. Charlie G. lost 14 lbs in 12 weeks, still eating the foods he loves.",
+    bridge: "A plan built around your life, weekly check-ins, and someone in your corner.",
+    // Client example, shown on the results page only (not in the email).
+    clientExample: {
+      label: "Real client example",
+      image: "/images/graph2.webp",
+      headline: "Charlie G. lost 14 lbs in 12 weeks",
+      text: "No extreme dieting, and he still ate the foods he loves.",
+    },
     bridgeButton: "Apply for 1:1 Coaching →",
     resultsVary: "Individual results vary.",
     disclaimer: "These numbers are estimates based on the Mifflin-St Jeor formula and are not medical advice. Check with your doctor before changing your diet, especially if you have a medical condition, are pregnant, or are under 18.",

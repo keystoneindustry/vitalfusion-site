@@ -320,6 +320,15 @@ export default function MacroQuiz({ source }: { source: string }) {
           </div>
           <h2 className="m-h2">{q.bridgeTitle}</h2>
           <p>{q.bridge}</p>
+          <figure className="m-client">
+            <p className="m-client-label">{q.clientExample.label}</p>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={q.clientExample.image} alt={`Weigh-in chart: ${q.clientExample.headline}`} loading="lazy" />
+            <figcaption>
+              <strong>{q.clientExample.headline}</strong>
+              <span>{q.clientExample.text}</span>
+            </figcaption>
+          </figure>
           <Link href="/apply?source=macro-quiz" className="btn btn-wide" onClick={() => prefillApplication(input)}>
             {q.bridgeButton}
           </Link>

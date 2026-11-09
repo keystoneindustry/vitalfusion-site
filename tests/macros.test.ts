@@ -139,6 +139,7 @@ import { macroResultsEmail, coachLeadEmail, leadRow, SHEET_COLUMNS } from "../li
       assert.ok(!me.html.includes("fat-loss meals"));
     }
     assert.ok(em.text.includes("Protein 144g"));
+    assert.ok(!em.html.includes("Charlie") && !em.text.includes("Charlie"), "no Charlie in email");
     const row = leadRow(v2.data, res);
     assert.deepEqual(Object.keys(row), [...SHEET_COLUMNS], "row matches sheet columns");
     assert.equal(row["Lead Rating"], "Hot");
