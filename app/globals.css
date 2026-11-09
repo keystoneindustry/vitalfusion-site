@@ -213,6 +213,7 @@ input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px
 
 .check { width: 104px; height: 104px; border-radius: 50%; display: grid; place-items: center; font-size: 52px; font-weight: 800; color: #74d98a; background: #17261f; border: 2px solid #2c5a3a; margin: 20px 0; }
 .thanks { font-size: 18px; line-height: 1.6; color: var(--text-2); margin: 0; text-align: center; }
+.thanks-email { margin-top: 18px; color: var(--gold); font-weight: 600; }
 
 /* ───────── Hidden /next-steps page ───────── */
 .next-steps { max-width: 680px; padding-top: 40px; }

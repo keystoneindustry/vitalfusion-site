@@ -159,6 +159,7 @@ export default function ApplyForm({ source, initialAge = "" }: { source: string;
             Thank you for applying. We&apos;ll review your information and see if one-on-one coaching
             is the right fit for your goals. We&apos;ll reach out soon to schedule your consultation call.
           </p>
+          <p className="thanks thanks-email">Check your email for additional information.</p>
         </div>
         <Link href="/" className="btn">← Back to Home</Link>
       </main>
