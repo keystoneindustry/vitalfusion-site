@@ -110,6 +110,52 @@ export const site = {
     videoUrl: "",
   },
 
+  // Hidden macro calculator quiz at /macros (Instagram "comment MACROS" link).
+  macroQuiz: {
+    title: "Free Macro Calculator",
+    intro: "Answer a few quick questions and get your daily calories, protein, carbs and fat, plus the meals my clients eat for fat loss.",
+    startButton: "Calculate My Macros →",
+    note: "Takes about 60 seconds · 100% free",
+    leadTitle: "Where should I send your plan?",
+    leadNote: "Your results show on the next screen, and I'll email you a copy.",
+    resultsButton: "Show My Results →",
+    mealsTitle: "My top 3 fat-loss meals",
+    mealsSub: "These are the meals my clients eat most. They're not portioned to your macros, just great go-to options.",
+    meals: [
+      {
+        name: "Sockeye salmon, sweet potatoes & vegetables",
+        why: [
+          "Salmon is lean protein packed with omega-3 fats",
+          "Sweet potatoes and vegetables add fiber, so you stay full longer",
+          "Lots of food on the plate for the calories",
+        ],
+      },
+      {
+        name: "Nonfat Greek yogurt bowl",
+        detail: "with protein powder, fruit, honey & almond butter",
+        why: [
+          "Greek yogurt + protein powder = a huge hit of protein",
+          "Probiotics in the yogurt support healthy digestion",
+          "Fruit adds fiber, and it tastes like dessert, which kills cravings",
+        ],
+      },
+      {
+        name: "93/7 ground beef, potatoes & pineapple",
+        why: [
+          "Lean beef is high in protein, iron and B12",
+          "Potatoes are one of the most filling foods per calorie",
+          "Pineapple adds fiber, vitamin C and natural sweetness",
+        ],
+      },
+    ],
+    bridgeTitle: "Want help actually hitting these numbers?",
+    bridge: "That's exactly what I help my 1:1 clients with: a plan built around your life, weekly check-ins, and someone in your corner when it gets hard. Charlie G. lost 14 lbs in 12 weeks without extreme dieting, while still eating the foods he loves.",
+    bridgeButton: "Apply for 1:1 Coaching →",
+    resultsVary: "Individual results vary.",
+    disclaimer: "These numbers are estimates based on the Mifflin-St Jeor formula and are not medical advice. Check with your doctor before changing your diet, especially if you have a medical condition, are pregnant, or are under 18.",
+    emailSubject: "Your macro plan 💪",
+  },
+
   // The /vital-method promo page (used for ads / bio links)
   promo: {
     headline: "The VITAL Method",
