@@ -94,8 +94,6 @@ export interface QuizInput {
   obstacles: Obstacle[];
   name: string;
   email: string;
-  phone: string;
-  instagram: string;
   source: string;
 }
 
@@ -334,15 +332,6 @@ export function validateQuiz(
   if (check("email") && (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || email.length > 254))
     errors.email = "Please enter a valid email address.";
 
-  const phone = str(raw.phone);
-  const digits = phone.replace(/\D/g, "");
-  if (check("phone") && phone && (digits.length < 10 || digits.length > 15)) errors.phone = "Please enter a valid phone number.";
-
-  let instagram = str(raw.instagram).replace(/^@+/, "");
-  if (check("instagram") && instagram && !/^[A-Za-z0-9._]{1,30}$/.test(instagram))
-    errors.instagram = "That doesn't look like an Instagram handle.";
-  instagram = instagram ? `@${instagram}` : "";
-
   const source = str(raw.source).slice(0, 60) || "Macro Quiz";
 
   if (Object.keys(errors).length) return { ok: false, errors };
@@ -362,8 +351,6 @@ export function validateQuiz(
       obstacles,
       name,
       email,
-      phone,
-      instagram,
       source,
     },
   };

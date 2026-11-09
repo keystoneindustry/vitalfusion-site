@@ -75,10 +75,10 @@ assert.ok(realityMessage({ tryingFor: "lt6m", obstacles: ["cravings"] }).startsW
 assert.equal(tipsFor(["food", "weekends", "busy"]).length, 2);
 
 // Validation
-const good = { ...base, pace: "balanced", tryingFor: "1to3y", obstacles: ["weekends", "bogus"], name: "Jordan Smith", email: " Jordan@Example.com ", phone: "", instagram: "@jordan.fit", source: "Macros" };
+const good = { ...base, pace: "balanced", tryingFor: "1to3y", obstacles: ["weekends", "bogus"], name: "Jordan Smith", email: " Jordan@Example.com ", source: "Macros" };
 const v = validateQuiz(good);
 assert.ok(v.ok);
-if (v.ok) { assert.deepEqual(v.data.obstacles, ["weekends"]); assert.equal(v.data.email, "jordan@example.com"); assert.equal(v.data.instagram, "@jordan.fit"); }
+if (v.ok) { assert.deepEqual(v.data.obstacles, ["weekends"]); assert.equal(v.data.email, "jordan@example.com"); }
 const bad = validateQuiz({ age: 10, heightFt: 9, weightLb: 20 });
 assert.ok(!bad.ok && bad.errors.age?.includes("13") && bad.errors.heightFt && bad.errors.weightLb && bad.errors.email);
 const stepOnly = validateQuiz({ age: 30 }, ["age"]);

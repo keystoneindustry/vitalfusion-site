@@ -40,14 +40,12 @@ type Answers = {
   obstacles: string[];
   name: string;
   email: string;
-  phone: string;
-  instagram: string;
 };
 
 const EMPTY: Answers = {
   sex: "", age: "", heightFt: "", heightIn: "", weightLb: "", goalWeightLb: "",
   activity: "", goal: "", pace: "", tryingFor: "", obstacles: [],
-  name: "", email: "", phone: "", instagram: "",
+  name: "", email: "",
 };
 
 type StepId = "sex" | "age" | "height" | "weight" | "goalWeight" | "activity" | "goal" | "pace" | "trying" | "obstacles" | "lead";
@@ -63,7 +61,7 @@ const FIELDS: Record<StepId, (keyof QuizInput)[]> = {
   pace: ["pace"],
   trying: ["tryingFor"],
   obstacles: ["obstacles"],
-  lead: ["name", "email", "phone", "instagram"],
+  lead: ["name", "email"],
 };
 
 const APPLY_SAVE_KEY = "vf-apply-progress"; // read by the application form
@@ -184,8 +182,6 @@ export default function MacroQuiz({ source }: { source: string }) {
             helpAreas: [...helpAreas],
             fullName: input.name,
             email: input.email,
-            phone: input.phone,
-            instagram: input.instagram,
           },
           step: ageRange ? 1 : 0,
         }),
@@ -491,16 +487,6 @@ export default function MacroQuiz({ source }: { source: string }) {
                 <label htmlFor="email">Email</label>
                 <input id="email" type="email" autoComplete="email" inputMode="email" value={a.email} onChange={(e) => set("email", e.target.value)} placeholder="john@example.com" />
                 {err("email")}
-              </div>
-              <div className="field">
-                <label htmlFor="phone">Phone <span className="muted">(Optional)</span></label>
-                <input id="phone" type="tel" autoComplete="tel" inputMode="tel" value={a.phone} onChange={(e) => set("phone", e.target.value)} placeholder="+1 (555) 123-4567" />
-                {err("phone")}
-              </div>
-              <div className="field">
-                <label htmlFor="instagram">Instagram <span className="muted">(Optional)</span></label>
-                <input id="instagram" autoCapitalize="none" autoCorrect="off" value={a.instagram} onChange={(e) => set("instagram", e.target.value)} placeholder="@yourusername" />
-                {err("instagram")}
               </div>
               <div className="hp" aria-hidden>
                 <label htmlFor="company">Company</label>

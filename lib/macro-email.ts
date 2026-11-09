@@ -129,8 +129,6 @@ export function leadRow(q: QuizInput, r: MacroResults, now: Date = new Date()): 
     Timestamp: now.toLocaleString("en-US", { timeZone: "America/New_York" }),
     Name: q.name,
     Email: q.email,
-    Phone: q.phone,
-    Instagram: q.instagram,
     "Lead Rating": leadRating(q),
     Source: q.source,
     Sex: q.sex === "male" ? "Male" : "Female",
@@ -154,7 +152,7 @@ export function leadRow(q: QuizInput, r: MacroResults, now: Date = new Date()): 
 }
 
 export const SHEET_COLUMNS = [
-  "Timestamp", "Name", "Email", "Phone", "Instagram", "Lead Rating", "Source", "Sex", "Age", "Height",
+  "Timestamp", "Name", "Email", "Lead Rating", "Source", "Sex", "Age", "Height",
   "Weight (lb)", "Goal Weight (lb)", "Activity", "Goal", "Pace", "Trying For", "Obstacles",
   "Maintenance", "Calories", "Protein (g)", "Carbs (g)", "Fat (g)", "Fiber (g)", "Goal Date",
 ] as const;
