@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { GOALS, calculate, labelOf, leadRating, primaryObstacle, validateQuiz } from "@/lib/macros";
+import { calculate, validateQuiz } from "@/lib/macros";
+import { sequencePayload } from "@/lib/sequence";
 import { sendResendEvent } from "@/lib/resend-events";
 import { coachLeadEmail, leadRow, macroResultsEmail } from "@/lib/macro-email";
 import { sendEmail } from "@/lib/email";
@@ -34,17 +35,10 @@ export async function POST(req: Request) {
   const canEmailLead = from !== "" && !from.includes("resend.dev");
   const notifyTo = process.env.NOTIFY_EMAIL;
 
-  const obstacle = primaryObstacle(q.obstacles);
   const tasks: Promise<unknown>[] = [
     appendLeadRow(leadRow(q, r)),
-    // Starts the day 2 / 4 / 7 follow-up emails in Resend Automations.
-    sendResendEvent("macro_quiz.completed", q.email, {
-      first_name: q.name.split(/\s+/)[0],
-      goal: labelOf(GOALS, q.goal),
-      obstacle_phrase: obstacle?.phrase ?? "staying consistent",
-      obstacle_tip: obstacle?.tip ?? "Aim for 80%, not perfect. Hitting your protein and calories most days beats a perfect week followed by quitting.",
-      lead_rating: leadRating(q),
-    }),
+    // Starts the day 2 / 4 / 7 follow-up emails in Resend Automations (content: lib/sequence.ts).
+    sendResendEvent("macro_quiz.completed", q.email, sequencePayload(q, r)),
     notifyTo ? sendEmail({ to: notifyTo, replyTo: q.email, ...coachLeadEmail(q, r) }) : Promise.resolve(),
     canEmailLead ? sendEmail({ to: q.email, replyTo: notifyTo, ...macroResultsEmail(q, r, siteUrl) }) : Promise.resolve(),
   ];

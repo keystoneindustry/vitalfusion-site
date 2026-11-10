@@ -155,3 +155,31 @@ import { primaryObstacle } from "../lib/macros";
 assert.equal(primaryObstacle(["busy", "weekends"])?.phrase, "weekends");
 assert.equal(primaryObstacle([]), null);
 console.log("Email tests passed");
+
+// Follow-up sequence payload
+import { sequencePayload, OBSTACLE_STEPS, MISTAKES } from "../lib/sequence";
+{
+  for (const o of ["consistency","weekends","cravings","food","protein","eatingEnough","gym","program","busy","accountability"] as const)
+    assert.equal(OBSTACLE_STEPS[o].length, 3, o);
+  const lv = validateQuiz({ ...good, goal: "lose", obstacles: ["busy", "weekends", "consistency", "accountability"], name: "Jo <i>x</i> Smith" });
+  assert.ok(lv.ok);
+  if (lv.ok) {
+    const pl = sequencePayload(lv.data, calculate(lv.data), new Date("2026-11-09T12:00:00Z"));
+    assert.equal(pl.obstacles_text, "staying consistent, weekends, and a busy schedule"); // max 3, in list order
+    assert.ok(pl.tips_html.includes("Weekends &amp; social events") && !pl.tips_html.includes("No accountability"));
+    assert.ok(pl.payoff.includes("165 lbs") && pl.payoff.includes("2027"));
+    assert.ok(pl.reality.includes("1–3 years"));
+    assert.equal(pl.mistake_title, MISTAKES.lose.title.replace(/&/g, "&amp;"));
+    assert.equal(pl.first_name, "Jo");
+  }
+  const mv = validateQuiz({ ...good, goal: "muscle", goalWeightLb: 190, tryingFor: "lt6m", obstacles: ["protein"] });
+  if (mv.ok) {
+    const pl = sequencePayload(mv.data, calculate(mv.data));
+    assert.equal(pl.obstacles_text, "getting enough protein");
+    assert.ok(pl.payoff.includes("up to 190 lbs") && pl.reality.includes("week three"));
+    assert.ok(pl.mistake_title.includes("Training hard"));
+  }
+  const kv = validateQuiz({ ...good, goal: "maintain", goalWeightLb: "", obstacles: ["cravings"] });
+  if (kv.ok) assert.ok(sequencePayload(kv.data, calculate(kv.data)).payoff.startsWith("Picture this: a few months"));
+}
+console.log("Sequence tests passed");
