@@ -228,17 +228,17 @@ export function planDraftCoachEmail(opts: { clientName: string; kickoff: string 
   };
 }
 
-/** To the client when their plan is published. */
-export function planPublishedClientEmail(firstName: string, link: string) {
-  const subject = "Your Vital Fusion plan is ready 🎉";
+/** To the client the first time their meal plan or training program is published. */
+export function planPublishedClientEmail(firstName: string, part: "nutrition" | "training", link: string) {
+  const meals = part === "nutrition";
+  const subject = meals ? "Your Vital Fusion nutrition plan is ready 🎉" : "Your Vital Fusion training program is ready 💪";
+  const heading = meals ? `${firstName}, your nutrition plan is live!` : `${firstName}, your training program is live!`;
+  const body = meals
+    ? "Your daily targets, your perfect day and your meal library are now in the app, under the Nutrition tab. The Today tab shows your numbers for the day."
+    : "Your workouts are now in the app, under the Training tab, with sets, reps and rest for every exercise.";
   return {
     subject,
-    html: card(
-      `${firstName}, your plan is live!`,
-      `<p style="margin:0 0 12px">Your daily targets, your meal plan and your training program are now in the app.</p>
-       <p style="margin:0">Start with the Today tab: it shows your numbers for the day. Your meals are under Nutrition and your workouts under Training.</p>
-       <p style="margin:12px 0 0">– Tyler</p>${button("Open my plan", link)}`,
-    ),
-    text: `${firstName}, your plan is live!\n\nYour daily targets, meal plan and training program are now in the app. Start with the Today tab; your meals are under Nutrition and your workouts under Training.\n\n${link}\n\n– Tyler`,
+    html: card(heading, `<p style="margin:0">${esc(body)}</p><p style="margin:12px 0 0">– Tyler</p>${button(meals ? "Open my nutrition plan" : "Open my training", link)}`),
+    text: `${heading}\n\n${body}\n\n${link}\n\n– Tyler`,
   };
 }

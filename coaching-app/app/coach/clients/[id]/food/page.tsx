@@ -22,17 +22,13 @@ export default async function CoachFoodPage({ params }: { params: Promise<{ id: 
   const stats = logStats(meals, client.timezone, todayIn(client.timezone));
   return (
     <div style={{ maxWidth: 680 }}>
-      <p className="small">
-        <Link href={`/coach/clients/${client.id}`}>← {client.full_name}</Link>
-      </p>
-      <h1 className="h1">{client.full_name}'s food log</h1>
-      <p className="lead">
+      <p className="lead" style={{ marginTop: 4 }}>
         {stats.total} entr{stats.total === 1 ? "y" : "ies"} over {stats.days} day{stats.days === 1 ? "" : "s"}. Tap a photo to
         open it full size.
       </p>
       <p>
-        <Link className="btn btn-sm" href={`/coach/clients/${client.id}/plan`}>
-          Go to their plan →
+        <Link className="btn btn-sm" href={`/coach/clients/${client.id}/meals`}>
+          Go to their meal plan →
         </Link>
       </p>
       {meals.length === 0 ? (

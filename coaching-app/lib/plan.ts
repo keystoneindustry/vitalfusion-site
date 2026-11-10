@@ -488,3 +488,39 @@ export function sanitizeEditedTraining(raw: unknown): { ok: true; training: Trai
     training: { overview: s(o.overview, 1500), warmup: s(o.warmup, 800), progression: s(o.progression, 1000), notes: s(o.notes, 1000), days },
   };
 }
+
+// ───────── Meals and workouts are published separately ─────────
+
+export type PlanPart = "nutrition" | "training";
+export type PartState = "empty" | "draft" | "live" | "changed";
+
+type HasPart = { content: PlanContent; targets: { calories: number; protein: number; carbs: number; fat: number; fiber: number; waterOz: number } };
+
+function partHas(p: HasPart | null, part: PlanPart): boolean {
+  if (!p) return false;
+  return part === "nutrition" ? p.content.meals.length > 0 : p.content.training.days.length > 0;
+}
+
+/** Everything the client sees for one part, as a string, to tell whether the draft differs from what's live. */
+export function partSnapshot(p: HasPart, part: PlanPart): string {
+  if (part === "training") return JSON.stringify(p.content.training);
+  const t = p.targets;
+  return JSON.stringify({
+    t: [t.calories, t.protein, t.carbs, t.fat, t.fiber, t.waterOz],
+    meals: p.content.meals,
+    day: p.content.perfectDay,
+    welcome: p.content.welcome,
+    easing: p.content.insights.easingIn,
+  });
+}
+
+/** empty = nothing yet · draft = not published yet · live = client sees exactly this · changed = live, with unpublished edits. */
+export function partState(work: HasPart | null, pub: HasPart | null, part: PlanPart): PartState {
+  if (!partHas(pub, part)) return partHas(work, part) ? "draft" : "empty";
+  if (!work) return "live";
+  return partSnapshot(work, part) === partSnapshot(pub!, part) ? "live" : "changed";
+}
+
+export function partStateLabel(s: PartState): string {
+  return { empty: "Not started", draft: "Draft · not published", live: "Live ✓", changed: "Live · unpublished changes" }[s];
+}

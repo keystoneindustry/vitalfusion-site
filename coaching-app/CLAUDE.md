@@ -19,8 +19,10 @@ Separate Next.js app (App Router, TypeScript, plain CSS, no extra dependencies) 
   lasts 60 days and renews on use. Expired access tokens are refreshed through `/auth/refresh?next=…`.
 - Roles: emails in `COACH_EMAILS` are the coach (→ `/coach`); everyone else must have a row in
   `clients` (→ the client app at `/`). Unknown emails get the same "check your email" screen but no email.
-- Coach CRM: `/coach` (client list, flags), `/coach/clients/new` (add + invite), `/coach/clients/[id]`
-  (edit package dates, stage, notes, resend invite, timeline). Server actions in `app/coach/actions.ts`.
+- Coach CRM: `/coach` (client list, flags), `/coach/clients/new` (add + invite). Each client has tabs
+  (`app/coach/clients/[id]/layout.tsx` + `ClientTabs.tsx`): Overview (onboarding, meals/training status, timeline),
+  Food log, Meals, Training, Details (edit package/stage/notes, resend invite). Server actions in `app/coach/actions.ts`
+  (CRM) and `app/coach/clients/[id]/plan-actions.ts` (plans).
 - Onboarding (Phase 2): `app/onboarding/` (own layout, no tab bar). Steps in `lib/onboarding.ts`, stored in
   `clients.onboarding_step` (welcome → install → agreement → questions → how_it_works → kickoff → done); pages guard
   with `onboarding/guard.ts` and server actions live in `onboarding/actions.ts`. Agreement wording + validation:
@@ -35,22 +37,26 @@ Separate Next.js app (App Router, TypeScript, plain CSS, no extra dependencies) 
   ≤1280 px JPEG, posted to `app/api/meals`, stored in the private `meal-photos` bucket; table `meal_logs`, helpers in
   `lib/meals.ts`; photos shown through short-lived signed URLs). Plans live in `plans` (one open draft/drafting/failed
   row per client, plus published/archived). Targets come from `lib/targets.ts`, which uses `lib/macros.ts` — a COPY of
-  the website's `lib/macros.ts` (keep in sync). The AI (`lib/ai.ts`, Claude API over REST, forced tool → JSON;
-  ANTHROPIC_API_KEY, optional ANTHROPIC_MODEL) drafts nutrition and training in two parallel calls
+  the website's `lib/macros.ts` (keep in sync). The AI (`lib/ai.ts`, Claude API over REST, structured outputs via
+  `output_config.format` json_schema — forced tool_choice is NOT supported by the model — schemas made strict by
+  `strictSchema`, effort "medium"; ANTHROPIC_API_KEY, optional ANTHROPIC_MODEL) drafts nutrition and training in two parallel calls
   (`lib/plan-draft.ts`); the shapes and cleaning live in `lib/plan.ts`. Meal macros are recomputed from USDA
   FoodData Central (`lib/food-data.ts`, USDA_API_KEY, cached in `food_cache`) unless the match looks implausible next
-  to the AI's estimate. Coach review/edit/revise/publish: `/coach/clients/[id]/plan` (server actions in `actions.ts`,
-  AI work runs after the response via `after()`, page `maxDuration = 300`). Daily cron `app/api/cron/plans`
-  (`vercel.json`, CRON_SECRET) drafts plans for kickoffs in the next 40 h and emails the coach; health-flagged clients
-  are skipped. Publishing moves the client to Active and emails them; the client sees targets on Today, meals on
-  the Nutrition tab (`/nutrition`; `/plan` redirects there) and the program on Training (`/train`).
-  The coach edits plans in two client-side builders on the plan page: `TrainingBuilder.tsx` (days/exercises/notes, live
-  checks from `lib/training-brief.ts`) and `MealBuilder.tsx` (perfect day with live totals, meals ingredient by
-  ingredient; new/renamed foods are looked up in USDA on save via `fillMissing`). Each saves the whole part through
-  `saveTrainingAction` / `saveNutritionAction`. "Build it myself" starts an empty plan (`emptyContent()`); `aiPartAction`
-  lets the AI (re)draft just meals or just workouts (`runDraft(..., { part, fresh: true })`). Training drafts get a
-  must-follow brief from the onboarding answers (`trainingBrief`) and one automatic fix-up pass if `trainingWarnings`
-  finds problems (wrong day count, too long, missing equipment); remaining warnings become "Training: …" coach notes.
+  to the AI's estimate. Meals and training are separate for the coach: `/coach/clients/[id]/meals` and `/training`
+  (`/plan` redirects). The coach always edits a working copy (`workingPlan()` in `lib/plans.ts`: the open draft, or a copy of
+  the published plan, or a new empty plan) and publishes each part on its own (`publishPart`: a new published row that
+  merges this part with the other part as it was published; targets go with the meals). `partState` (lib/plan.ts) says
+  empty / draft / live / changed per part; `revertPartAction` throws away unpublished changes to one part. AI runs:
+  `startDraft(client, part)` claims the plan (`status = drafting`, `drafting_part`), then `runDraft` runs via `after()`
+  (pages `maxDuration = 300`) and merges its result into the latest saved plan, so the other part's edits survive.
+  Builders: `TrainingBuilder.tsx` (live checks from `lib/training-brief.ts`) and `MealBuilder.tsx` (perfect day with
+  live totals; new/renamed foods looked up in USDA on save via `fillMissing`), saved by `saveTrainingAction` /
+  `saveNutritionAction`. Training drafts get a must-follow brief from the onboarding answers (`trainingBrief`) and one
+  automatic fix-up pass if `trainingWarnings` finds problems; leftovers become "Training: …" coach notes. Daily cron
+  `app/api/cron/plans` (`vercel.json`, CRON_SECRET) drafts both parts for kickoffs in the next 40 h and emails the
+  coach; health-flagged clients are skipped. Publishing moves the client to Active and emails them (per part, first
+  time). The client sees targets on Today and meals on Nutrition (`/nutrition`) once meals are live, and the program
+  on Training (`/train`) once training is live.
 - Client app (`app/(client)/`): tabs Today, Calendar, Training (`/train`), Nutrition (`/nutrition`) and a ☰ More
   sheet (`TabBar.tsx`) with Progress, Food log, Library (`/learn`), Settings (`/settings`: account, agreement PDF,
   sign out), Add to home screen (`/install`) and Sign out.

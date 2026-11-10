@@ -7,7 +7,7 @@
  * Tyler always reviews and publishes; nothing reaches the client from here.
  */
 
-import { askForJson, aiConfigured, type AiUsage, type ContentBlock, type ToolSpec } from "./ai";
+import { askForJson, aiConfigured, type AiUsage, type ContentBlock, type JsonSpec } from "./ai";
 import { addEvent, getClient, type ClientRow } from "./clients";
 import { firstName } from "./client-input";
 import { getResponse, latestAgreement } from "./onboarding-data";
@@ -19,6 +19,7 @@ import { ageOn } from "./agreement";
 import { todayIn } from "./dates";
 import { computeTargets, inputsFromAnswers, targetLine, type Targets } from "./targets";
 import {
+  emptyContent,
   cleanNutrition,
   cleanTraining,
   ingredientMacros,
@@ -27,7 +28,7 @@ import {
   type PlanContent,
   type Training,
 } from "./plan";
-import { getOpenPlan, getPlan, hasContent, hasTargets, insertPlan, claimForDrafting, updatePlan, type PlanRow } from "./plans";
+import { getPlan, hasContent, hasTargets, claimForDrafting, updatePlan, workingPlan, type PlanRow, type ReadyPlan } from "./plans";
 import { formatCallTime } from "./booking";
 import { trainingBrief, trainingWarnings, withTrainingNotes } from "./training-brief";
 
@@ -159,10 +160,9 @@ const INGREDIENT_SCHEMA = {
   required: ["food", "grams", "household", "calories", "protein", "carbs", "fat"],
 };
 
-const NUTRITION_TOOL: ToolSpec = {
-  name: "submit_nutrition_plan",
-  description: "Submit the drafted nutrition plan for Tyler to review.",
-  input_schema: {
+const NUTRITION_OUTPUT: JsonSpec = {
+  name: "nutrition_plan",
+  schema: {
     type: "object",
     properties: {
       welcome: { type: "string", description: "2-4 sentences to the client introducing their plan." },
@@ -174,8 +174,8 @@ const NUTRITION_TOOL: ToolSpec = {
           mealTiming: { type: "string" },
           portions: { type: "string" },
           patterns: { type: "string" },
-          estimatedCalories: { type: "number", description: "Rough current daily calories; omit if there's no log." },
-          estimatedProtein: { type: "number" },
+          estimatedCalories: { type: "number", description: "Rough current daily calories; 0 if there's no food log." },
+          estimatedProtein: { type: "number", description: "Rough current daily protein in grams; 0 if there's no food log." },
           intakeNote: { type: "string" },
           easingIn: { type: "string" },
         },
@@ -219,10 +219,9 @@ const NUTRITION_TOOL: ToolSpec = {
   },
 };
 
-const TRAINING_TOOL: ToolSpec = {
-  name: "submit_training_program",
-  description: "Submit the drafted training program for Tyler to review.",
-  input_schema: {
+const TRAINING_OUTPUT: JsonSpec = {
+  name: "training_program",
+  schema: {
     type: "object",
     properties: {
       overview: { type: "string", description: "2-3 sentences to the client about the program." },
@@ -284,7 +283,7 @@ function nutritionForAi(n: Nutrition): unknown {
 
 function revisionText(kind: "nutrition plan" | "training program", current: unknown, instruction: string, callNotes: string): string {
   return [
-    `Here is the current ${kind} as JSON. Return the COMPLETE updated ${kind} through the tool. Keep everything that the changes below don't touch exactly as it is.`,
+    `Here is the current ${kind} as JSON. Return the COMPLETE updated ${kind}. Keep everything that the changes below don't touch exactly as it is.`,
     JSON.stringify(current),
     callNotes ? `TYLER'S KICKOFF CALL NOTES (these override the earlier answers where they differ):\n${callNotes}` : "",
     instruction ? `TYLER'S REQUESTED CHANGES:\n${instruction}` : "Update it to reflect the call notes.",
@@ -307,8 +306,8 @@ async function draftNutrition(ctx: ClientContext, t: Targets, revise: { current:
     if (ctx.client.kickoff_at) content.push({ type: "text", text: `Kickoff call: ${formatCallTime(ctx.client.kickoff_at, ctx.client.timezone)}.` });
     content.push({ type: "text", text: "Draft the nutrition plan now." });
   }
-  const res = await askForJson({ system: NUTRITION_SYSTEM, content, tool: NUTRITION_TOOL, maxTokens: 20000 });
-  const n = cleanNutrition(res.input);
+  const res = await askForJson({ system: NUTRITION_SYSTEM, content, output: NUTRITION_OUTPUT, maxTokens: 20000 });
+  const n = cleanNutrition(res.data);
   if (n.meals.length === 0) throw new Error("The AI's nutrition plan came back empty. Try again.");
   const { meals } = await applyUsda(n.meals);
   return { value: { ...n, meals }, usage: res.usage, model: res.model };
@@ -327,8 +326,8 @@ async function draftTraining(ctx: ClientContext, t: Targets, revise: { current: 
       text: revise ? revisionText("training program", revise.current, revise.instruction, revise.callNotes) : "Draft the training program now.",
     },
   ];
-  const res = await askForJson({ system: TRAINING_SYSTEM, content, tool: TRAINING_TOOL, maxTokens: 8000 });
-  let training = cleanTraining(res.input);
+  const res = await askForJson({ system: TRAINING_SYSTEM, content, output: TRAINING_OUTPUT, maxTokens: 8000 });
+  let training = cleanTraining(res.data);
   const usage: AiUsage[] = [res.usage];
   if (training.days.length === 0) throw new Error("The AI's training program came back empty. Try again.");
 
@@ -350,10 +349,10 @@ async function draftTraining(ctx: ClientContext, t: Targets, revise: { current: 
             ),
           },
         ],
-        tool: TRAINING_TOOL,
+        output: TRAINING_OUTPUT,
         maxTokens: 8000,
       });
-      const fixed = cleanTraining(fix.input);
+      const fixed = cleanTraining(fix.data);
       usage.push(fix.usage);
       if (fixed.days.length && trainingWarnings(fixed, ctx.answers).length <= problems.length) training = fixed;
     } catch (err) {
@@ -374,71 +373,80 @@ function addUsage(a: PlanRow["usage"], more: AiUsage[]): NonNullable<PlanRow["us
 export type StartResult = { ok: true; planId: string } | { ok: false; error: string };
 
 /**
- * Gets a plan ready to draft (creating it with calculator targets if needed) and marks it "drafting".
- * The slow AI work then runs in `runDraft`, usually after the response has been sent.
+ * Gets the client's working plan ready for the AI (creating an empty one with calculator targets if
+ * needed) and marks `part` as drafting. The slow AI work then runs in `runDraft`, after the response.
  */
-export async function startDraft(client: ClientRow, opts: { allowHealthFlag?: boolean } = {}): Promise<StartResult> {
+export async function startDraft(client: ClientRow, part: DraftPart, opts: { allowHealthFlag?: boolean } = {}): Promise<StartResult> {
   if (!aiConfigured()) return { ok: false, error: "The Claude API key isn't set up yet. Add ANTHROPIC_API_KEY in Vercel (see Settings)." };
   if (client.health_flag && !opts.allowHealthFlag) {
-    return { ok: false, error: "They answered YES on the health questions. Review that first, then confirm to draft anyway." };
+    return { ok: false, error: "They answered YES on the health questions. Tick the box to confirm you've reviewed it." };
   }
-  let plan = await getOpenPlan(client.id);
-  if (!plan) {
-    const ctx = await loadContext(client);
-    plan = await insertPlan({ client_id: client.id, status: "draft", targets: defaultTargets(ctx), content: {} as never });
-  } else if (!hasTargets(plan)) {
-    const ctx = await loadContext(client);
-    plan = await updatePlan(plan.id, { targets: defaultTargets(ctx) });
-  }
-  const claimed = await claimForDrafting(plan.id);
-  if (!claimed) return { ok: false, error: "A draft is already being written. Give it a minute." };
+  const plan = await workingPlan(client, () => loadContext(client).then(defaultTargets));
+  const claimed = await claimForDrafting(plan.id, part);
+  if (!claimed) return { ok: false, error: "The AI is already working on this plan. Give it a minute." };
   return { ok: true, planId: plan.id };
 }
 
 /**
- * Writes (or revises) the plan. `part` limits a revision to nutrition or training.
- * Never throws: failures are saved on the plan so the coach sees them.
+ * Drafts (or revises, when there's an instruction or call notes and the part already has content) the
+ * meals, the workouts, or both. The result is merged into the LATEST saved plan, so edits the coach saved
+ * to the other part meanwhile are kept. Never throws: failures are saved on the plan for the coach to see.
  */
 export async function runDraft(
   planId: string,
   opts: {
-    part?: DraftPart;
+    part: DraftPart;
     instruction?: string;
-    /** Draft `part` from scratch instead of revising it. */
+    /** Draft from scratch even if the part has content. */
     fresh?: boolean;
-    notifyCoach?: (client: ClientRow, plan: PlanRow) => Promise<void>;
-  } = {},
+    notifyCoach?: (client: ClientRow, plan: ReadyPlan) => Promise<void>;
+  },
 ): Promise<void> {
   const before = await getPlan(planId);
   if (!before || !hasTargets(before)) return;
   const client = await getClient(before.client_id);
   if (!client) return;
-  const part = opts.part ?? "both";
+  const part = opts.part;
   const instruction = (opts.instruction ?? "").trim();
   const callNotes = (before.call_notes ?? "").trim();
-  const existing = hasContent(before) ? before.content : null;
-  const revising = !!existing && !opts.fresh && (instruction !== "" || callNotes !== "") && opts.part !== undefined;
+  const current = hasContent(before) ? before.content : emptyContent();
+  const wantsRevision = !opts.fresh && (instruction !== "" || callNotes !== "");
+  const reviseNutrition = wantsRevision && current.meals.length > 0;
+  const reviseTraining = wantsRevision && current.training.days.length > 0;
 
   try {
     const ctx = await loadContext(client);
-    const doNutrition = part !== "training" || !existing;
-    const doTraining = part !== "nutrition" || !existing;
     const [n, t] = await Promise.all([
-      doNutrition ? draftNutrition(ctx, before.targets, revising && existing ? { current: existing, instruction, callNotes } : null) : null,
-      doTraining ? draftTraining(ctx, before.targets, revising && existing ? { current: existing.training, instruction, callNotes } : null) : null,
+      part !== "training" ? draftNutrition(ctx, before.targets, reviseNutrition ? { current, instruction, callNotes } : null) : null,
+      part !== "nutrition" ? draftTraining(ctx, before.targets, reviseTraining ? { current: current.training, instruction, callNotes } : null) : null,
     ]);
-    const nutrition: Nutrition = n ? n.value : (existing as Nutrition);
-    const training = t ? t.value : existing!.training;
-    const content: PlanContent = { ...nutrition, coachNotes: withTrainingNotes(nutrition.coachNotes, training, ctx.answers), training };
+
+    // Merge into whatever is saved now.
+    const latest = await getPlan(planId);
+    const base = latest && hasContent(latest) ? latest.content : current;
+    let content: PlanContent = { ...base };
+    if (n) {
+      const trainingNotes = base.coachNotes.filter((x) => x.startsWith("Training: "));
+      content = { ...content, ...n.value, coachNotes: [...n.value.coachNotes, ...trainingNotes], training: base.training };
+    }
+    if (t) content = { ...content, training: t.value, coachNotes: withTrainingNotes(content.coachNotes, t.value, ctx.answers) };
     const usage = addUsage(before.usage, [n?.usage, ...(t?.usage ?? [])].filter((u): u is AiUsage => !!u));
-    const saved = await updatePlan(planId, { status: "draft", content, error: null, ai_model: n?.model ?? t?.model ?? before.ai_model, usage });
-    await addEvent(client.id, revising ? "plan_revised" : "plan_drafted", { part: existing ? part : "both" });
-    if (!revising && opts.notifyCoach) await opts.notifyCoach(client, saved).catch((e) => console.error("Plan email failed", e));
+    const saved = await updatePlan(planId, {
+      status: "draft",
+      drafting_part: null,
+      content,
+      error: null,
+      ai_model: n?.model ?? t?.model ?? before.ai_model,
+      usage,
+    });
+    const revised = (n && reviseNutrition) || (t && reviseTraining);
+    await addEvent(client.id, revised ? "plan_revised" : "plan_drafted", { part });
+    if (!revised && opts.notifyCoach && hasContent(saved)) await opts.notifyCoach(client, saved).catch((e) => console.error("Plan email failed", e));
   } catch (err) {
     const message = err instanceof Error ? err.message : "Something went wrong.";
     console.error("Plan draft failed", err);
-    await updatePlan(planId, { status: existing ? "draft" : "failed", error: message }).catch(() => undefined);
-    await addEvent(client.id, "plan_draft_failed", { reason: message.slice(0, 200) }).catch(() => undefined);
+    await updatePlan(planId, { status: "draft", drafting_part: null, error: message }).catch(() => undefined);
+    await addEvent(client.id, "plan_draft_failed", { reason: message.slice(0, 200), part }).catch(() => undefined);
   }
 }
 

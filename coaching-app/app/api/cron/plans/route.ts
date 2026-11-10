@@ -6,7 +6,6 @@ import { runDraft, startDraft } from "@/lib/plan-draft";
 import { formatCallTime } from "@/lib/booking";
 import { planDraftCoachEmail, sendEmail } from "@/lib/email";
 import { targetLine } from "@/lib/targets";
-import { hasContent } from "@/lib/plans";
 
 /**
  * Runs once a day (vercel.json → crons). Drafts the plan for every client whose kickoff call is
@@ -41,17 +40,19 @@ export async function GET(request: Request): Promise<Response> {
   const coach = env.coachEmails()[0];
   const results = await Promise.all(
     todo.map(async (client) => {
-      const started = await startDraft(client);
+      const started = await startDraft(client, "both");
       if (!started.ok) return { client: client.full_name, error: started.error };
       await runDraft(started.planId, {
+        part: "both",
+        fresh: true,
         notifyCoach: async (c, plan) => {
-          if (!coach || !hasContent(plan)) return;
+          if (!coach) return;
           const msg = planDraftCoachEmail({
             clientName: c.full_name,
             kickoff: c.kickoff_at ? formatCallTime(c.kickoff_at, "America/New_York") : null,
             targets: targetLine(plan.targets),
             notes: plan.content.coachNotes,
-            link: `${origin}/coach/clients/${c.id}/plan`,
+            link: `${origin}/coach/clients/${c.id}/meals`,
           });
           await sendEmail({ to: coach, ...msg });
         },

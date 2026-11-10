@@ -41,16 +41,16 @@ export default async function CoachHome({ searchParams }: { searchParams: Promis
     const mine = plans.filter((p) => p.client_id === c.id);
     const isPublished = mine.some((p) => p.status === "published");
     const open = mine.find((p) => p.status !== "published");
-    if (open?.status === "draft" && !isPublished) {
-      flags.push({ id: c.id, text: `🧠 ${c.full_name}'s plan draft is ready to review`, href: `/coach/clients/${c.id}/plan` });
-    } else if (open?.status === "failed") {
-      flags.push({ id: c.id, text: `${c.full_name}'s plan draft didn't finish: try again`, href: `/coach/clients/${c.id}/plan` });
+    if (open?.error && open.status !== "drafting") {
+      flags.push({ id: c.id, text: `${c.full_name}'s AI draft didn't finish: try again`, href: `/coach/clients/${c.id}/meals` });
+    } else if (open?.status === "draft" && !isPublished) {
+      flags.push({ id: c.id, text: `🧠 ${c.full_name}'s plan draft is ready to review`, href: `/coach/clients/${c.id}/meals` });
     }
     if (c.kickoff_at && Date.parse(c.kickoff_at) < Date.now() && !isPublished && c.onboarding_step === "done") {
       flags.push({
         id: c.id,
         text: `📞 ${c.full_name} had their kickoff call: publish their plan`,
-        href: `/coach/clients/${c.id}/plan`,
+        href: `/coach/clients/${c.id}/meals`,
       });
     }
     if (renewalDue(c.end_date, today) && c.stage !== "paused") {

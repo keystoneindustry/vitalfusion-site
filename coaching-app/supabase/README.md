@@ -16,3 +16,4 @@ The app itself uses the secret key on the server, and checks who is signed in in
   (welcome_video_url, kickoff_link, checkin_link); private storage bucket `agreements` for signed PDFs.
 - `phase3_food_log_and_plans` (Nov 10, 2026): tables `meal_logs`, `plans` (one open plan per client via a partial
   unique index; `updated_at` trigger), `food_cache` (USDA lookups); private storage bucket `meal-photos` (5 MB, images).
+- `phase3_plan_parts` (Nov 10, 2026): `plans.drafting_part` (nutrition / training / both); old `failed` rows → `draft`.

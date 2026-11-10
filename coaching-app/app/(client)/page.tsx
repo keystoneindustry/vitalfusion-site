@@ -17,7 +17,9 @@ export default async function TodayPage() {
   const status = packageStatus(client.start_date, client.end_date, today);
   const onboarding = client.onboarding_step !== "done";
   const published = onboarding ? null : await getPublishedPlan(client.id);
-  const plan = hasContent(published) ? published : null;
+  const live = hasContent(published) ? published : null;
+  const plan = live && live.content.meals.length > 0 ? live : null;
+  const trainingLive = !!live && live.content.training.days.length > 0;
   const foodLog = !onboarding && !plan ? logStats(await listMeals(client.id), client.timezone, today) : null;
 
   let packageLine = "Your coaching dates will show here.";
@@ -59,7 +61,7 @@ export default async function TodayPage() {
             <h2 className="h2">Your plan</h2>
             <div className="link-list">
               <Link href="/nutrition">🍽️ Your meals and perfect day →</Link>
-              <Link href="/train">🏋️ Your training program →</Link>
+              {trainingLive ? <Link href="/train">🏋️ Your training program →</Link> : <span className="muted small">Your training program is on its way.</span>}
             </div>
           </section>
           <InstallCard />

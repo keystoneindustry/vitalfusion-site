@@ -337,10 +337,31 @@ textarea.mono { font-family: SFMono-Regular, Menlo, Consolas, monospace; font-si
 .ai-part { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--card-border); }
 .ai-part form { margin-top: 8px; }
 
+/* ───────── Coach: one client's pages ───────── */
+.client-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.health-chip { display: inline-block; margin: 10px 0 0; padding: 5px 10px; border-radius: 999px; background: #211b0e; border: 1px solid #5a4a26; color: #ffe2a8; font-size: 13.5px; font-weight: 600; }
+.client-tabs { display: flex; gap: 4px; overflow-x: auto; margin: 16px 0 18px; border-bottom: 1px solid var(--card-border); scrollbar-width: none; }
+.client-tabs::-webkit-scrollbar { display: none; }
+.client-tabs a { flex: 0 0 auto; padding: 11px 14px; color: var(--muted); text-decoration: none; font-weight: 700; font-size: 15px; border-bottom: 3px solid transparent; margin-bottom: -1px; display: inline-flex; align-items: center; gap: 6px; }
+.client-tabs a[aria-current="page"] { color: var(--text); border-bottom-color: var(--accent); }
+.tab-badge { font-size: 12px; color: var(--gold); }
+.overview-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin: 0 0 14px; }
+.overview-card { display: flex; flex-direction: column; gap: 3px; padding: 14px 16px; border-radius: 16px; background: var(--card); border: 1px solid var(--card-border); color: var(--text); text-decoration: none; }
+.overview-card .ov-icon { font-size: 22px; }
+.overview-card b { font-size: 17px; }
+.state-live { border-color: #23503a; }
+.state-draft, .state-changed { border-color: #5a4a26; }
+.part-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; margin: 0 0 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--card-border); }
+.part-bar > div { display: flex; flex-direction: column; gap: 2px; }
+.part-bar.state-live b { color: var(--good); }
+.part-bar.state-draft b, .part-bar.state-changed b { color: var(--warn); }
+.right { text-align: right; }
+
 @media (min-width: 860px) {
   .page { padding-top: 28px; }
   .h1 { font-size: 34px; }
   .detail-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 18px; align-items: start; }
   .client-list { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
   .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .overview-grid { grid-template-columns: repeat(3, 1fr); }
 }

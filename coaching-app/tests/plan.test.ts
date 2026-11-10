@@ -16,6 +16,8 @@ import {
   servingsLabel,
 } from "../lib/plan";
 import { per100FromFdc, plausible } from "../lib/food-data";
+import { partState, partSnapshot } from "../lib/plan";
+import { strictSchema } from "../lib/ai";
 import { emptyContent, sanitizeEditedMeals, sanitizeEditedTraining, sanitizePerfectDay } from "../lib/plan";
 import { estimateMinutes, restMinutes, trainingBrief, trainingFacts, trainingWarnings, withTrainingNotes } from "../lib/training-brief";
 import { calculate } from "../lib/macros";
@@ -263,5 +265,30 @@ assert.equal(sanitizeEditedMeals([{ name: "Huge", ingredients: [{ food: "rice", 
 const tOk = sanitizeEditedTraining({ overview: "o", days: [{ name: "Day 1", exercises: [{ name: "Push-up", sets: "3", reps: "10", rest: "60 sec" }, { name: "" }] }] });
 assert.ok(tOk.ok && tOk.training.days[0].exercises.length === 1);
 assert.equal(sanitizeEditedTraining({ days: [{ name: "Day 1", exercises: [] }] }).ok, false);
+
+// ───────── Meals and workouts publish separately ─────────
+const tg = { calories: 2000, protein: 150, carbs: 200, fat: 60, fiber: 28, waterOz: 88 };
+const withMeals = { content: { ...emptyContent(), meals: n.meals }, targets: tg };
+const withBoth = { content: { ...withMeals.content, training: tr }, targets: tg };
+assert.equal(partState(null, null, "nutrition"), "empty");
+assert.equal(partState(withMeals, null, "nutrition"), "draft");
+assert.equal(partState(withMeals, null, "training"), "empty");
+assert.equal(partState(withBoth, withMeals, "nutrition"), "live");
+assert.equal(partState(withBoth, withMeals, "training"), "draft");
+assert.equal(partState({ ...withBoth, targets: { ...tg, calories: 1900 } }, withBoth, "nutrition"), "changed"); // new targets count
+assert.equal(partState({ ...withBoth, targets: { ...tg, calories: 1900 } }, withBoth, "training"), "live");
+assert.equal(partState(null, withBoth, "training"), "live");
+assert.notEqual(partSnapshot(withBoth, "training"), partSnapshot(withBoth, "nutrition"));
+
+// ───────── Structured output schemas ─────────
+const strict = strictSchema({
+  type: "object",
+  properties: { a: { type: "string" }, list: { type: "array", items: { type: "object", properties: { x: { type: "number" } } } } },
+}) as Record<string, any>;
+assert.deepEqual(strict.required, ["a", "list"]);
+assert.equal(strict.additionalProperties, false);
+assert.deepEqual(strict.properties.list.items.required, ["x"]);
+assert.equal(strict.properties.list.items.additionalProperties, false);
+assert.equal(strict.properties.a.additionalProperties, undefined);
 
 console.log("plan tests passed");

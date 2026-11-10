@@ -12,7 +12,7 @@ export const metadata = { title: "Nutrition · Vital Fusion" };
 export default async function NutritionPage() {
   const { client } = await requireClient("/nutrition");
   const published = await getPublishedPlan(client.id);
-  if (!hasContent(published)) {
+  if (!hasContent(published) || published.content.meals.length === 0) {
     const onboarding = client.onboarding_step !== "done";
     const stats = onboarding ? null : logStats(await listMeals(client.id), client.timezone, todayIn(client.timezone));
     return (

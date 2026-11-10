@@ -2,18 +2,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireCoach } from "@/lib/auth";
 import { describeEvent, getClient, listEvents } from "@/lib/clients";
-import { stageLabel } from "@/lib/client-input";
-import { formatDate, packageLabel, timeAgo, todayIn } from "@/lib/dates";
-import { resendInviteAction, updateClientAction } from "../../actions";
-import ClientForm from "../../ClientForm";
-import SubmitButton from "@/app/components/SubmitButton";
+import { formatDate, timeAgo, todayIn } from "@/lib/dates";
 import { checklist } from "@/lib/onboarding";
 import { getResponse, latestAgreement } from "@/lib/onboarding-data";
 import { summarize } from "@/lib/onboarding-questions";
 import { formatCallTime } from "@/lib/booking";
 import { PARQ_QUESTIONS } from "@/lib/agreement";
 import { listMeals, logStats } from "@/lib/meals";
-import { getOpenPlan, getPublishedPlan, hasContent } from "@/lib/plans";
+import { getOpenPlan, getPublishedPlan, hasContent, isDrafting } from "@/lib/plans";
+import { macroLine, partState, partStateLabel, perfectDayMacros } from "@/lib/plan";
 import { targetLine } from "@/lib/targets";
 
 export const metadata = { title: "Client · Vital Fusion Coach" };
@@ -28,7 +25,7 @@ function stamp(ts: string): string {
   }).format(new Date(ts));
 }
 
-export default async function ClientPage({
+export default async function ClientOverview({
   params,
   searchParams,
 }: {
@@ -38,11 +35,11 @@ export default async function ClientPage({
   const { id } = await params;
   const { invite } = await searchParams;
   await requireCoach(`/coach/clients/${id}`);
-
   const client = await getClient(id);
   if (!client) notFound();
-  const [events, agreement, response, meals, openPlan, publishedPlan] = await Promise.all([
-    listEvents(client.id),
+
+  const [events, agreement, response, meals, open, pub] = await Promise.all([
+    listEvents(client.id, 30),
     latestAgreement(client.id),
     getResponse(client.id),
     listMeals(client.id),
@@ -50,47 +47,20 @@ export default async function ClientPage({
     getPublishedPlan(client.id),
   ]);
   const food = logStats(meals, client.timezone, todayIn(client.timezone));
-  const planLine = hasContent(publishedPlan)
-    ? `Published ${timeAgo(publishedPlan.published_at ?? publishedPlan.updated_at)} · ${targetLine(publishedPlan.targets)}${
-        openPlan ? " · unpublished changes" : ""
-      }`
-    : openPlan?.status === "drafting"
-      ? "The AI is drafting it now…"
-      : hasContent(openPlan)
-        ? `Draft ready to review · ${targetLine(openPlan.targets)}`
-        : openPlan?.status === "failed"
-          ? "The last draft didn't finish. Open to try again."
-          : client.kickoff_at
-            ? "Drafts automatically the day before their kickoff call."
-            : "Not drafted yet.";
-  const today = todayIn();
+  const work = hasContent(open) ? open : null;
+  const live = hasContent(pub) ? pub : null;
+  const shown = work ?? live;
   const answerGroups = response && Object.keys(response.answers || {}).length ? summarize(response.answers) : [];
-
-  const update = updateClientAction.bind(null, client.id);
-  const resend = resendInviteAction.bind(null, client.id);
+  const base = `/coach/clients/${client.id}`;
+  const mealsState = partState(work, live, "nutrition");
+  const trainingState = partState(work, live, "training");
 
   return (
     <>
-      <p className="small">
-        <Link href="/coach">← Clients</Link>
-      </p>
-      <div className="row-between" style={{ alignItems: "flex-start" }}>
-        <div>
-          <h1 className="h1">{client.full_name}</h1>
-          <p className="muted" style={{ margin: "0 0 16px" }}>
-            {packageLabel(client.start_date, client.end_date, today)}
-          </p>
-        </div>
-        <span className={`pill pill-${client.stage}`} style={{ marginTop: 8 }}>
-          {stageLabel(client.stage)}
-        </span>
-      </div>
-
       {invite === "sent" && <div className="notice notice-good">Invite email sent to {client.email} ✓</div>}
       {invite === "failed" && (
         <div className="notice notice-error">
-          The client was saved, but the invite email didn't send. Check the timeline below for the reason, then try
-          “Resend invite.”
+          The invite email didn't send. Check the timeline below for the reason, then try “Resend invite” on the Details tab.
         </div>
       )}
 
@@ -113,127 +83,109 @@ export default async function ClientPage({
         </div>
       )}
 
-      <section className="card">
-        <div className="row-between">
-          <h2 className="h2" style={{ margin: 0 }}>Onboarding</h2>
+      <div className="overview-grid">
+        <Link href={`${base}/food`} className="overview-card">
+          <span className="ov-icon">📷</span>
+          <b>Food log</b>
           <span className="muted small">
-            {client.onboarding_step === "done"
-              ? `Finished ${client.onboarding_completed_at ? timeAgo(client.onboarding_completed_at) : ""}`
-              : "In progress"}
+            {food.total} entr{food.total === 1 ? "y" : "ies"} · {food.days} day{food.days === 1 ? "" : "s"}
           </span>
-        </div>
-        <div className="spacer" />
-        <ul className="checklist">
-          {checklist(client.onboarding_step).map((s) => (
-            <li key={s.id} className={s.state}>
-              <span className="tick" aria-hidden="true">
-                {s.state === "done" ? "✓" : ""}
-              </span>
-              <span>
-                {s.label}
-                {s.id === "agreement" && agreement && (
-                  <>
-                    {" · "}
-                    <a href={`/coach/clients/${client.id}/agreement`} target="_blank" rel="noopener noreferrer">
-                      signed {formatDate(agreement.signed_at.slice(0, 10), false)} (PDF)
-                    </a>
-                  </>
-                )}
-                {s.id === "kickoff" && client.kickoff_at && <> · {formatCallTime(client.kickoff_at, client.timezone)}</>}
-                {s.state === "current" && <span className="muted"> · they're here</span>}
-              </span>
-            </li>
-          ))}
-        </ul>
-        {answerGroups.length > 0 && (
-          <details className="answers">
-            <summary>
-              {response?.submitted_at ? "Onboarding answers" : "Onboarding answers so far (not submitted yet)"}
-            </summary>
-            {answerGroups.map((g) => (
-              <div key={g.section}>
-                <h3>{g.section}</h3>
-                <dl>
-                  {g.items.map((item) => (
-                    <div key={item.prompt}>
-                      <dt>{item.prompt}</dt>
-                      <dd>{item.answer}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </div>
-            ))}
-          </details>
-        )}
-      </section>
-
-      {(client.onboarding_step === "done" || meals.length > 0 || openPlan || publishedPlan) && (
-        <section className="card card-accent">
-          <h2 className="h2">Food log &amp; plan</h2>
-          <div className="link-list">
-            <Link href={`/coach/clients/${client.id}/food`}>
-              📷 Food log: {food.total} entr{food.total === 1 ? "y" : "ies"} over {food.days} day{food.days === 1 ? "" : "s"} →
-            </Link>
-            <Link href={`/coach/clients/${client.id}/plan`}>🧠 Plan: {planLine} →</Link>
-          </div>
-        </section>
+        </Link>
+        <Link href={`${base}/meals`} className={`overview-card state-${mealsState}`}>
+          <span className="ov-icon">🍽️</span>
+          <b>Meals</b>
+          <span className="small">{isDrafting(open, "nutrition") ? "AI drafting…" : partStateLabel(mealsState)}</span>
+          {shown && shown.content.meals.length > 0 && (
+            <span className="muted small">
+              {shown.content.meals.length} meals · {targetLine(shown.targets)}
+            </span>
+          )}
+        </Link>
+        <Link href={`${base}/training`} className={`overview-card state-${trainingState}`}>
+          <span className="ov-icon">🏋️</span>
+          <b>Training</b>
+          <span className="small">{isDrafting(open, "training") ? "AI drafting…" : partStateLabel(trainingState)}</span>
+          {shown && shown.content.training.days.length > 0 && (
+            <span className="muted small">{shown.content.training.days.length} days a week</span>
+          )}
+        </Link>
+      </div>
+      {open?.error && open.status !== "drafting" && (
+        <div className="notice notice-error">The last AI run didn't finish: {open.error}</div>
       )}
 
       <div className="detail-grid">
         <div>
           <section className="card">
-            <h2 className="h2">Details &amp; package</h2>
-            <ClientForm
-              action={update}
-              mode="edit"
-              today={today}
-              defaults={{
-                fullName: client.full_name,
-                email: client.email,
-                phone: client.phone,
-                coachingWeeks: client.coaching_weeks,
-                startDate: client.start_date,
-                endDate: client.end_date,
-                notes: client.notes,
-                stage: client.stage,
-              }}
-            />
+            <div className="row-between">
+              <h2 className="h2" style={{ margin: 0 }}>Onboarding</h2>
+              <span className="muted small">
+                {client.onboarding_step === "done"
+                  ? `Finished ${client.onboarding_completed_at ? timeAgo(client.onboarding_completed_at) : ""}`
+                  : "In progress"}
+              </span>
+            </div>
+            <div className="spacer" />
+            <ul className="checklist">
+              {checklist(client.onboarding_step).map((s) => (
+                <li key={s.id} className={s.state}>
+                  <span className="tick" aria-hidden="true">
+                    {s.state === "done" ? "✓" : ""}
+                  </span>
+                  <span>
+                    {s.label}
+                    {s.id === "agreement" && agreement && (
+                      <>
+                        {" · "}
+                        <a href={`${base}/agreement`} target="_blank" rel="noopener noreferrer">
+                          signed {formatDate(agreement.signed_at.slice(0, 10), false)} (PDF)
+                        </a>
+                      </>
+                    )}
+                    {s.id === "kickoff" && client.kickoff_at && <> · {formatCallTime(client.kickoff_at, client.timezone)}</>}
+                    {s.state === "current" && <span className="muted"> · they're here</span>}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            {answerGroups.length > 0 && (
+              <details className="answers">
+                <summary>
+                  {response?.submitted_at ? "Onboarding answers" : "Onboarding answers so far (not submitted yet)"}
+                </summary>
+                {answerGroups.map((g) => (
+                  <div key={g.section}>
+                    <h3>{g.section}</h3>
+                    <dl>
+                      {g.items.map((item) => (
+                        <div key={item.prompt}>
+                          <dt>{item.prompt}</dt>
+                          <dd>{item.answer}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </div>
+                ))}
+              </details>
+            )}
           </section>
+
+          {live && live.content.meals.length > 0 && (
+            <section className="card">
+              <h2 className="h2">What {client.full_name.split(" ")[0]} sees</h2>
+              <dl className="kv">
+                <dt>Targets</dt>
+                <dd>{targetLine(live.targets)}</dd>
+                <dt>Perfect day</dt>
+                <dd>{macroLine(perfectDayMacros(live.content))}</dd>
+                <dt>Published</dt>
+                <dd>{live.published_at ? timeAgo(live.published_at) : "—"}</dd>
+              </dl>
+            </section>
+          )}
         </div>
 
         <div>
-          <section className="card">
-            <h2 className="h2">App access</h2>
-            <dl className="kv">
-              <dt>Email</dt>
-              <dd>
-                <a href={`mailto:${client.email}`}>{client.email}</a>
-              </dd>
-              {client.phone && (
-                <>
-                  <dt>Phone</dt>
-                  <dd>
-                    <a href={`tel:${client.phone.replace(/[^\d+]/g, "")}`}>{client.phone}</a>
-                  </dd>
-                </>
-              )}
-              <dt>Invited</dt>
-              <dd>{client.invited_at ? timeAgo(client.invited_at) : "Not yet"}</dd>
-              <dt>First sign-in</dt>
-              <dd>{client.first_signed_in_at ? formatDate(client.first_signed_in_at.slice(0, 10)) : "Not yet"}</dd>
-              <dt>Last sign-in</dt>
-              <dd>{client.last_seen_at ? timeAgo(client.last_seen_at) : "—"}</dd>
-            </dl>
-            <div className="spacer" />
-            <form action={resend}>
-              <SubmitButton
-                className="btn btn-ghost btn-wide"
-                label={client.invited_at ? "Resend invite email" : "Send invite email"}
-                pendingLabel="Sending…"
-              />
-            </form>
-          </section>
-
           <section className="card">
             <h2 className="h2">Timeline</h2>
             {events.length === 0 ? (

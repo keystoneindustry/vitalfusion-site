@@ -114,7 +114,7 @@ export async function updateClientAction(id: string, _prev: ClientFormState, for
   }
 
   revalidatePath("/coach");
-  revalidatePath(`/coach/clients/${client.id}`);
+  revalidatePath(`/coach/clients/${client.id}`, "layout");
   return { saved: true };
 }
 
