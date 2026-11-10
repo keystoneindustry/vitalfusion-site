@@ -137,6 +137,14 @@ export function describeEvent(e: ClientEvent): string {
       return d.update ? "Published changes to their plan" : "Their plan was published";
     case "health_override":
       return "Health answers reviewed; plan drafted anyway";
+    case "schedule_added":
+      return `Added to their calendar: ${Array.isArray(d.added) ? (d.added as string[]).join(", ") : "schedule"}`;
+    case "habit_assigned":
+      return `New habit: ${String(d.habit ?? "")}`;
+    case "habit_removed":
+      return `Habit removed: ${String(d.habit ?? "")}`;
+    case "photos_uploaded":
+      return "Uploaded progress photos";
     case "email_failed":
       return `An email didn't send${typeof d.what === "string" ? ` (${d.what})` : ""}`;
     default:

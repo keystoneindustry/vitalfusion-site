@@ -2,37 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { preparePhoto } from "@/app/components/shrinkImage";
 
 type Option = { value: string; label: string; icon?: string };
-
-const MAX_SIDE = 1280;
-
-/** Shrinks a phone photo to at most 1280 px on the long side as a JPEG (~200–400 KB). */
-async function shrink(file: File): Promise<Blob> {
-  const url = URL.createObjectURL(file);
-  try {
-    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
-      const i = new Image();
-      i.onload = () => resolve(i);
-      i.onerror = () => reject(new Error("decode"));
-      i.src = url;
-    });
-    const scale = Math.min(1, MAX_SIDE / Math.max(img.naturalWidth, img.naturalHeight));
-    const w = Math.round(img.naturalWidth * scale);
-    const h = Math.round(img.naturalHeight * scale);
-    const canvas = document.createElement("canvas");
-    canvas.width = w;
-    canvas.height = h;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) throw new Error("canvas");
-    ctx.drawImage(img, 0, 0, w, h);
-    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.82));
-    if (!blob) throw new Error("encode");
-    return blob;
-  } finally {
-    URL.revokeObjectURL(url);
-  }
-}
 
 function pad(n: number): string {
   return String(n).padStart(2, "0");
@@ -82,15 +54,11 @@ export default function MealForm({ meals, places, hunger }: { meals: Option[]; p
     if (!file) return;
     setError("");
     setBusy("photo");
-    let blob: Blob = file;
-    try {
-      blob = await shrink(file);
-    } catch {
-      if (file.size > 4 * 1024 * 1024 || !/^image\/(jpeg|png|webp)$/.test(file.type)) {
-        setBusy("");
-        setError("That photo couldn't be opened. Try taking it again, or pick a different one.");
-        return;
-      }
+    const blob = await preparePhoto(file);
+    if (!blob) {
+      setBusy("");
+      setError("That photo couldn't be opened. Try taking it again, or pick a different one.");
+      return;
     }
     setPhoto(blob);
     setPreview(URL.createObjectURL(blob));

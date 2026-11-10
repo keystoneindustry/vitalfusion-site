@@ -57,6 +57,16 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   coach; health-flagged clients are skipped. Publishing moves the client to Active and emails them (per part, first
   time). The client sees targets on Today and meals on Nutrition (`/nutrition`) once meals are live, and the program
   on Training (`/train`) once training is live.
+- Calendar, habits & progress (Phase 4): coach habit library at `/coach/habits` (`habits` table; the built-in `kind =
+  steps` habit can't be archived) → assigned per client with weekdays (`client_habits`, ticks in `habit_checks`). Weigh-in
+  and progress-photo days are `schedules` (weekdays every N weeks, or one date). Due-date logic is pure in `lib/calendar.ts`;
+  DB helpers in `lib/habits.ts` and `lib/progress.ts`; `lib/client-days.ts` builds each day's tasks. Coach client tabs
+  Habits (assign, 14-day tick grid) and Progress (schedule, weight chart, photo compare). `applyDefaultSchedule()` runs on
+  the first publish of a plan (step-goal habit sized from the onboarding steps answer, weigh-ins on Settings' default
+  days, photos on the client's `photoDay` answer every N weeks from Settings) and from "Add the starting setup". Client:
+  Today shows weigh-in / photos due, habit ticks and water (`daily-actions.ts`); Calendar is a week list; Progress has
+  the weight chart + weigh-in form and `/progress/photos` (front/side/back, posted to `app/api/progress-photos`, private
+  `progress-photos` bucket). Tables `weigh_ins`, `progress_photos`, `water_logs`.
 - Client app (`app/(client)/`): tabs Today, Calendar, Training (`/train`), Nutrition (`/nutrition`) and a ☰ More
   sheet (`TabBar.tsx`) with Progress, Food log, Resources (`/resources`, Tyler's videos and documents; `/learn`
   redirects), Settings (`/settings`: account, agreement PDF, sign out), Add to home screen (`/install`) and Sign out.

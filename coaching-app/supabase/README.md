@@ -17,3 +17,6 @@ The app itself uses the secret key on the server, and checks who is signed in in
 - `phase3_food_log_and_plans` (Nov 10, 2026): tables `meal_logs`, `plans` (one open plan per client via a partial
   unique index; `updated_at` trigger), `food_cache` (USDA lookups); private storage bucket `meal-photos` (5 MB, images).
 - `phase3_plan_parts` (Nov 10, 2026): `plans.drafting_part` (nutrition / training / both); old `failed` rows → `draft`.
+- `phase4_habits_progress_calendar` (Nov 10, 2026): `habits` (seeded: Daily steps [kind steps], 10-minute walk after
+  dinner, In bed by 10:30), `client_habits`, `habit_checks`, `schedules`, `weigh_ins`, `progress_photos`, `water_logs`;
+  private bucket `progress-photos`; settings `default_weighin_days` (1,3,5) and `default_photo_every_weeks` (1).

@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "tsx tests/dates.test.ts && tsx tests/clients.test.ts && tsx tests/email.test.ts && tsx tests/onboarding.test.ts && tsx tests/plan.test.ts"
+    "test": "tsx tests/dates.test.ts && tsx tests/clients.test.ts && tsx tests/email.test.ts && tsx tests/onboarding.test.ts && tsx tests/plan.test.ts && tsx tests/calendar.test.ts"
   },
   "dependencies": {
     "next": "^16.0.0",

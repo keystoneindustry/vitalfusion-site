@@ -9,6 +9,7 @@ export default function CoachLayout({ children }: { children: React.ReactNode })
         <span className="brand">Coach</span>
         <nav aria-label="Coach">
           <Link href="/coach">Clients</Link>
+          <Link href="/coach/habits">Habits</Link>
           <Link href="/coach/clients/new">+ Add</Link>
           <Link href="/coach/settings">Settings</Link>
           <form action="/auth/logout" method="post">

@@ -1,21 +1,96 @@
+import Link from "next/link";
 import { requireClient } from "@/lib/auth";
-import ComingSoon from "../ComingSoon";
+import { addDays, isIsoDate, todayIn } from "@/lib/dates";
+import { WEEKDAYS_LONG, weekDates, weekStart } from "@/lib/calendar";
+import { loadDays } from "@/lib/client-days";
+import { formatCallTime } from "@/lib/booking";
 
 export const metadata = { title: "Calendar · Vital Fusion" };
 
-export default async function CalendarPage() {
-  await requireClient("/calendar");
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+function short(iso: string): string {
+  const [, m, d] = iso.split("-").map(Number);
+  return `${MONTHS[m - 1]} ${d}`;
+}
+
+export default async function CalendarPage({ searchParams }: { searchParams: Promise<{ w?: string }> }) {
+  const { client } = await requireClient("/calendar");
+  const { w } = await searchParams;
+  const today = todayIn(client.timezone);
+  const start = w && isIsoDate(w) ? weekStart(w) : weekStart(today);
+  const dates = weekDates(start);
+  const { days } = await loadDays(client.id, dates);
+  const kickoffDay = client.kickoff_at ? todayIn(client.timezone, new Date(client.kickoff_at)) : null;
+  const empty = days.every((d) => !d.habits.length && !d.weighIn.due && !d.photos.due) && !(kickoffDay && dates.includes(kickoffDay));
+
   return (
-    <ComingSoon
-      eyebrow="Calendar"
-      title="Your calendar"
-      intro="Everything Tyler schedules for you will live here, so you always know what's next."
-      items={[
-        "Weekly check-ins and other forms",
-        "Weigh-ins and progress pictures",
-        "Your daily habits",
-        "Workouts and 1:1 calls",
-      ]}
-    />
+    <>
+      <p className="eyebrow">Calendar</p>
+      <div className="row-between" style={{ marginBottom: 12 }}>
+        <h1 className="h1" style={{ margin: 0 }}>
+          {short(dates[0])} – {short(dates[6])}
+        </h1>
+      </div>
+      <div className="week-nav">
+        <Link className="btn btn-ghost btn-sm" href={`/calendar?w=${addDays(start, -7)}`}>
+          ‹ Last week
+        </Link>
+        {start !== weekStart(today) && (
+          <Link className="btn btn-ghost btn-sm" href="/calendar">
+            This week
+          </Link>
+        )}
+        <Link className="btn btn-ghost btn-sm" href={`/calendar?w=${addDays(start, 7)}`}>
+          Next week ›
+        </Link>
+      </div>
+
+      {empty && (
+        <div className="card empty">
+          <p style={{ margin: 0 }}>Nothing scheduled this week yet. Tyler adds your habits, weigh-ins and photos when your plan starts.</p>
+        </div>
+      )}
+
+      {!empty &&
+        days.map((d, i) => {
+          const isToday = d.date === today;
+          const past = d.date < today;
+          const items: { icon: string; text: string; state: "done" | "missed" | "due" }[] = [];
+          if (kickoffDay === d.date && client.kickoff_at) items.push({ icon: "📞", text: `Kickoff call · ${formatCallTime(client.kickoff_at, client.timezone).split(" at ")[1] ?? ""}`, state: "due" });
+          if (d.weighIn.due || d.weighIn.weight !== null)
+            items.push({ icon: "⚖️", text: d.weighIn.weight !== null ? `Weigh-in · ${d.weighIn.weight} lb` : "Weigh-in", state: d.weighIn.weight !== null ? "done" : past ? "missed" : "due" });
+          if (d.photos.due) items.push({ icon: "📸", text: "Progress photos", state: d.photos.count >= 3 ? "done" : past ? "missed" : "due" });
+          for (const h of d.habits) items.push({ icon: h.icon, text: h.title, state: h.done ? "done" : past ? "missed" : "due" });
+          return (
+            <section key={d.date} className={`cal-day ${isToday ? "today" : ""} ${past ? "past" : ""}`}>
+              <div className="cal-head">
+                <b>{isToday ? "Today" : WEEKDAYS_LONG[i]}</b>
+                <span className="muted small">{short(d.date)}</span>
+              </div>
+              {items.length === 0 ? (
+                <p className="muted small" style={{ margin: 0 }}>Rest day. Nothing scheduled.</p>
+              ) : (
+                <ul className="cal-items">
+                  {items.map((it, k) => (
+                    <li key={k} className={it.state}>
+                      <span className="cal-state" aria-hidden="true">
+                        {it.state === "done" ? "✓" : it.state === "missed" ? "✕" : ""}
+                      </span>
+                      <span>
+                        {it.icon} {it.text}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {isToday && items.length > 0 && (
+                <Link className="small" href="/">
+                  Tick these off on Today →
+                </Link>
+              )}
+            </section>
+          );
+        })}
+    </>
   );
 }

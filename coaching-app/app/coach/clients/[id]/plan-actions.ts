@@ -10,6 +10,7 @@ import { planPublishedClientEmail, sendEmail } from "@/lib/email";
 import { fillMissing } from "@/lib/food-data";
 import { getResponse } from "@/lib/onboarding-data";
 import { withTrainingNotes } from "@/lib/training-brief";
+import { applyDefaultSchedule } from "@/lib/progress";
 import { defaultTargets, loadContext, runDraft, startDraft } from "@/lib/plan-draft";
 import { computeTargets, isActivity, isPace, type Targets } from "@/lib/targets";
 import { partState, sanitizeEditedMeals, sanitizeEditedTraining, sanitizePerfectDay, type PlanMeal, type PlanPart } from "@/lib/plan";
@@ -198,6 +199,8 @@ export async function publishPartAction(clientId: string, partRaw: string): Prom
     await addEvent(client.id, "stage_changed", { from: client.stage === "invited" ? "Invited" : "Onboarding", to: "Active" });
   }
   await addEvent(client.id, "plan_published", { part, update: !firstTime });
+  // The first time a plan goes live, the client gets their starting setup (step goal, weigh-ins, photos).
+  await applyDefaultSchedule(client).catch((err) => console.error("Default schedule failed", err));
   if (firstTime) {
     try {
       const msg = planPublishedClientEmail(firstName(client.full_name), part, `${await appOrigin()}/${part === "nutrition" ? "nutrition" : "train"}`);

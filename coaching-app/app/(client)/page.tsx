@@ -8,6 +8,11 @@ import InstallCard from "./InstallCard";
 import { listMeals, logStats } from "@/lib/meals";
 import { getPublishedPlan, hasContent } from "@/lib/plans";
 import TargetsCard from "@/app/components/TargetsCard";
+import { loadDays } from "@/lib/client-days";
+import { getWater } from "@/lib/progress";
+import HabitChecklist from "./HabitChecklist";
+import WaterTracker from "./WaterTracker";
+import WeighInForm from "./WeighInForm";
 
 export const metadata = { title: "Today · Vital Fusion" };
 
@@ -21,6 +26,10 @@ export default async function TodayPage() {
   const plan = live && live.content.meals.length > 0 ? live : null;
   const trainingLive = !!live && live.content.training.days.length > 0;
   const foodLog = !onboarding && !plan ? logStats(await listMeals(client.id), client.timezone, today) : null;
+  const [{ days }, water] = onboarding ? [{ days: [] }, 0] : await Promise.all([loadDays(client.id, [today]), getWater(client.id, today)]);
+  const day = days[0];
+  const hasTasks = !!day && (day.habits.length > 0 || day.weighIn.due || day.photos.due);
+  const waterGoal = plan?.targets.waterOz ?? 0;
 
   let packageLine = "Your coaching dates will show here.";
   if (status.kind === "not_started")
@@ -36,6 +45,45 @@ export default async function TodayPage() {
       <p className="eyebrow">Today</p>
       <h1 className="h1">Hi {firstName(client.full_name)} 👋</h1>
       <p className="lead">{packageLine}</p>
+
+      {!onboarding && (hasTasks || waterGoal > 0) && day && (
+        <section className="card card-accent">
+          <h2 className="h2">Today</h2>
+          {day.weighIn.due && (
+            <div className="task">
+              <b>⚖️ Weigh-in</b>
+              {day.weighIn.weight !== null ? (
+                <p className="small" style={{ margin: "4px 0 0" }}>
+                  Done ✓ {day.weighIn.weight} lb
+                </p>
+              ) : (
+                <>
+                  <p className="muted small" style={{ margin: "2px 0 8px" }}>
+                    First thing in the morning, after the bathroom, before eating.
+                  </p>
+                  <WeighInForm date={today} compact />
+                </>
+              )}
+            </div>
+          )}
+          {day.photos.due && (
+            <div className="task">
+              <b>📸 Progress photos</b>
+              {day.photos.count >= 3 ? (
+                <p className="small" style={{ margin: "4px 0 0" }}>Done ✓</p>
+              ) : (
+                <p style={{ margin: "6px 0 0" }}>
+                  <Link className="btn btn-sm" href="/progress/photos">
+                    Take your photos ({day.photos.count}/3)
+                  </Link>
+                </p>
+              )}
+            </div>
+          )}
+          {day.habits.length > 0 && <HabitChecklist key={today} date={today} items={day.habits} />}
+          {waterGoal > 0 && <WaterTracker date={today} initialOz={water} goalOz={waterGoal} />}
+        </section>
+      )}
 
       {onboarding ? (
         <section className="card card-accent">
