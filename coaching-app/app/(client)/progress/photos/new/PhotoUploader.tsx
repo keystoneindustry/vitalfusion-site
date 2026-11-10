@@ -30,7 +30,7 @@ export default function PhotoUploader({ date, poses, existing }: { date: string;
     try {
       const res = await fetch("/api/progress-photos", { method: "POST", body: form });
       if (res.status === 401) {
-        window.location.href = `/auth/refresh?next=${encodeURIComponent("/progress/photos")}`;
+        window.location.href = `/auth/refresh?next=${encodeURIComponent("/progress/photos/new")}`;
         return;
       }
       const data = (await res.json().catch(() => ({}))) as { error?: string };

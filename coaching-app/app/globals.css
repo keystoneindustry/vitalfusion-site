@@ -447,6 +447,16 @@ p .cg { padding: 0 6px; margin: 0 2px 0 8px; }
 .chart-grid { stroke: var(--card-border); stroke-width: 1; }
 .chart-line { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
 .chart-dot { fill: var(--bg); stroke: var(--accent); stroke-width: 2.5; }
+.chart-line-light { fill: none; stroke: #3a4a63; stroke-width: 1.5; stroke-dasharray: 4 4; }
+.chart-key { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--text-3); margin-top: 6px; }
+.chart-key span { display: inline-flex; align-items: center; gap: 6px; }
+.key-dot { width: 10px; height: 10px; border-radius: 50%; border: 2.5px solid var(--accent); display: inline-block; }
+.key-line { width: 18px; height: 3px; border-radius: 2px; background: var(--accent); display: inline-block; }
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; margin: 0 0 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--card-border); }
+.seg a { text-align: center; padding: 10px; border-radius: 10px; color: var(--muted); text-decoration: none; font-weight: 700; font-size: 15.5px; }
+.seg a[aria-current="page"] { background: #1c2a3d; color: #fff; }
+.weigh-list { list-style: none; padding: 0 14px 10px; }
+.weigh-list li { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--card-border); }
 .chart-label { fill: var(--muted); font-size: 12px; }
 .chart figcaption { margin-top: 2px; }
 .compare { display: flex; flex-direction: column; gap: 12px; margin-bottom: 8px; }

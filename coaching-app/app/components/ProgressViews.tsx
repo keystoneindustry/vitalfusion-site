@@ -1,4 +1,4 @@
-import { formatDate } from "@/lib/dates";
+import { addDays, formatDate } from "@/lib/dates";
 import { POSES, photoSets, weeklyAverages, type ProgressPhoto, type WeighIn } from "@/lib/progress";
 import WeightChart from "./WeightChart";
 
@@ -28,7 +28,10 @@ export function WeightSummary({ entries }: { entries: WeighIn[] }) {
           <span>this week's avg</span>
         </div>
       </div>
-      <WeightChart points={weeks.map((w) => ({ x: w.week, y: w.avg }))} />
+      <WeightChart
+        daily={[...entries].reverse().map((e) => ({ date: e.date, y: e.weight_lb }))}
+        weekly={weeks.map((w) => ({ date: addDays(w.week, 3), y: w.avg }))}
+      />
     </>
   );
 }

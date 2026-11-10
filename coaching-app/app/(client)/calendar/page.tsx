@@ -59,7 +59,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
           if (kickoffDay === d.date && client.kickoff_at) items.push({ icon: "📞", text: `Kickoff call · ${formatCallTime(client.kickoff_at, client.timezone).split(" at ")[1] ?? ""}`, state: "due" });
           if (d.weighIn.due || d.weighIn.weight !== null)
             items.push({ icon: "⚖️", text: d.weighIn.weight !== null ? `Weigh-in · ${d.weighIn.weight} lb` : "Weigh-in", state: d.weighIn.weight !== null ? "done" : past ? "missed" : "due", href: isToday ? "/progress/weigh-in" : undefined });
-          if (d.photos.due) items.push({ icon: "📸", text: "Progress photos", state: d.photos.count >= 3 ? "done" : past ? "missed" : "due", href: isToday ? "/progress/photos" : undefined });
+          if (d.photos.due) items.push({ icon: "📸", text: "Progress photos", state: d.photos.count >= 3 ? "done" : past ? "missed" : "due", href: isToday ? "/progress/photos/new" : undefined });
           for (const h of d.habits) items.push({ icon: h.icon, text: h.title, state: h.done ? "done" : past ? "missed" : "due" });
           return (
             <section key={d.date} className={`cal-day ${isToday ? "today" : ""} ${past ? "past" : ""}`}>

@@ -64,9 +64,10 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   Habits (assign, 14-day tick grid) and Progress (schedule, weight chart, photo compare). `applyDefaultSchedule()` runs on
   the first publish of a plan (step-goal habit sized from the onboarding steps answer, weigh-ins on Settings' default
   days, photos on the client's `photoDay` answer every N weeks from Settings) and from "Add the starting setup". Client:
-  Today shows weigh-in / photos due, habit ticks and water (`daily-actions.ts`); Calendar is a week list; Progress has
-  the weight chart + weigh-in form and `/progress/photos` (front/side/back, posted to `app/api/progress-photos`, private
-  `progress-photos` bucket). Tables `weigh_ins`, `progress_photos`, `water_logs`.
+  Today shows weigh-in / photos due, habit ticks and water (`daily-actions.ts`); Calendar is a week list; Progress has two
+  sections (`ProgressTabs`): `/progress/weight` (graph of every weigh-in + weekly average, history; logging at
+  `/progress/weigh-in`) and `/progress/photos` (compare + gallery; taking them at `/progress/photos/new`, front/side/back,
+  posted to `app/api/progress-photos`, private `progress-photos` bucket). `/progress` redirects to Weight. Tables `weigh_ins`, `progress_photos`, `water_logs`.
 - Client app (`app/(client)/`): tabs Today, Calendar, Training (`/train`), Nutrition (`/nutrition`) and a ☰ More
   sheet (`TabBar.tsx`) with Progress, Food log, Resources (`/resources`, Tyler's videos and documents; `/learn`
   redirects), Settings (`/settings`: account, agreement PDF, sign out), Add to home screen (`/install`) and Sign out.

@@ -15,7 +15,7 @@ export default async function WeighInPage() {
   return (
     <>
       <p className="small">
-        <Link href="/progress">← Progress</Link>
+        <Link href="/progress/weight">← Weight</Link>
       </p>
       <h1 className="h1">⚖️ Weigh-in</h1>
       <ul className="tips" style={{ padding: "0 0 0 20px", marginBottom: 16 }}>
@@ -50,7 +50,7 @@ export default async function WeighInPage() {
             ))}
           </dl>
           <p className="small" style={{ marginBottom: 0 }}>
-            <Link href="/progress">See your trend →</Link>
+            <Link href="/progress/weight">See your graph →</Link>
           </p>
         </section>
       )}

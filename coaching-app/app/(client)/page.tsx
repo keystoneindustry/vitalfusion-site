@@ -59,7 +59,7 @@ export default async function TodayPage() {
             </Link>
           )}
           {day.photos.due && (
-            <Link href="/progress/photos" className={`task-link ${day.photos.count >= 3 ? "done" : ""}`}>
+            <Link href="/progress/photos/new" className={`task-link ${day.photos.count >= 3 ? "done" : ""}`}>
               <span className="task-icon">📸</span>
               <span className="task-text">
                 <b>Progress photos</b>

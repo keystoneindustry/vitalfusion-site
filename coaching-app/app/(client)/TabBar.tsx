@@ -18,7 +18,7 @@ const TABS = [
 
 /** Extra screens behind the ☰ tab. */
 const MORE = [
-  { href: "/progress", label: "Progress", emoji: "📈" },
+  { href: "/progress/weight", label: "Progress", emoji: "📈" },
   { href: "/food", label: "Food log", emoji: "📷" },
   { href: "/resources", label: "Resources", emoji: "📚" },
   { href: "/settings", label: "Settings", emoji: "⚙️" },
@@ -29,7 +29,7 @@ const MORE = [
 export default function TabBar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const inMore = MORE.some((m) => pathname.startsWith(m.href)) || pathname.startsWith("/agreement");
+  const inMore = MORE.some((m) => pathname.startsWith(m.href)) || pathname.startsWith("/progress") || pathname.startsWith("/agreement");
 
   // Close the menu when the page changes or Escape is pressed.
   useEffect(() => setOpen(false), [pathname]);
