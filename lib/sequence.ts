@@ -55,7 +55,7 @@ export const OBSTACLE_STEPS: Record<Obstacle, string[]> = {
   accountability: [
     "Weigh in at least 3 mornings a week and watch your weekly average, not single days.",
     "Tell one person your goal and send them a quick update every week.",
-    "Write down your 2 non-negotiables and check them off every day.",
+    "Pick 2 daily non-negotiables (like hitting your protein and a 20-minute walk) and check them off every day.",
   ],
 };
 
