@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { validateApplication } from "@/lib/application";
 import { applicantEmail, coachEmail, sendEmail } from "@/lib/email";
 import { saveApplication } from "@/lib/store";
+import { sendResendEvent } from "@/lib/resend-events";
 
 export const runtime = "nodejs";
 
@@ -62,6 +63,9 @@ export async function POST(req: Request) {
       console.error("Applicant confirmation failed:", e),
     );
   }
+
+  // Stops the macro-quiz follow-up emails for anyone who applies.
+  await sendResendEvent("coaching.applied", app.email).catch((e) => console.error("Applied event failed:", e));
 
   return NextResponse.json({ ok: true });
 }

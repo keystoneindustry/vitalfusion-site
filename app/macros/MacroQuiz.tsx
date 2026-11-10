@@ -540,7 +540,7 @@ export default function MacroQuiz({ source }: { source: string }) {
             {isLast ? (status === "sending" ? "Calculating…" : q.resultsButton) : "Continue →"}
           </button>
         )}
-        {isLast && <p className="privacy">No spam. Your info stays private.</p>}
+        {isLast && <p className="privacy">{q.consent} Your info stays private.</p>}
       </form>
     </main>
   );

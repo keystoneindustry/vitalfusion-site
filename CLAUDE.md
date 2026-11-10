@@ -26,7 +26,9 @@ is not a developer; explain changes plainly and keep the site simple.
   explanations (`content/site.ts` → `macroQuiz.meals[].why[goal]`) differ by goal. Emails in `lib/macro-email.ts`,
   API `app/api/macros/route.ts`, copy/meals in `content/site.ts` → `macroQuiz`. Leads go to the
   coach's email and a Google Sheet via an Apps Script webhook (`lib/sheets.ts`,
-  `docs/google-sheet-setup.md`). Follow-up email series: not built yet.
+  `docs/google-sheet-setup.md`). Follow-up emails: Resend Automation "Macro quiz follow-up (day 2, 4, 7)", triggered by the
+  `macro_quiz.completed` event (`lib/resend-events.ts`); `/api/apply` sends `coaching.applied`,
+  which stops it. Templates macro-seq-1/2/3 live in Resend (footer needs the mailing address).
 - Old Emergent URLs (/application, /vital-method-application) redirect in `next.config.mjs`.
 - The application (`app/apply/ApplyForm.tsx`) is multi-step, one question per screen; step order
   is `STEPS` in `lib/application.ts`. Picking "Other" reveals a required text box (`otherArea`).

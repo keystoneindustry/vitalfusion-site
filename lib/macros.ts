@@ -430,3 +430,9 @@ export function labelOf<T extends { value: string; label: string }>(list: readon
 export function mealName(m: { name: string; nameFor?: Partial<Record<string, string>> }, goal: string): string {
   return m.nameFor?.[goal] ?? m.name;
 }
+
+/** The first obstacle they picked, for the follow-up email that addresses it. */
+export function primaryObstacle(obstacles: Obstacle[]): { phrase: string; tip: string } | null {
+  const o = OBSTACLES.find((x) => obstacles.includes(x.value));
+  return o ? { phrase: o.phrase, tip: o.tip } : null;
+}

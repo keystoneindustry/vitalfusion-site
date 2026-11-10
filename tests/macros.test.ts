@@ -151,4 +151,7 @@ import { macroResultsEmail, coachLeadEmail, leadRow, SHEET_COLUMNS } from "../li
     fs.writeFileSync("/tmp/macro-coach.html", ce.html);
   }
 }
+import { primaryObstacle } from "../lib/macros";
+assert.equal(primaryObstacle(["busy", "weekends"])?.phrase, "weekends");
+assert.equal(primaryObstacle([]), null);
 console.log("Email tests passed");

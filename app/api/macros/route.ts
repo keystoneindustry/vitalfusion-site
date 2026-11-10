@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { calculate, validateQuiz } from "@/lib/macros";
+import { GOALS, calculate, labelOf, leadRating, primaryObstacle, validateQuiz } from "@/lib/macros";
+import { sendResendEvent } from "@/lib/resend-events";
 import { coachLeadEmail, leadRow, macroResultsEmail } from "@/lib/macro-email";
 import { sendEmail } from "@/lib/email";
 import { appendLeadRow } from "@/lib/sheets";
@@ -33,12 +34,22 @@ export async function POST(req: Request) {
   const canEmailLead = from !== "" && !from.includes("resend.dev");
   const notifyTo = process.env.NOTIFY_EMAIL;
 
+  const obstacle = primaryObstacle(q.obstacles);
   const tasks: Promise<unknown>[] = [
     appendLeadRow(leadRow(q, r)),
+    // Starts the day 2 / 4 / 7 follow-up emails in Resend Automations.
+    sendResendEvent("macro_quiz.completed", q.email, {
+      first_name: q.name.split(/\s+/)[0],
+      goal: labelOf(GOALS, q.goal),
+      obstacle_phrase: obstacle?.phrase ?? "staying consistent",
+      obstacle_tip: obstacle?.tip ?? "Aim for 80%, not perfect. Hitting your protein and calories most days beats a perfect week followed by quitting.",
+      lead_rating: leadRating(q),
+    }),
     notifyTo ? sendEmail({ to: notifyTo, replyTo: q.email, ...coachLeadEmail(q, r) }) : Promise.resolve(),
     canEmailLead ? sendEmail({ to: q.email, replyTo: notifyTo, ...macroResultsEmail(q, r, siteUrl) }) : Promise.resolve(),
   ];
-  const [sheet, coach, lead] = await Promise.allSettled(tasks);
+  const [sheet, sequence, coach, lead] = await Promise.allSettled(tasks);
+  if (sequence.status === "rejected") console.error("Macro lead: sequence event failed:", sequence.reason);
   if (sheet.status === "rejected") console.error("Macro lead: sheet failed:", sheet.reason);
   if (coach.status === "rejected") console.error("Macro lead: coach email failed:", coach.reason);
   if (lead.status === "rejected") console.error("Macro lead: results email failed:", lead.reason);
