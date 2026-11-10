@@ -68,6 +68,11 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   sections (`ProgressTabs`): `/progress/weight` (graph of every weigh-in + weekly average, history; logging at
   `/progress/weigh-in`) and `/progress/photos` (compare + gallery; taking them at `/progress/photos/new`, front/side/back,
   posted to `app/api/progress-photos`, private `progress-photos` bucket). `/progress` redirects to Weight. Tables `weigh_ins`, `progress_photos`, `water_logs`.
+- Resources: coach manages them at `/coach/resources` (top menu): PDFs and video files (≤50 MB, uploaded straight from the
+  browser to the private `resources` bucket through a one-time signed upload URL — `signedUploadUrl` in `lib/storage.ts` —
+  because Vercel functions can't take big bodies) or YouTube/Vimeo/Loom links; categories, order, hide/show, unlock by
+  coaching week. Table `resources`, helpers `lib/resources.ts`. Clients see `/resources` (locked items show "Unlocks in
+  week N") and `/resources/[id]` (embedded video, video player, or "Open the PDF" via signed URL).
 - Client app (`app/(client)/`): tabs Today, Calendar, Training (`/train`), Nutrition (`/nutrition`) and a ☰ More
   sheet (`TabBar.tsx`) with Progress, Food log, Resources (`/resources`, Tyler's videos and documents; `/learn`
   redirects), Settings (`/settings`: account, agreement PDF, sign out), Add to home screen (`/install`) and Sign out.

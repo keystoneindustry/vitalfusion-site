@@ -61,3 +61,31 @@ export async function signedUrls(bucket: string, paths: string[], expiresIn = 36
   }
   return out;
 }
+
+/**
+ * A one-time upload link so the browser can send a large file straight to storage (Vercel functions
+ * can't take bodies over ~4.5 MB). Returns the full PUT url including its token.
+ */
+export async function signedUploadUrl(bucket: string, path: string): Promise<string> {
+  const res = await fetch(`${env.supabaseUrl()}/storage/v1/object/upload/sign/${bucket}/${path.split("/").map(encodeURIComponent).join("/")}`, {
+    method: "POST",
+    headers: headers("application/json"),
+    body: "{}",
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`Storage upload link failed (${res.status}): ${await res.text()}`);
+  const data = (await res.json()) as { url?: string };
+  if (!data.url) throw new Error("Storage didn't return an upload link.");
+  return `${env.supabaseUrl()}/storage/v1${data.url}`;
+}
+
+/** Size in bytes of a stored file, or null if it isn't there. */
+export async function fileInfo(bucket: string, path: string): Promise<{ size: number; mimetype: string } | null> {
+  const res = await fetch(`${env.supabaseUrl()}/storage/v1/object/info/${bucket}/${path.split("/").map(encodeURIComponent).join("/")}`, {
+    headers: headers(),
+    cache: "no-store",
+  });
+  if (!res.ok) return null;
+  const d = (await res.json()) as { size?: number; metadata?: { size?: number; mimetype?: string }; content_type?: string };
+  return { size: d.size ?? d.metadata?.size ?? 0, mimetype: d.content_type ?? d.metadata?.mimetype ?? "" };
+}

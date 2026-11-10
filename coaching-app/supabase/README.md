@@ -20,3 +20,5 @@ The app itself uses the secret key on the server, and checks who is signed in in
 - `phase4_habits_progress_calendar` (Nov 10, 2026): `habits` (seeded: Daily steps [kind steps], 10-minute walk after
   dinner, In bed by 10:30), `client_habits`, `habit_checks`, `schedules`, `weigh_ins`, `progress_photos`, `water_logs`;
   private bucket `progress-photos`; settings `default_weighin_days` (1,3,5) and `default_photo_every_weeks` (1).
+- `phase4_resources` (Nov 10, 2026): `resources` table (pdf / video_file / video_link, category, unlock_week, published,
+  sort); private bucket `resources` (50 MB, PDF + MP4/MOV/WebM).
