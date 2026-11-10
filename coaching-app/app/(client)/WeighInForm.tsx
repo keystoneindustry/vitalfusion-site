@@ -1,12 +1,23 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { saveWeighInAction, type WeighInState } from "./daily-actions";
 
 /** Quick weigh-in: weight (lb), optional note; date defaults to today. */
 export default function WeighInForm({ date, last, compact = false }: { date: string; last?: number | null; compact?: boolean }) {
   const [state, action, pending] = useActionState<WeighInState, FormData>(saveWeighInAction, {});
-  if (state.ok) return <p className="notice notice-good" style={{ margin: 0 }}>Weigh-in saved ✓</p>;
+  if (state.ok)
+    return (
+      <>
+        <p className="notice notice-good" style={{ margin: "0 0 10px" }}>Weigh-in saved ✓</p>
+        {!compact && (
+          <Link className="btn btn-ghost btn-wide" href="/">
+            Back to Today
+          </Link>
+        )}
+      </>
+    );
   return (
     <form action={action} className="weigh-form">
       <input type="hidden" name="date" value={date} />

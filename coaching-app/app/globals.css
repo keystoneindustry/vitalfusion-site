@@ -460,6 +460,13 @@ p .cg { padding: 0 6px; margin: 0 2px 0 8px; }
 .photo-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .task { padding: 12px 0; border-bottom: 1px solid var(--card-border); }
 .task:first-of-type { padding-top: 0; }
+.task-link { display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin: 0 0 10px; border-radius: 14px; background: #1c2a3d; border: 1px solid #2c4566; color: var(--text); text-decoration: none; }
+.task-link:active { background: #22344b; }
+.task-link.done { background: var(--card-2); border-color: var(--card-border); }
+.task-link.done .task-text .small { color: var(--good); }
+.task-icon { flex: 0 0 auto; font-size: 24px; }
+.task-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.task-text .small { color: #a9c6e4; }
 .habit-list { list-style: none; margin: 4px 0 0; padding: 0; }
 .habit-tick { width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 0; background: none; border: 0; border-bottom: 1px solid var(--card-border); color: var(--text); font: inherit; text-align: left; cursor: pointer; }
 .habit-list li:last-child .habit-tick { border-bottom: 0; }

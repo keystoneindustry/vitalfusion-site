@@ -12,7 +12,6 @@ import { loadDays } from "@/lib/client-days";
 import { getWater } from "@/lib/progress";
 import HabitChecklist from "./HabitChecklist";
 import WaterTracker from "./WaterTracker";
-import WeighInForm from "./WeighInForm";
 
 export const metadata = { title: "Today · Vital Fusion" };
 
@@ -50,35 +49,24 @@ export default async function TodayPage() {
         <section className="card card-accent">
           <h2 className="h2">Today</h2>
           {day.weighIn.due && (
-            <div className="task">
-              <b>⚖️ Weigh-in</b>
-              {day.weighIn.weight !== null ? (
-                <p className="small" style={{ margin: "4px 0 0" }}>
-                  Done ✓ {day.weighIn.weight} lb
-                </p>
-              ) : (
-                <>
-                  <p className="muted small" style={{ margin: "2px 0 8px" }}>
-                    First thing in the morning, after the bathroom, before eating.
-                  </p>
-                  <WeighInForm date={today} compact />
-                </>
-              )}
-            </div>
+            <Link href="/progress/weigh-in" className={`task-link ${day.weighIn.weight !== null ? "done" : ""}`}>
+              <span className="task-icon">⚖️</span>
+              <span className="task-text">
+                <b>Weigh-in</b>
+                <span className="small">{day.weighIn.weight !== null ? `Done ✓ ${day.weighIn.weight} lb` : "Due today · tap to log your weight"}</span>
+              </span>
+              <span className="chev" aria-hidden="true">›</span>
+            </Link>
           )}
           {day.photos.due && (
-            <div className="task">
-              <b>📸 Progress photos</b>
-              {day.photos.count >= 3 ? (
-                <p className="small" style={{ margin: "4px 0 0" }}>Done ✓</p>
-              ) : (
-                <p style={{ margin: "6px 0 0" }}>
-                  <Link className="btn btn-sm" href="/progress/photos">
-                    Take your photos ({day.photos.count}/3)
-                  </Link>
-                </p>
-              )}
-            </div>
+            <Link href="/progress/photos" className={`task-link ${day.photos.count >= 3 ? "done" : ""}`}>
+              <span className="task-icon">📸</span>
+              <span className="task-text">
+                <b>Progress photos</b>
+                <span className="small">{day.photos.count >= 3 ? "Done ✓" : `Due today · ${day.photos.count}/3 taken · tap to take them`}</span>
+              </span>
+              <span className="chev" aria-hidden="true">›</span>
+            </Link>
           )}
           {day.habits.length > 0 && <HabitChecklist key={today} date={today} items={day.habits} />}
           {waterGoal > 0 && <WaterTracker date={today} initialOz={water} goalOz={waterGoal} />}

@@ -5,7 +5,6 @@ import { scheduleLabel } from "@/lib/calendar";
 import { listPhotos, listSchedules, listWeighIns, PHOTO_BUCKET } from "@/lib/progress";
 import { signedUrls } from "@/lib/storage";
 import { PhotoCompare, WeightSummary } from "@/app/components/ProgressViews";
-import WeighInForm from "../WeighInForm";
 
 export const metadata = { title: "Progress · Vital Fusion" };
 
@@ -31,12 +30,9 @@ export default async function ProgressPage() {
         {loggedToday ? (
           <p className="small muted" style={{ margin: 0 }}>Today: {weighIns[0].weight_lb} lb ✓</p>
         ) : (
-          <>
-            <p className="small" style={{ margin: "0 0 6px" }}>
-              <b>Log today's weight</b>
-            </p>
-            <WeighInForm date={today} last={weighIns[0]?.weight_lb ?? null} />
-          </>
+          <Link className="btn btn-wide" href="/progress/weigh-in">
+            ⚖️ Log today's weight
+          </Link>
         )}
       </section>
 
