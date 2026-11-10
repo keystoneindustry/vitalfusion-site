@@ -129,6 +129,7 @@ export const site = {
     meals: [
       {
         name: "Sockeye salmon, sweet potatoes & vegetables",
+        nameFor: { muscle: "Atlantic salmon, sweet potatoes & veggies" },
         why: {
           lose: [
             "Salmon is lean protein packed with omega-3 fats",
@@ -136,8 +137,8 @@ export const site = {
             "Lots of food on the plate for the calories",
           ],
           muscle: [
-            "Salmon is high-quality protein to build and repair muscle",
-            "Omega-3 fats support recovery and healthy joints",
+            "Atlantic salmon is high-quality protein to build and repair muscle",
+            "Its extra omega-3 fats add calories and support recovery",
             "Sweet potatoes refuel your muscles with slow-digesting carbs",
           ],
           maintain: [
@@ -170,6 +171,7 @@ export const site = {
       },
       {
         name: "93/7 ground beef, potatoes & pineapple",
+        nameFor: { muscle: "93/7 ground beef, jasmine rice & pineapple" },
         why: {
           lose: [
             "Lean beef is high in protein, iron and B12",
@@ -178,7 +180,7 @@ export const site = {
           ],
           muscle: [
             "Beef is packed with protein, iron, B12 and natural creatine",
-            "Potatoes are an easy carb to fuel hard training",
+            "Jasmine rice is an easy, fast-digesting carb to fuel hard training",
             "Pineapple adds quick carbs and vitamin C for recovery",
           ],
           maintain: [

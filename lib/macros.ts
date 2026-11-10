@@ -425,3 +425,8 @@ export function ageRangeFor(age: number): string {
 export function labelOf<T extends { value: string; label: string }>(list: readonly T[], v: string): string {
   return list.find((x) => x.value === v)?.label ?? v;
 }
+
+/** A meal's name for the chosen goal (some meals change for building muscle). */
+export function mealName(m: { name: string; nameFor?: Partial<Record<string, string>> }, goal: string): string {
+  return m.nameFor?.[goal] ?? m.name;
+}

@@ -16,6 +16,7 @@ import {
   formatDate,
   goalDate,
   labelOf,
+  mealName,
   REALITY_PUNCH,
   realityContext,
   tipsFor,
@@ -299,9 +300,9 @@ export default function MacroQuiz({ source }: { source: string }) {
           <p className="m-sub">{q.mealsSub}</p>
           <div className="m-meals">
             {q.meals.map((m, i) => (
-              <article key={m.name} className="m-meal">
+              <article key={i} className="m-meal">
                 <p className="m-meal-num">Meal {i + 1}</p>
-                <h3>{m.name}</h3>
+                <h3>{mealName(m, input.goal)}</h3>
                 {"detail" in m && m.detail && <p className="m-meal-detail">{m.detail}</p>}
                 <ul>
                   {m.why[input.goal].map((w) => (

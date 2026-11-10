@@ -8,6 +8,7 @@ import {
   formatDate,
   goalDate,
   labelOf,
+  mealName,
   leadRating,
   REALITY_PUNCH,
   realityContext,
@@ -81,7 +82,7 @@ export function macroResultsEmail(q: QuizInput, r: MacroResults, siteUrl: string
       .map(
         (m, i) => `<div style="background:#1b1f27;border-radius:12px;padding:14px 16px;margin:0 0 10px">
       <div style="font-size:12px;font-weight:700;color:#6a9fc6;letter-spacing:.08em;text-transform:uppercase">Meal ${i + 1}</div>
-      <div style="font-size:16px;font-weight:700;margin:2px 0">${esc(m.name)}</div>
+      <div style="font-size:16px;font-weight:700;margin:2px 0">${esc(mealName(m, q.goal))}</div>
       ${"detail" in m && m.detail ? `<div style="font-size:14px;color:#a9aeb8">${esc(m.detail)}</div>` : ""}
       <div style="font-size:14px;color:#d4d7dd;line-height:1.55;margin-top:6px">${m.why[q.goal].map((w) => `✓ ${esc(w)}`).join("<br>")}</div>
     </div>`,
@@ -110,7 +111,7 @@ export function macroResultsEmail(q: QuizInput, r: MacroResults, siteUrl: string
     ...(tips.length ? [``, `Based on what gets in your way:`, ...tips.map((t) => `- ${t.label}: ${t.tip}`)] : []),
     ``,
     `${c.mealsTitle[q.goal]}:`,
-    ...c.meals.map((m, i) => `${i + 1}. ${m.name}${"detail" in m && m.detail ? ` (${m.detail})` : ""}\n   ${m.why[q.goal].join(" · ")}`),
+    ...c.meals.map((m, i) => `${i + 1}. ${mealName(m, q.goal)}${"detail" in m && m.detail ? ` (${m.detail})` : ""}\n   ${m.why[q.goal].join(" · ")}`),
     ``,
     reality,
     ``,

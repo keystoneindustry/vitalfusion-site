@@ -136,6 +136,7 @@ import { macroResultsEmail, coachLeadEmail, leadRow, SHEET_COLUMNS } from "../li
     if (mv.ok) {
       const me = macroResultsEmail(mv.data, calculate(mv.data), "https://vitalfusioncoaching.com");
       assert.ok(me.html.includes("My top 3 muscle-building meals") && me.html.includes("200 calories above maintenance") && me.html.includes("natural creatine"));
+      assert.ok(me.html.includes("Atlantic salmon, sweet potatoes &amp; veggies") && me.html.includes("93/7 ground beef, jasmine rice &amp; pineapple") && !me.html.includes("Sockeye"));
       assert.ok(!me.html.includes("fat-loss meals"));
     }
     assert.ok(em.text.includes("Protein 144g"));
