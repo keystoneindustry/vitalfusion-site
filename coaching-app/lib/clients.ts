@@ -18,6 +18,12 @@ export type ClientRow = {
   last_seen_at: string | null;
   created_at: string;
   updated_at: string;
+  onboarding_step: string;
+  onboarding_completed_at: string | null;
+  kickoff_at: string | null;
+  kickoff_booking_uid: string | null;
+  health_flag: boolean;
+  health_note: string | null;
 };
 
 export type ClientEvent = {
@@ -103,6 +109,24 @@ export function describeEvent(e: ClientEvent): string {
       return `Package changed to ${String(d.weeks ?? "?")} weeks, ${String(d.start ?? "?")} to ${String(d.end ?? "?")}`;
     case "details_updated":
       return "Details updated";
+    case "onboarding_step":
+      return `Onboarding: finished “${String(d.label ?? d.step ?? "a step")}”`;
+    case "agreement_signed":
+      return d.parqYes ? "Signed the coaching agreement (answered YES on the health questions)" : "Signed the coaching agreement";
+    case "questions_submitted":
+      return "Submitted their onboarding questions";
+    case "kickoff_booked":
+      return `Booked their kickoff call${typeof d.when === "string" ? ` for ${d.when}` : ""}`;
+    case "kickoff_self_reported":
+      return "Said they booked their kickoff call";
+    case "kickoff_cancelled":
+      return "Cancelled their kickoff call";
+    case "checkin_call_booked":
+      return `Booked a check-in call${typeof d.when === "string" ? ` for ${d.when}` : ""}`;
+    case "checkin_call_cancelled":
+      return "Cancelled a check-in call";
+    case "email_failed":
+      return `An email didn't send${typeof d.what === "string" ? ` (${d.what})` : ""}`;
     default:
       return e.kind.replace(/_/g, " ");
   }

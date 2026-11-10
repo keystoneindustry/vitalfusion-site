@@ -21,6 +21,16 @@ Separate Next.js app (App Router, TypeScript, plain CSS, no extra dependencies) 
   `clients` (→ the client app at `/`). Unknown emails get the same "check your email" screen but no email.
 - Coach CRM: `/coach` (client list, flags), `/coach/clients/new` (add + invite), `/coach/clients/[id]`
   (edit package dates, stage, notes, resend invite, timeline). Server actions in `app/coach/actions.ts`.
+- Onboarding (Phase 2): `app/onboarding/` (own layout, no tab bar). Steps in `lib/onboarding.ts`, stored in
+  `clients.onboarding_step` (welcome → install → agreement → questions → how_it_works → kickoff → done); pages guard
+  with `onboarding/guard.ts` and server actions live in `onboarding/actions.ts`. Agreement wording + validation:
+  `lib/agreement.ts` (Tyler's agreement + approved Privacy / Package / Maryland changes; bump AGREEMENT_VERSION when
+  wording changes). Signing saves an `agreements` row, builds a PDF (`lib/agreement-pdf.ts` on the tiny writer
+  `lib/pdf.ts`), stores it in the private `agreements` storage bucket (`lib/storage.ts`) and emails it to client and
+  coach. Any PAR-Q "yes" sets `clients.health_flag` + `health_note`. Questions: `lib/onboarding-questions.ts`
+  (answers autosave to `onboarding_responses`). Kickoff booking: Cal.com link with name/email/`metadata[clientId]`
+  (`lib/booking.ts`); `app/api/cal/webhook` (HMAC with CAL_WEBHOOK_SECRET, shown on /coach/settings) records
+  bookings, reschedules and cancellations. Coach settings (`app_settings`): welcome video link, booking links.
 - Client app: five tabs in `app/(client)/` — Today, Calendar, Train, Learn, Progress — plus `/install`.
   Installable PWA: `app/manifest.ts`, icons in `public/icons/`, service worker `public/sw.js`.
 - Dates: package math lives in `lib/dates.ts` (end date = start + weeks × 7 − 1 day). Dates are stored as

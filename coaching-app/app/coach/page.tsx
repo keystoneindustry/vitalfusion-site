@@ -3,6 +3,14 @@ import { requireCoach } from "@/lib/auth";
 import { listClients } from "@/lib/clients";
 import { STAGES, isStage, stageLabel } from "@/lib/client-input";
 import { daysBetween, formatDate, packageLabel, renewalDue, timeAgo, todayIn } from "@/lib/dates";
+import { ONBOARDING_STEPS } from "@/lib/onboarding";
+import { formatCallTime } from "@/lib/booking";
+
+function onboardingLine(step: string, kickoffAt: string | null, tz: string): string | null {
+  if (step === "done") return kickoffAt ? `Kickoff: ${formatCallTime(kickoffAt, tz)}` : "Onboarding done";
+  const i = ONBOARDING_STEPS.findIndex((s) => s.id === step);
+  return i >= 0 ? `Onboarding ${i + 1}/${ONBOARDING_STEPS.length}: ${ONBOARDING_STEPS[i].label}` : null;
+}
 
 export const metadata = { title: "Clients · Vital Fusion Coach" };
 
@@ -20,6 +28,9 @@ export default async function CoachHome({ searchParams }: { searchParams: Promis
   // Things that need Tyler's attention.
   const flags: { id: string; text: string }[] = [];
   for (const c of current) {
+    if (c.health_flag) {
+      flags.push({ id: c.id, text: `⚠️ ${c.full_name} answered YES on the health questions: review before their plan` });
+    }
     if (c.stage === "invited" && c.invited_at && !c.first_signed_in_at && daysBetween(c.invited_at.slice(0, 10), today) >= 3) {
       flags.push({ id: c.id, text: `${c.full_name} hasn't opened their invite (sent ${timeAgo(c.invited_at)})` });
     }
@@ -97,6 +108,18 @@ export default async function CoachHome({ searchParams }: { searchParams: Promis
                   {c.start_date ? `${formatDate(c.start_date, false)} – ${formatDate(c.end_date)}` : "No dates set"}
                   {" · "}
                   {c.last_seen_at ? `Last signed in ${timeAgo(c.last_seen_at)}` : c.invited_at ? "Not signed in yet" : "Not invited yet"}
+                  {c.first_signed_in_at && (c.stage === "onboarding" || c.onboarding_step !== "done") && (
+                    <>
+                      <br />
+                      {onboardingLine(c.onboarding_step, c.kickoff_at, c.timezone)}
+                    </>
+                  )}
+                  {c.health_flag && (
+                    <>
+                      <br />
+                      <span style={{ color: "var(--warn)" }}>⚠️ Health questions need review</span>
+                    </>
+                  )}
                 </div>
               </Link>
             </li>

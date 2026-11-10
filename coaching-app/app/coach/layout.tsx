@@ -10,6 +10,7 @@ export default function CoachLayout({ children }: { children: React.ReactNode })
         <nav aria-label="Coach">
           <Link href="/coach">Clients</Link>
           <Link href="/coach/clients/new">+ Add</Link>
+          <Link href="/coach/settings">Settings</Link>
           <form action="/auth/logout" method="post">
             <button className="btn-link" type="submit" style={{ color: "var(--muted)" }}>
               Sign out

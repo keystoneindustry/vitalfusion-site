@@ -7,6 +7,11 @@ import { formatDate, packageLabel, timeAgo, todayIn } from "@/lib/dates";
 import { resendInviteAction, updateClientAction } from "../../actions";
 import ClientForm from "../../ClientForm";
 import SubmitButton from "@/app/components/SubmitButton";
+import { checklist } from "@/lib/onboarding";
+import { getResponse, latestAgreement } from "@/lib/onboarding-data";
+import { summarize } from "@/lib/onboarding-questions";
+import { formatCallTime } from "@/lib/booking";
+import { PARQ_QUESTIONS } from "@/lib/agreement";
 
 export const metadata = { title: "Client · Vital Fusion Coach" };
 
@@ -33,8 +38,13 @@ export default async function ClientPage({
 
   const client = await getClient(id);
   if (!client) notFound();
-  const events = await listEvents(client.id);
+  const [events, agreement, response] = await Promise.all([
+    listEvents(client.id),
+    latestAgreement(client.id),
+    getResponse(client.id),
+  ]);
   const today = todayIn();
+  const answerGroups = response && Object.keys(response.answers || {}).length ? summarize(response.answers) : [];
 
   const update = updateClientAction.bind(null, client.id);
   const resend = resendInviteAction.bind(null, client.id);
@@ -63,6 +73,79 @@ export default async function ClientPage({
           “Resend invite.”
         </div>
       )}
+
+      {client.health_flag && (
+        <div className="notice notice-warn">
+          <b>⚠️ Answered YES on the health questions.</b> Review before building their plan, and decide whether you need a
+          doctor's clearance.
+          {agreement && agreement.parq_any_yes && (
+            <ul style={{ margin: "8px 0 4px 18px", padding: 0 }}>
+              {PARQ_QUESTIONS.filter((_, i) => agreement.parq[i]).map((q) => (
+                <li key={q}>{q}</li>
+              ))}
+            </ul>
+          )}
+          {client.health_note && (
+            <>
+              <b>Their explanation:</b> {client.health_note}
+            </>
+          )}
+        </div>
+      )}
+
+      <section className="card">
+        <div className="row-between">
+          <h2 className="h2" style={{ margin: 0 }}>Onboarding</h2>
+          <span className="muted small">
+            {client.onboarding_step === "done"
+              ? `Finished ${client.onboarding_completed_at ? timeAgo(client.onboarding_completed_at) : ""}`
+              : "In progress"}
+          </span>
+        </div>
+        <div className="spacer" />
+        <ul className="checklist">
+          {checklist(client.onboarding_step).map((s) => (
+            <li key={s.id} className={s.state}>
+              <span className="tick" aria-hidden="true">
+                {s.state === "done" ? "✓" : ""}
+              </span>
+              <span>
+                {s.label}
+                {s.id === "agreement" && agreement && (
+                  <>
+                    {" · "}
+                    <a href={`/coach/clients/${client.id}/agreement`} target="_blank" rel="noopener noreferrer">
+                      signed {formatDate(agreement.signed_at.slice(0, 10), false)} (PDF)
+                    </a>
+                  </>
+                )}
+                {s.id === "kickoff" && client.kickoff_at && <> · {formatCallTime(client.kickoff_at, client.timezone)}</>}
+                {s.state === "current" && <span className="muted"> · they're here</span>}
+              </span>
+            </li>
+          ))}
+        </ul>
+        {answerGroups.length > 0 && (
+          <details className="answers">
+            <summary>
+              {response?.submitted_at ? "Onboarding answers" : "Onboarding answers so far (not submitted yet)"}
+            </summary>
+            {answerGroups.map((g) => (
+              <div key={g.section}>
+                <h3>{g.section}</h3>
+                <dl>
+                  {g.items.map((item) => (
+                    <div key={item.prompt}>
+                      <dt>{item.prompt}</dt>
+                      <dd>{item.answer}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            ))}
+          </details>
+        )}
+      </section>
 
       <div className="detail-grid">
         <div>

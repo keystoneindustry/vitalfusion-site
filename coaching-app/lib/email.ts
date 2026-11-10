@@ -9,7 +9,16 @@ function esc(s: string): string {
     .replace(/'/g, "&#39;");
 }
 
-export async function sendEmail(msg: { to: string; subject: string; html: string; text: string }): Promise<void> {
+export type Attachment = { filename: string; content: Uint8Array };
+
+export async function sendEmail(msg: {
+  to: string;
+  subject: string;
+  html: string;
+  text: string;
+  attachments?: Attachment[];
+  replyTo?: string;
+}): Promise<void> {
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${env.resendApiKey()}`, "Content-Type": "application/json" },
@@ -19,7 +28,15 @@ export async function sendEmail(msg: { to: string; subject: string; html: string
       subject: msg.subject,
       html: msg.html,
       text: msg.text,
-      ...(env.replyTo() ? { reply_to: env.replyTo() } : {}),
+      ...(msg.replyTo || env.replyTo() ? { reply_to: msg.replyTo || env.replyTo() } : {}),
+      ...(msg.attachments?.length
+        ? {
+            attachments: msg.attachments.map((a) => ({
+              filename: a.filename,
+              content: Buffer.from(a.content).toString("base64"),
+            })),
+          }
+        : {}),
     }),
     cache: "no-store",
   });
@@ -92,4 +109,100 @@ export function signInEmail(firstName: string, link: string, code: string | null
   );
   const text = `Hi ${firstName},\n\nSign in to your Vital Fusion coaching app here:\n${link}${codeText(code)}\n\nThe link and code work once and expire in 1 hour. If you didn't ask for them, you can ignore this email.`;
   return { subject, html, text };
+}
+
+/** Plain card email without a button (notices to the coach and receipts). */
+function card(heading: string, bodyHtml: string, footnote = ""): string {
+  return `<!doctype html><html><body style="margin:0;background:#0b0d12;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif">
+<div style="max-width:560px;margin:0 auto;padding:28px 16px">
+  <div style="background:#15171d;border:1px solid #2a2d35;border-radius:18px;padding:28px 22px;color:#f4f5f7">
+    <p style="margin:0 0 6px;color:#6a9fc6;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;font-size:12px">Vital Fusion Coaching</p>
+    <h1 style="margin:0 0 14px;font-size:22px;line-height:1.25">${esc(heading)}</h1>
+    <div style="color:#d4d7dd;font-size:15px;line-height:1.6">${bodyHtml}</div>
+    ${footnote ? `<p style="margin:18px 0 0;color:#8d939e;font-size:13px;line-height:1.5">${esc(footnote)}</p>` : ""}
+  </div>
+  <p style="margin:16px 0 0;text-align:center;color:#8d939e;font-size:12px">Vital Fusion Coaching LLC · 1802 Charolais Court, Bel Air, MD 21015</p>
+</div></body></html>`;
+}
+
+function button(label: string, link: string): string {
+  return `<p style="margin:22px 0 4px"><a href="${esc(link)}" style="display:inline-block;background:#6a9fc6;color:#ffffff;font-weight:700;font-size:16px;text-decoration:none;border-radius:12px;padding:13px 24px">${esc(label)}</a></p>`;
+}
+
+/** Receipt to the client with their signed agreement attached. */
+export function agreementClientEmail(firstName: string) {
+  return {
+    subject: "Your signed Vital Fusion coaching agreement",
+    html: card(
+      `Thanks, ${firstName}!`,
+      `<p style="margin:0 0 12px">Your coaching agreement is signed. A copy is attached for your records, and you can find it any time in the app under Progress.</p>
+       <p style="margin:0">Next up: your onboarding questions, so I can build your plan around your life.</p>
+       <p style="margin:12px 0 0">– Tyler</p>`,
+    ),
+    text: `Thanks, ${firstName}!\n\nYour coaching agreement is signed. A copy is attached for your records, and you can find it any time in the app under Progress.\n\nNext up: your onboarding questions.\n\n– Tyler`,
+  };
+}
+
+/** Notice to the coach when a client signs. Flags any "yes" on the health questions. */
+export function agreementCoachEmail(opts: { clientName: string; parqYes: string[]; explanation: string; link: string }) {
+  const flagged = opts.parqYes.length > 0;
+  const subject = flagged
+    ? `⚠️ ${opts.clientName} signed and answered YES on the health questions`
+    : `✅ ${opts.clientName} signed their coaching agreement`;
+  const flagHtml = flagged
+    ? `<div style="margin:0 0 14px;padding:12px 14px;border:1px solid #5a4a26;border-radius:12px;background:#211b0e;color:#ffe2a8">
+         <b>Answered YES to:</b><ul style="margin:6px 0 6px 18px;padding:0">${opts.parqYes.map((q) => `<li>${esc(q)}</li>`).join("")}</ul>
+         <b>Their explanation:</b> ${esc(opts.explanation || "—")}
+         <p style="margin:8px 0 0">Their plan is on hold until you review this. Decide whether you need a doctor's clearance.</p>
+       </div>`
+    : "";
+  return {
+    subject,
+    html: card(
+      subject.replace(/^(⚠️|✅) /, ""),
+      `${flagHtml}<p style="margin:0">The signed agreement is attached and saved on their profile.</p>${button("Open their profile", opts.link)}`,
+    ),
+    text: `${subject}\n\n${
+      flagged ? `Answered YES to:\n- ${opts.parqYes.join("\n- ")}\nExplanation: ${opts.explanation || "-"}\nTheir plan is on hold until you review this.\n\n` : ""
+    }The signed agreement is attached and saved on their profile:\n${opts.link}`,
+  };
+}
+
+/** Notice to the coach with the client's onboarding answers. */
+export function onboardingAnswersCoachEmail(opts: {
+  clientName: string;
+  link: string;
+  groups: { section: string; items: { prompt: string; answer: string }[] }[];
+}) {
+  const subject = `📝 ${opts.clientName} finished their onboarding questions`;
+  const html = card(
+    `${opts.clientName} finished their onboarding questions`,
+    `${opts.groups
+      .map(
+        (g) => `<h2 style="margin:18px 0 6px;font-size:15px;color:#6a9fc6;text-transform:uppercase;letter-spacing:0.06em">${esc(g.section)}</h2>
+        ${g.items
+          .map(
+            (i) => `<p style="margin:0 0 8px"><span style="color:#8d939e">${esc(i.prompt)}</span><br>${esc(i.answer).replace(/\n/g, "<br>")}</p>`,
+          )
+          .join("")}`,
+      )
+      .join("")}${button("Open their profile", opts.link)}`,
+  );
+  const text = `${opts.clientName} finished their onboarding questions\n\n${opts.groups
+    .map((g) => `${g.section.toUpperCase()}\n${g.items.map((i) => `${i.prompt}\n${i.answer}`).join("\n\n")}`)
+    .join("\n\n")}\n\n${opts.link}`;
+  return { subject, html, text };
+}
+
+/** Notice to the coach when a kickoff call is booked. */
+export function kickoffBookedCoachEmail(opts: { clientName: string; when: string; link: string }) {
+  const subject = `📅 ${opts.clientName} booked their kickoff call: ${opts.when}`;
+  return {
+    subject,
+    html: card(
+      `${opts.clientName} booked their kickoff call`,
+      `<p style="margin:0">${esc(opts.when)}. They'll photograph their meals until then, and their plan draft will be ready before the call.</p>${button("Open their profile", opts.link)}`,
+    ),
+    text: `${opts.clientName} booked their kickoff call: ${opts.when}\n\n${opts.link}`,
+  };
 }

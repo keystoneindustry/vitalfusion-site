@@ -30,6 +30,14 @@ export default async function ProgressPage() {
           <dd>{email}</dd>
         </dl>
         <div className="spacer" />
+        {client.onboarding_step !== "welcome" && client.onboarding_step !== "install" && client.onboarding_step !== "agreement" && (
+          <>
+            <a className="btn btn-ghost btn-wide" href="/agreement" target="_blank" rel="noopener noreferrer">
+              My signed coaching agreement (PDF)
+            </a>
+            <div className="spacer" />
+          </>
+        )}
         <Link className="btn btn-ghost btn-wide" href="/install">
           How to add the app to your home screen
         </Link>
