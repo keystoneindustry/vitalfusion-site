@@ -121,7 +121,8 @@ const VOICE = `Anything written TO THE CLIENT (welcome, each meal's "why" and in
 const NUTRITION_RULES = `- The daily targets are fixed. Never change them.
 - Build around what they already eat and like (from the photos and their answers). Keep their favorite foods and swap in better versions rather than replacing their diet. Strictly respect allergies, foods they won't eat and their way of eating. Match their cooking time, kitchen skills, budget and how often they eat out.
 - Ingredients use plain, generic names the way the USDA food database writes them, including the state: e.g. "chicken breast, cooked", "white rice, cooked", "rolled oats, dry", "egg, whole", "greek yogurt, nonfat, plain", "olive oil". No brand names. Give grams, a household measure (e.g. "1 cup", "1 palm-size piece") and your estimate of calories, protein, carbs, fat and fiber for THAT amount.
-- Keep meals realistic and simple, with short instructions.`;
+- Keep meals realistic and simple. Instructions: 2-5 short steps, ONE per line, each under 15 words. "why": one short line under 15 words.
+- Meal names are short and appetizing (2-6 words), e.g. "Turkey taco bowl".`;
 
 const ANALYSIS_SYSTEM = `You help Tyler Kendrick, owner and coach at Vital Fusion Coaching, plan a new client's nutrition. Tyler reviews and edits everything before the client sees it.
 
@@ -186,7 +187,7 @@ const MEAL_SCHEMA = {
     prepMinutes: { type: "number" },
     ingredients: { type: "array", items: INGREDIENT_SCHEMA },
     instructions: { type: "string" },
-    why: { type: "string", description: "One sentence to the client on why it's in their plan." },
+    why: { type: "string", description: "One short line (under 15 words) to the client on why it's in their plan." },
   },
 };
 
@@ -201,7 +202,7 @@ const INSIGHTS_SCHEMA = {
     estimatedCalories: { type: "number", description: "Rough current daily calories; 0 if there's no food log." },
     estimatedProtein: { type: "number", description: "Rough current daily protein in grams; 0 if there's no food log." },
     intakeNote: { type: "string" },
-    easingIn: { type: "string" },
+    easingIn: { type: "string", description: "Empty, or 2-3 short lines (one per line) to the client on easing into the targets." },
   },
 };
 
@@ -210,7 +211,7 @@ const ANALYSIS_OUTPUT: JsonSpec = {
   schema: {
     type: "object",
     properties: {
-      welcome: { type: "string", description: "2-4 sentences to the client introducing their plan." },
+      welcome: { type: "string", description: "1-2 short sentences to the client introducing their plan." },
       insights: INSIGHTS_SCHEMA,
       callAgenda: { type: "array", items: { type: "string" } },
       coachNotes: { type: "array", items: { type: "string" } },

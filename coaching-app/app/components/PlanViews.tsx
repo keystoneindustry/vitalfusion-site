@@ -1,6 +1,4 @@
 import {
-  ingredientMacros,
-  macroLine,
   mealMacros,
   MEAL_CATEGORIES,
   perfectDayLines,
@@ -18,35 +16,74 @@ import type { Targets } from "@/lib/targets";
 
 /** Read-only pieces of a plan, shared by the client screens and the coach's review screen. */
 
-export function MealCard({ meal, open = false, children }: { meal: PlanMeal; open?: boolean; children?: React.ReactNode }) {
+function pretty(food: string): string {
+  return food ? food[0].toUpperCase() + food.slice(1) : food;
+}
+
+const CATEGORY_ICON: Record<string, string> = { breakfast: "🍳", lunch: "🥗", dinner: "🍽️", snack: "🍎" };
+
+/** One meal: name + quick tags; opens to ingredients and numbered steps. */
+export function MealCard({
+  meal,
+  open = false,
+  time,
+  servings = 1,
+  children,
+}: {
+  meal: PlanMeal;
+  open?: boolean;
+  time?: string;
+  servings?: number;
+  children?: React.ReactNode;
+}) {
+  const m = roundMacros(mealMacros(meal));
+  const f = servings;
+  const steps = toLines(meal.instructions);
   return (
-    <details className="meal-card" open={open}>
+    <details className="meal" open={open}>
       <summary>
-        <span className="meal-name">{meal.name}</span>
-        <span className="muted small">
-          {macroLine(mealMacros(meal))}
-          {meal.prepMinutes ? ` · ${meal.prepMinutes} min` : ""}
+        {time !== undefined && <span className="meal-time">{time || "—"}</span>}
+        <span className="meal-title">
+          <b>{meal.name}</b>
+          <span className="meal-tags">
+            <span>🔥 {Math.round(m.calories * f)} kcal</span>
+            <span>{Math.round(m.protein * f)}g protein</span>
+            {meal.prepMinutes ? <span className="tag-muted">⏱ {meal.prepMinutes} min</span> : null}
+          </span>
         </span>
+        <span className="chev" aria-hidden="true">›</span>
       </summary>
-      {meal.why && <p className="meal-why">{meal.why}</p>}
-      <ul className="ingredients">
-        {meal.ingredients.map((i, k) => {
-          const m = roundMacros(ingredientMacros(i));
-          return (
+      <div className="meal-body">
+        {meal.why && <p className="meal-why">{meal.why}</p>}
+        {servings !== 1 && <p className="serving-note">Have {servingsLabel(servings)} of this.</p>}
+        <h4>Ingredients</h4>
+        <ul className="ing-list">
+          {meal.ingredients.map((i, k) => (
             <li key={k}>
+              <span className="amt">{i.household || `${i.grams} g`}</span>
               <span>
-                {i.household ? `${i.household} ` : ""}
-                <b>{i.food}</b> <span className="muted">({i.grams} g)</span>
-              </span>
-              <span className="muted small">
-                {m.calories} kcal · {m.protein}P
+                {pretty(i.food)}
+                {i.household && <span className="muted"> · {i.grams} g</span>}
               </span>
             </li>
-          );
-        })}
-      </ul>
-      {meal.instructions && <p className="meal-steps">{meal.instructions}</p>}
-      {children}
+          ))}
+        </ul>
+        {steps.length > 0 && (
+          <>
+            <h4>How to make it</h4>
+            <ol className="steps-list">
+              {steps.map((st, k) => (
+                <li key={k}>{st}</li>
+              ))}
+            </ol>
+          </>
+        )}
+        <p className="meal-macros">
+          Protein {m.protein}g · Carbs {m.carbs}g · Fat {m.fat}g{m.fiber ? ` · Fiber ${m.fiber}g` : ""}
+          {servings !== 1 ? " (one serving)" : ""}
+        </p>
+        {children}
+      </div>
     </details>
   );
 }
@@ -70,7 +107,7 @@ export function PerfectDay({ nutrition, targets, showTotals = true }: { nutritio
   const totals = perfectDayMacros(nutrition);
   return (
     <>
-      {nutrition.perfectDay.note && <p className="coming" style={{ marginTop: 0 }}>{nutrition.perfectDay.note}</p>}
+      {nutrition.perfectDay.note && <p className="program-intro">{toLines(nutrition.perfectDay.note).slice(0, 2).join(" ")}</p>}
       {showTotals && (
         <div className="stat-row stat-row-4">
           <Diff label="kcal" actual={totals.calories} target={targets.calories} unit="kcal" />
@@ -79,16 +116,11 @@ export function PerfectDay({ nutrition, targets, showTotals = true }: { nutritio
           <Diff label="fat" actual={totals.fat} target={targets.fat} />
         </div>
       )}
-      <ol className="day-list">
+      <div className="meals-stack">
         {lines.map(({ item, meal }, k) => (
-          <li key={k}>
-            <span className="day-time">{item.time}</span>
-            <MealCard meal={meal}>
-              {item.servings !== 1 && <p className="small muted">Have {servingsLabel(item.servings)} of this.</p>}
-            </MealCard>
-          </li>
+          <MealCard key={k} meal={meal} time={item.time} servings={item.servings} />
         ))}
-      </ol>
+      </div>
     </>
   );
 }
@@ -96,16 +128,20 @@ export function PerfectDay({ nutrition, targets, showTotals = true }: { nutritio
 export function MealLibrary({ meals }: { meals: PlanMeal[] }) {
   return (
     <>
-      {MEAL_CATEGORIES.map((c) => {
+      {MEAL_CATEGORIES.map((c, i) => {
         const list = meals.filter((m) => m.category === c.value);
         if (list.length === 0) return null;
         return (
-          <div key={c.value} className="library-group">
-            <h3>{c.label}</h3>
-            {list.map((m) => (
-              <MealCard key={m.id} meal={m} />
-            ))}
-          </div>
+          <details key={c.value} className="t-section" open={i === 0}>
+            <summary>
+              <span aria-hidden="true">{CATEGORY_ICON[c.value]}</span> {c.label} <span className="muted small">({list.length})</span>
+            </summary>
+            <div className="meals-stack inset">
+              {list.map((m) => (
+                <MealCard key={m.id} meal={m} />
+              ))}
+            </div>
+          </details>
         );
       })}
     </>

@@ -388,6 +388,35 @@ textarea.mono { font-family: SFMono-Regular, Menlo, Consolas, monospace; font-si
 .tips { margin: 0; padding: 0 14px 14px 34px; color: var(--text-2); font-size: 15px; line-height: 1.45; }
 .tips li { margin-bottom: 6px; }
 
+/* ───────── Meals (client + coach read-only) ───────── */
+.section-title { font-size: 19px; font-weight: 800; margin: 22px 0 10px; }
+.meals-stack { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.meals-stack.inset { padding: 0 12px 4px; margin-bottom: 10px; }
+.meal { background: var(--card-2); border: 1px solid var(--card-border); border-radius: 16px; overflow: hidden; }
+.meals-stack:not(.inset) .meal { background: var(--card); }
+.meal > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 13px 14px; }
+.meal > summary::-webkit-details-marker { display: none; }
+.meal-time { flex: 0 0 auto; min-width: 64px; padding: 6px 8px; border-radius: 10px; background: #1c2a3d; color: var(--accent); font-size: 12.5px; font-weight: 800; text-align: center; line-height: 1.2; }
+.meal-title { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.meal-title b { font-size: 16px; line-height: 1.3; }
+.meal-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.meal-tags span { padding: 3px 8px; border-radius: 8px; background: #1c2a3d; color: #cfe0f0; font-size: 13px; font-weight: 600; }
+.meal-tags .tag-muted { background: var(--card-2); color: var(--text-3); }
+.meals-stack.inset .meal-tags .tag-muted { background: var(--card); }
+.meal[open] .chev { transform: rotate(90deg); }
+.meal[open] > summary { border-bottom: 1px solid var(--card-border); }
+.meal-body { padding: 4px 16px 14px; }
+.meal-body h4 { margin: 14px 0 6px; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); }
+.meal-body .meal-why { color: var(--gold); font-size: 14.5px; line-height: 1.45; margin: 10px 0 0; }
+.serving-note { margin: 8px 0 0; font-size: 14px; color: var(--warn); font-weight: 600; }
+.ing-list { list-style: none; margin: 0; padding: 0; }
+.ing-list li { display: flex; gap: 12px; padding: 7px 0; border-bottom: 1px dashed var(--card-border); font-size: 15px; line-height: 1.35; }
+.ing-list li:last-child { border-bottom: 0; }
+.ing-list .amt { flex: 0 0 96px; color: var(--text); font-weight: 700; }
+.steps-list { margin: 0; padding-left: 20px; color: var(--text-2); font-size: 15px; line-height: 1.45; }
+.steps-list li { margin-bottom: 6px; padding-left: 2px; }
+.meal-macros { margin: 12px 0 0; font-size: 13.5px; color: var(--muted); }
+
 @media (min-width: 860px) {
   .page { padding-top: 28px; }
   .h1 { font-size: 34px; }

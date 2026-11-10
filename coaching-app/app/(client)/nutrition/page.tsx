@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireClient } from "@/lib/auth";
 import { getPublishedPlan, hasContent } from "@/lib/plans";
 import TargetsCard from "@/app/components/TargetsCard";
+import { toLines } from "@/lib/plan";
 import { listMeals, logStats } from "@/lib/meals";
 import { todayIn } from "@/lib/dates";
 import { formatCallTime } from "@/lib/booking";
@@ -54,25 +55,30 @@ export default async function NutritionPage() {
   return (
     <>
       <p className="eyebrow">Nutrition</p>
-      <h1 className="h1">Your nutrition plan</h1>
-      {content.welcome && <p className="lead">{content.welcome}</p>}
+      <h1 className="h1">Your nutrition</h1>
+      {content.welcome && <p className="program-intro">{toLines(content.welcome).slice(0, 2).join(" ")}</p>}
       <TargetsCard targets={targets} />
-      <section className="card">
-        <h2 className="h2">Your perfect day</h2>
-        <PerfectDay nutrition={content} targets={targets} showTotals={false} />
-      </section>
-      <section className="card">
-        <h2 className="h2">Your meal library</h2>
-        <p className="coming" style={{ marginTop: 0 }}>
-          Swap any meal for another one in the same group. They're built to fit your numbers.
-        </p>
-        <MealLibrary meals={content.meals} />
-      </section>
+
+      <h2 className="section-title">Your perfect day</h2>
+      <PerfectDay nutrition={content} targets={targets} showTotals={false} />
+
+      <h2 className="section-title">Meal library</h2>
+      <p className="small muted" style={{ margin: "-4px 0 12px" }}>
+        Swap any meal for another in the same group. They all fit your numbers.
+      </p>
+      <MealLibrary meals={content.meals} />
+
       {content.insights.easingIn && (
-        <section className="card">
-          <h2 className="h2">Easing in</h2>
-          <p className="coming" style={{ margin: 0 }}>{content.insights.easingIn}</p>
-        </section>
+        <details className="t-section">
+          <summary>
+            <span aria-hidden="true">🪜</span> Easing in
+          </summary>
+          <ul className="tips">
+            {toLines(content.insights.easingIn).map((l, i) => (
+              <li key={i}>{l}</li>
+            ))}
+          </ul>
+        </details>
       )}
     </>
   );
