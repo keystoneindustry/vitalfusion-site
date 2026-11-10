@@ -2,6 +2,7 @@ import { requireCoach } from "@/lib/auth";
 import { getSettings, videoEmbedUrl } from "@/lib/settings";
 import SettingsForm from "./SettingsForm";
 import { appOrigin } from "@/lib/origin";
+import { aiConfigured, aiModel } from "@/lib/ai";
 
 export const metadata = { title: "Settings · Vital Fusion Coach" };
 
@@ -21,7 +22,7 @@ export default async function SettingsPage() {
         <h2 className="h2">Cal.com connection</h2>
         <p className="coming" style={{ marginTop: 0 }}>
           This lets bookings show up in the app automatically. In Cal.com go to <b>Settings → Developer → Webhooks → New</b>,
-          paste these two values, leave all booking events ticked, and save.
+          paste these two values, tick only <b>Booking created</b>, <b>Booking rescheduled</b> and <b>Booking canceled</b>, and save.
         </p>
         <div className="field">
           <label htmlFor="hook-url">Subscriber URL</label>
@@ -32,6 +33,21 @@ export default async function SettingsPage() {
           <input id="hook-secret" readOnly value={process.env.CAL_WEBHOOK_SECRET || "Not set up yet"} />
           <span className="hint">Keep this private. It proves the bookings really come from Cal.com.</span>
         </div>
+      </section>
+
+      <section className="card">
+        <h2 className="h2">AI plan drafts</h2>
+        <dl className="kv kv-wide">
+          <dt>Claude API</dt>
+          <dd>{aiConfigured() ? `✅ Connected (${aiModel()})` : "❌ Not set up: add ANTHROPIC_API_KEY in Vercel"}</dd>
+          <dt>USDA food data</dt>
+          <dd>{process.env.USDA_API_KEY ? "✅ Connected" : "❌ Not set up: add USDA_API_KEY in Vercel (meal macros use AI estimates until then)"}</dd>
+          <dt>Daily auto-draft</dt>
+          <dd>{process.env.CRON_SECRET ? "✅ On: plans draft the day before each kickoff call" : "❌ Off: add CRON_SECRET in Vercel"}</dd>
+        </dl>
+        <p className="small muted" style={{ marginBottom: 0 }}>
+          After adding a key in Vercel, redeploy the app so it takes effect.
+        </p>
       </section>
 
       {settings.welcome_video_url && (

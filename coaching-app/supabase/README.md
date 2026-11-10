@@ -14,3 +14,5 @@ The app itself uses the secret key on the server, and checks who is signed in in
 - `phase2_onboarding` (Nov 10, 2026): `clients` gets onboarding_step, onboarding_completed_at, kickoff_at,
   kickoff_booking_uid, health_flag, health_note; tables `onboarding_responses`, `agreements`, `app_settings`
   (welcome_video_url, kickoff_link, checkin_link); private storage bucket `agreements` for signed PDFs.
+- `phase3_food_log_and_plans` (Nov 10, 2026): tables `meal_logs`, `plans` (one open plan per client via a partial
+  unique index; `updated_at` trigger), `food_cache` (USDA lookups); private storage bucket `meal-photos` (5 MB, images).

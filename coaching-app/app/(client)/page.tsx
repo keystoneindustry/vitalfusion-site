@@ -5,6 +5,9 @@ import { formatDate, packageStatus, todayIn } from "@/lib/dates";
 import { checklist, stepPath } from "@/lib/onboarding";
 import { formatCallTime } from "@/lib/booking";
 import InstallCard from "./InstallCard";
+import { listMeals, logStats } from "@/lib/meals";
+import { getPublishedPlan, hasContent } from "@/lib/plans";
+import TargetsCard from "@/app/components/TargetsCard";
 
 export const metadata = { title: "Today · Vital Fusion" };
 
@@ -13,6 +16,9 @@ export default async function TodayPage() {
   const today = todayIn(client.timezone);
   const status = packageStatus(client.start_date, client.end_date, today);
   const onboarding = client.onboarding_step !== "done";
+  const published = onboarding ? null : await getPublishedPlan(client.id);
+  const plan = hasContent(published) ? published : null;
+  const foodLog = !onboarding && !plan ? logStats(await listMeals(client.id), client.timezone, today) : null;
 
   let packageLine = "Your coaching dates will show here.";
   if (status.kind === "not_started")
@@ -46,22 +52,59 @@ export default async function TodayPage() {
             {client.onboarding_step === "welcome" ? "Start →" : "Continue →"}
           </Link>
         </section>
+      ) : plan ? (
+        <>
+          <TargetsCard targets={plan.targets} />
+          <section className="card">
+            <h2 className="h2">Your plan</h2>
+            <div className="link-list">
+              <Link href="/plan">🍽️ Your meals and perfect day →</Link>
+              <Link href="/train">🏋️ Your training program →</Link>
+            </div>
+          </section>
+          <InstallCard />
+        </>
       ) : (
         <>
           <InstallCard />
           <section className="card card-accent">
-            <h2 className="h2">You're all set up ✅</h2>
+            <h2 className="h2">📷 Your food log</h2>
+            <p className="coming" style={{ marginTop: 0 }}>
+              Until your kickoff call, take a photo of everything you eat and drink. Eat like you normally do, so Tyler can
+              build your plan around your real life.
+            </p>
+            {foodLog && (
+              <div className="stat-row">
+                <div className="stat">
+                  <b>{foodLog.today}</b>
+                  <span>today</span>
+                </div>
+                <div className="stat">
+                  <b>{foodLog.days}</b>
+                  <span>day{foodLog.days === 1 ? "" : "s"}</span>
+                </div>
+                <div className="stat">
+                  <b>{foodLog.total}</b>
+                  <span>total</span>
+                </div>
+              </div>
+            )}
+            <Link className="btn btn-wide" href="/food/new">
+              📷 Log a meal
+            </Link>
+            <p className="center small" style={{ margin: "12px 0 0" }}>
+              <Link href="/food">See your food log</Link>
+            </p>
+          </section>
+          <section className="card">
+            <h2 className="h2">Kickoff call</h2>
             {client.kickoff_at ? (
-              <p className="coming" style={{ marginTop: 0 }}>
-                Kickoff call: <b>{formatCallTime(client.kickoff_at, client.timezone)}</b> on Google Meet.
+              <p className="coming" style={{ margin: 0 }}>
+                <b>{formatCallTime(client.kickoff_at, client.timezone)}</b> on Google Meet. Your plan goes live right after it.
               </p>
             ) : (
-              <p className="coming" style={{ marginTop: 0 }}>Your kickoff call time will show here once it's confirmed.</p>
+              <p className="coming" style={{ margin: 0 }}>Your kickoff call time will show here once it's confirmed.</p>
             )}
-            <p className="coming" style={{ marginBottom: 0 }}>
-              <b>Until your call:</b> take a photo of every meal and snack, with the time and a quick note. Meal logging in the
-              app is coming very soon. For now, keep the photos on your phone.
-            </p>
           </section>
         </>
       )}

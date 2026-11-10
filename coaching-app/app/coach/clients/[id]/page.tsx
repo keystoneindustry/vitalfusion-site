@@ -12,6 +12,9 @@ import { getResponse, latestAgreement } from "@/lib/onboarding-data";
 import { summarize } from "@/lib/onboarding-questions";
 import { formatCallTime } from "@/lib/booking";
 import { PARQ_QUESTIONS } from "@/lib/agreement";
+import { listMeals, logStats } from "@/lib/meals";
+import { getOpenPlan, getPublishedPlan, hasContent } from "@/lib/plans";
+import { targetLine } from "@/lib/targets";
 
 export const metadata = { title: "Client · Vital Fusion Coach" };
 
@@ -38,11 +41,28 @@ export default async function ClientPage({
 
   const client = await getClient(id);
   if (!client) notFound();
-  const [events, agreement, response] = await Promise.all([
+  const [events, agreement, response, meals, openPlan, publishedPlan] = await Promise.all([
     listEvents(client.id),
     latestAgreement(client.id),
     getResponse(client.id),
+    listMeals(client.id),
+    getOpenPlan(client.id),
+    getPublishedPlan(client.id),
   ]);
+  const food = logStats(meals, client.timezone, todayIn(client.timezone));
+  const planLine = hasContent(publishedPlan)
+    ? `Published ${timeAgo(publishedPlan.published_at ?? publishedPlan.updated_at)} · ${targetLine(publishedPlan.targets)}${
+        openPlan ? " · unpublished changes" : ""
+      }`
+    : openPlan?.status === "drafting"
+      ? "The AI is drafting it now…"
+      : hasContent(openPlan)
+        ? `Draft ready to review · ${targetLine(openPlan.targets)}`
+        : openPlan?.status === "failed"
+          ? "The last draft didn't finish. Open to try again."
+          : client.kickoff_at
+            ? "Drafts automatically the day before their kickoff call."
+            : "Not drafted yet.";
   const today = todayIn();
   const answerGroups = response && Object.keys(response.answers || {}).length ? summarize(response.answers) : [];
 
@@ -146,6 +166,18 @@ export default async function ClientPage({
           </details>
         )}
       </section>
+
+      {(client.onboarding_step === "done" || meals.length > 0 || openPlan || publishedPlan) && (
+        <section className="card card-accent">
+          <h2 className="h2">Food log &amp; plan</h2>
+          <div className="link-list">
+            <Link href={`/coach/clients/${client.id}/food`}>
+              📷 Food log: {food.total} entr{food.total === 1 ? "y" : "ies"} over {food.days} day{food.days === 1 ? "" : "s"} →
+            </Link>
+            <Link href={`/coach/clients/${client.id}/plan`}>🧠 Plan: {planLine} →</Link>
+          </div>
+        </section>
+      )}
 
       <div className="detail-grid">
         <div>

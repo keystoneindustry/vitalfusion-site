@@ -125,6 +125,18 @@ export function describeEvent(e: ClientEvent): string {
       return `Booked a check-in call${typeof d.when === "string" ? ` for ${d.when}` : ""}`;
     case "checkin_call_cancelled":
       return "Cancelled a check-in call";
+    case "first_meal_logged":
+      return "Logged their first meal";
+    case "plan_drafted":
+      return "The AI drafted their plan";
+    case "plan_revised":
+      return `The AI updated their plan draft${d.part && d.part !== "both" ? ` (${String(d.part)})` : ""}`;
+    case "plan_draft_failed":
+      return `Plan draft didn't finish${typeof d.reason === "string" ? `: ${d.reason}` : ""}`;
+    case "plan_published":
+      return d.update ? "Published changes to their plan" : "Their plan was published";
+    case "health_override":
+      return "Health answers reviewed; plan drafted anyway";
     case "email_failed":
       return `An email didn't send${typeof d.what === "string" ? ` (${d.what})` : ""}`;
     default:

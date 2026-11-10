@@ -206,3 +206,39 @@ export function kickoffBookedCoachEmail(opts: { clientName: string; when: string
     text: `${opts.clientName} booked their kickoff call: ${opts.when}\n\n${opts.link}`,
   };
 }
+
+/** Notice to the coach when the AI has drafted a plan. */
+export function planDraftCoachEmail(opts: { clientName: string; kickoff: string | null; targets: string; link: string; notes: string[] }) {
+  const subject = `🧠 Plan draft ready for ${opts.clientName}${opts.kickoff ? ` (kickoff ${opts.kickoff})` : ""}`;
+  const notes = opts.notes.length
+    ? `<p style="margin:14px 0 6px"><b>Double-check before publishing:</b></p><ul style="margin:0 0 0 18px;padding:0">${opts.notes
+        .map((n) => `<li>${esc(n)}</li>`)
+        .join("")}</ul>`
+    : "";
+  return {
+    subject,
+    html: card(
+      `${opts.clientName}'s plan draft is ready`,
+      `<p style="margin:0">The AI drafted their nutrition plan and training program from their onboarding answers and food log.${
+        opts.kickoff ? ` Their kickoff call is ${esc(opts.kickoff)}.` : ""
+      }</p><p style="margin:12px 0 0"><b>Targets:</b> ${esc(opts.targets)}</p>${notes}${button("Review the draft", opts.link)}`,
+      "Nothing goes to the client until you publish it.",
+    ),
+    text: `${subject}\n\nTargets: ${opts.targets}\n${opts.notes.length ? `\nDouble-check:\n- ${opts.notes.join("\n- ")}\n` : ""}\nReview it: ${opts.link}\n\nNothing goes to the client until you publish it.`,
+  };
+}
+
+/** To the client when their plan is published. */
+export function planPublishedClientEmail(firstName: string, link: string) {
+  const subject = "Your Vital Fusion plan is ready 🎉";
+  return {
+    subject,
+    html: card(
+      `${firstName}, your plan is live!`,
+      `<p style="margin:0 0 12px">Your daily targets, your meal plan and your training program are now in the app.</p>
+       <p style="margin:0">Start with the Today tab: it shows your numbers for the day. Your meals are under Learn and your workouts under Train.</p>
+       <p style="margin:12px 0 0">– Tyler</p>${button("Open my plan", link)}`,
+    ),
+    text: `${firstName}, your plan is live!\n\nYour daily targets, meal plan and training program are now in the app. Start with the Today tab; your meals are under Learn and your workouts under Train.\n\n${link}\n\n– Tyler`,
+  };
+}

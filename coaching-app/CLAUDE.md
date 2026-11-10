@@ -31,6 +31,19 @@ Separate Next.js app (App Router, TypeScript, plain CSS, no extra dependencies) 
   (answers autosave to `onboarding_responses`). Kickoff booking: Cal.com link with name/email/`metadata[clientId]`
   (`lib/booking.ts`); `app/api/cal/webhook` (HMAC with CAL_WEBHOOK_SECRET, shown on /coach/settings) records
   bookings, reschedules and cancellations. Coach settings (`app_settings`): welcome video link, booking links.
+- Food log + AI plan (Phase 3): after onboarding, clients log meals at `/food` (photo shrunk in the browser to
+  ≤1280 px JPEG, posted to `app/api/meals`, stored in the private `meal-photos` bucket; table `meal_logs`, helpers in
+  `lib/meals.ts`; photos shown through short-lived signed URLs). Plans live in `plans` (one open draft/drafting/failed
+  row per client, plus published/archived). Targets come from `lib/targets.ts`, which uses `lib/macros.ts` — a COPY of
+  the website's `lib/macros.ts` (keep in sync). The AI (`lib/ai.ts`, Claude API over REST, forced tool → JSON;
+  ANTHROPIC_API_KEY, optional ANTHROPIC_MODEL) drafts nutrition and training in two parallel calls
+  (`lib/plan-draft.ts`); the shapes and cleaning live in `lib/plan.ts`. Meal macros are recomputed from USDA
+  FoodData Central (`lib/food-data.ts`, USDA_API_KEY, cached in `food_cache`) unless the match looks implausible next
+  to the AI's estimate. Coach review/edit/revise/publish: `/coach/clients/[id]/plan` (server actions in `actions.ts`,
+  AI work runs after the response via `after()`, page `maxDuration = 300`). Daily cron `app/api/cron/plans`
+  (`vercel.json`, CRON_SECRET) drafts plans for kickoffs in the next 40 h and emails the coach; health-flagged clients
+  are skipped. Publishing moves the client to Active and emails them; the client sees targets on Today, meals at
+  `/plan` (linked from Learn) and the program on Train.
 - Client app: five tabs in `app/(client)/` — Today, Calendar, Train, Learn, Progress — plus `/install`.
   Installable PWA: `app/manifest.ts`, icons in `public/icons/`, service worker `public/sw.js`.
 - Dates: package math lives in `lib/dates.ts` (end date = start + weeks × 7 − 1 day). Dates are stored as

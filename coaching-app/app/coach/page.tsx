@@ -5,6 +5,7 @@ import { STAGES, isStage, stageLabel } from "@/lib/client-input";
 import { daysBetween, formatDate, packageLabel, renewalDue, timeAgo, todayIn } from "@/lib/dates";
 import { ONBOARDING_STEPS } from "@/lib/onboarding";
 import { formatCallTime } from "@/lib/booking";
+import { planSummaries } from "@/lib/plans";
 
 function onboardingLine(step: string, kickoffAt: string | null, tz: string): string | null {
   if (step === "done") return kickoffAt ? `Kickoff: ${formatCallTime(kickoffAt, tz)}` : "Onboarding done";
@@ -19,14 +20,14 @@ export default async function CoachHome({ searchParams }: { searchParams: Promis
   const { stage } = await searchParams;
   const filter = stage && isStage(stage) ? stage : null;
 
-  const clients = await listClients();
+  const [clients, plans] = await Promise.all([listClients(), planSummaries()]);
   const today = todayIn();
   const counts = Object.fromEntries(STAGES.map((s) => [s.value, clients.filter((c) => c.stage === s.value).length]));
   const current = clients.filter((c) => c.stage !== "finished");
   const shown = filter ? clients.filter((c) => c.stage === filter) : current;
 
   // Things that need Tyler's attention.
-  const flags: { id: string; text: string }[] = [];
+  const flags: { id: string; text: string; href?: string }[] = [];
   for (const c of current) {
     if (c.health_flag) {
       flags.push({ id: c.id, text: `⚠️ ${c.full_name} answered YES on the health questions: review before their plan` });
@@ -36,6 +37,21 @@ export default async function CoachHome({ searchParams }: { searchParams: Promis
     }
     if (c.stage === "invited" && !c.invited_at) {
       flags.push({ id: c.id, text: `${c.full_name} hasn't been sent an invite yet` });
+    }
+    const mine = plans.filter((p) => p.client_id === c.id);
+    const isPublished = mine.some((p) => p.status === "published");
+    const open = mine.find((p) => p.status !== "published");
+    if (open?.status === "draft" && !isPublished) {
+      flags.push({ id: c.id, text: `🧠 ${c.full_name}'s plan draft is ready to review`, href: `/coach/clients/${c.id}/plan` });
+    } else if (open?.status === "failed") {
+      flags.push({ id: c.id, text: `${c.full_name}'s plan draft didn't finish: try again`, href: `/coach/clients/${c.id}/plan` });
+    }
+    if (c.kickoff_at && Date.parse(c.kickoff_at) < Date.now() && !isPublished && c.onboarding_step === "done") {
+      flags.push({
+        id: c.id,
+        text: `📞 ${c.full_name} had their kickoff call: publish their plan`,
+        href: `/coach/clients/${c.id}/plan`,
+      });
     }
     if (renewalDue(c.end_date, today) && c.stage !== "paused") {
       flags.push({ id: c.id, text: `${c.full_name}'s package ends ${formatDate(c.end_date, false)}: renewal coming up` });
@@ -61,7 +77,7 @@ export default async function CoachHome({ searchParams }: { searchParams: Promis
           <ul className="flags">
             {flags.map((f, i) => (
               <li key={`${f.id}-${i}`}>
-                <Link href={`/coach/clients/${f.id}`}>{f.text}</Link>
+                <Link href={f.href ?? `/coach/clients/${f.id}`}>{f.text}</Link>
               </li>
             ))}
           </ul>
