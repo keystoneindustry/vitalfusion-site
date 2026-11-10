@@ -42,9 +42,18 @@ Separate Next.js app (App Router, TypeScript, plain CSS, no extra dependencies) 
   to the AI's estimate. Coach review/edit/revise/publish: `/coach/clients/[id]/plan` (server actions in `actions.ts`,
   AI work runs after the response via `after()`, page `maxDuration = 300`). Daily cron `app/api/cron/plans`
   (`vercel.json`, CRON_SECRET) drafts plans for kickoffs in the next 40 h and emails the coach; health-flagged clients
-  are skipped. Publishing moves the client to Active and emails them; the client sees targets on Today, meals at
-  `/plan` (linked from Learn) and the program on Train.
-- Client app: five tabs in `app/(client)/` — Today, Calendar, Train, Learn, Progress — plus `/install`.
+  are skipped. Publishing moves the client to Active and emails them; the client sees targets on Today, meals on
+  the Nutrition tab (`/nutrition`; `/plan` redirects there) and the program on Training (`/train`).
+  The coach edits plans in two client-side builders on the plan page: `TrainingBuilder.tsx` (days/exercises/notes, live
+  checks from `lib/training-brief.ts`) and `MealBuilder.tsx` (perfect day with live totals, meals ingredient by
+  ingredient; new/renamed foods are looked up in USDA on save via `fillMissing`). Each saves the whole part through
+  `saveTrainingAction` / `saveNutritionAction`. "Build it myself" starts an empty plan (`emptyContent()`); `aiPartAction`
+  lets the AI (re)draft just meals or just workouts (`runDraft(..., { part, fresh: true })`). Training drafts get a
+  must-follow brief from the onboarding answers (`trainingBrief`) and one automatic fix-up pass if `trainingWarnings`
+  finds problems (wrong day count, too long, missing equipment); remaining warnings become "Training: …" coach notes.
+- Client app (`app/(client)/`): tabs Today, Calendar, Training (`/train`), Nutrition (`/nutrition`) and a ☰ More
+  sheet (`TabBar.tsx`) with Progress, Food log, Library (`/learn`), Settings (`/settings`: account, agreement PDF,
+  sign out), Add to home screen (`/install`) and Sign out.
   Installable PWA: `app/manifest.ts`, icons in `public/icons/`, service worker `public/sw.js`.
 - Dates: package math lives in `lib/dates.ts` (end date = start + weeks × 7 − 1 day). Dates are stored as
   plain `YYYY-MM-DD` and handled as UTC so they never shift a day.

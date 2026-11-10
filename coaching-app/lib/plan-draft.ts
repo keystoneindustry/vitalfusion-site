@@ -29,6 +29,7 @@ import {
 } from "./plan";
 import { getOpenPlan, getPlan, hasContent, hasTargets, insertPlan, claimForDrafting, updatePlan, type PlanRow } from "./plans";
 import { formatCallTime } from "./booking";
+import { trainingBrief, trainingWarnings, withTrainingNotes } from "./training-brief";
 
 export type DraftPart = "nutrition" | "training" | "both";
 
@@ -134,7 +135,7 @@ ${VOICE}`;
 const TRAINING_SYSTEM = `You help Tyler Kendrick, owner and coach at Vital Fusion Coaching, draft a new client's training program. Tyler reviews and edits everything before the client sees it.
 
 Rules:
-1. Match their training days per week exactly (one training day object per session), their session length, where they train and the equipment they have, and their experience.
+1. Follow the TRAINING REQUIREMENTS block exactly: their goal, the exact number of training days (one day object per session), the session length, ONLY the equipment they have, and their experience level. The program must clearly serve their goal; say how in the overview.
 2. Work around injuries and pain: leave out movements that could aggravate them and mention safer swaps in the exercise notes.
 3. Use standard exercise names (e.g. "Barbell back squat", "Dumbbell Romanian deadlift", "Lat pulldown"). Prefer exercises they said they enjoy; avoid ones they hate.
 4. For each exercise give sets, reps (a range like "8–10"), rest (e.g. "90 sec") and a short coaching cue. Fit the session length including the warm-up.
@@ -313,16 +314,53 @@ async function draftNutrition(ctx: ClientContext, t: Targets, revise: { current:
   return { value: { ...n, meals }, usage: res.usage, model: res.model };
 }
 
-async function draftTraining(ctx: ClientContext, revise: { current: Training; instruction: string; callNotes: string } | null) {
-  const content: ContentBlock[] = [{ type: "text", text: `CLIENT PROFILE\n${profileText(ctx)}` }];
-  content.push({
-    type: "text",
-    text: revise ? revisionText("training program", revise.current, revise.instruction, revise.callNotes) : "Draft the training program now.",
-  });
+async function draftTraining(ctx: ClientContext, t: Targets, revise: { current: Training; instruction: string; callNotes: string } | null) {
+  const base: ContentBlock[] = [
+    { type: "text", text: `CLIENT PROFILE\n${profileText(ctx)}` },
+    { type: "text", text: trainingBrief(ctx.answers) },
+    { type: "text", text: `Their nutrition targets for context: ${targetLine(t)} (goal: ${t.inputs.goal}).` },
+  ];
+  const content = [
+    ...base,
+    {
+      type: "text" as const,
+      text: revise ? revisionText("training program", revise.current, revise.instruction, revise.callNotes) : "Draft the training program now.",
+    },
+  ];
   const res = await askForJson({ system: TRAINING_SYSTEM, content, tool: TRAINING_TOOL, maxTokens: 8000 });
-  const t = cleanTraining(res.input);
-  if (t.days.length === 0) throw new Error("The AI's training program came back empty. Try again.");
-  return { value: t, usage: res.usage, model: res.model };
+  let training = cleanTraining(res.input);
+  const usage: AiUsage[] = [res.usage];
+  if (training.days.length === 0) throw new Error("The AI's training program came back empty. Try again.");
+
+  // One automatic fix-up pass if the program breaks their answers (wrong number of days, too long, missing equipment).
+  const problems = trainingWarnings(training, ctx.answers);
+  if (problems.length) {
+    try {
+      const fix = await askForJson({
+        system: TRAINING_SYSTEM,
+        content: [
+          ...base,
+          {
+            type: "text",
+            text: revisionText(
+              "training program",
+              training,
+              `Fix these problems so the program matches their onboarding answers:\n- ${problems.join("\n- ")}`,
+              revise?.callNotes ?? "",
+            ),
+          },
+        ],
+        tool: TRAINING_TOOL,
+        maxTokens: 8000,
+      });
+      const fixed = cleanTraining(fix.input);
+      usage.push(fix.usage);
+      if (fixed.days.length && trainingWarnings(fixed, ctx.answers).length <= problems.length) training = fixed;
+    } catch (err) {
+      console.error("Training fix-up pass failed", err);
+    }
+  }
+  return { value: training, usage, model: res.model };
 }
 
 function addUsage(a: PlanRow["usage"], more: AiUsage[]): NonNullable<PlanRow["usage"]> {
@@ -363,7 +401,13 @@ export async function startDraft(client: ClientRow, opts: { allowHealthFlag?: bo
  */
 export async function runDraft(
   planId: string,
-  opts: { part?: DraftPart; instruction?: string; notifyCoach?: (client: ClientRow, plan: PlanRow) => Promise<void> } = {},
+  opts: {
+    part?: DraftPart;
+    instruction?: string;
+    /** Draft `part` from scratch instead of revising it. */
+    fresh?: boolean;
+    notifyCoach?: (client: ClientRow, plan: PlanRow) => Promise<void>;
+  } = {},
 ): Promise<void> {
   const before = await getPlan(planId);
   if (!before || !hasTargets(before)) return;
@@ -373,7 +417,7 @@ export async function runDraft(
   const instruction = (opts.instruction ?? "").trim();
   const callNotes = (before.call_notes ?? "").trim();
   const existing = hasContent(before) ? before.content : null;
-  const revising = !!existing && (instruction !== "" || callNotes !== "") && opts.part !== undefined;
+  const revising = !!existing && !opts.fresh && (instruction !== "" || callNotes !== "") && opts.part !== undefined;
 
   try {
     const ctx = await loadContext(client);
@@ -381,15 +425,14 @@ export async function runDraft(
     const doTraining = part !== "nutrition" || !existing;
     const [n, t] = await Promise.all([
       doNutrition ? draftNutrition(ctx, before.targets, revising && existing ? { current: existing, instruction, callNotes } : null) : null,
-      doTraining ? draftTraining(ctx, revising && existing ? { current: existing.training, instruction, callNotes } : null) : null,
+      doTraining ? draftTraining(ctx, before.targets, revising && existing ? { current: existing.training, instruction, callNotes } : null) : null,
     ]);
-    const content: PlanContent = {
-      ...(n ? n.value : (existing as Nutrition)),
-      training: t ? t.value : existing!.training,
-    };
-    const usage = addUsage(before.usage, [n?.usage, t?.usage].filter((u): u is AiUsage => !!u));
+    const nutrition: Nutrition = n ? n.value : (existing as Nutrition);
+    const training = t ? t.value : existing!.training;
+    const content: PlanContent = { ...nutrition, coachNotes: withTrainingNotes(nutrition.coachNotes, training, ctx.answers), training };
+    const usage = addUsage(before.usage, [n?.usage, ...(t?.usage ?? [])].filter((u): u is AiUsage => !!u));
     const saved = await updatePlan(planId, { status: "draft", content, error: null, ai_model: n?.model ?? t?.model ?? before.ai_model, usage });
-    await addEvent(client.id, revising ? "plan_revised" : "plan_drafted", { part: revising ? part : "both" });
+    await addEvent(client.id, revising ? "plan_revised" : "plan_drafted", { part: existing ? part : "both" });
     if (!revising && opts.notifyCoach) await opts.notifyCoach(client, saved).catch((e) => console.error("Plan email failed", e));
   } catch (err) {
     const message = err instanceof Error ? err.message : "Something went wrong.";

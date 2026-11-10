@@ -371,3 +371,120 @@ export function parseExerciseLines(text: string): { ok: true; items: Exercise[] 
 export function categoryLabel(c: string): string {
   return MEAL_CATEGORIES.find((x) => x.value === c)?.label ?? c;
 }
+
+// ───────── Saving the coach's builders ─────────
+
+export function emptyContent(): PlanContent {
+  return {
+    welcome: "",
+    insights: {
+      summary: "",
+      usualFoods: [],
+      mealTiming: "",
+      portions: "",
+      patterns: "",
+      estimatedCalories: null,
+      estimatedProtein: null,
+      intakeNote: "",
+      easingIn: "",
+    },
+    callAgenda: [],
+    coachNotes: [],
+    meals: [],
+    perfectDay: { note: "", items: [] },
+    training: { ...EMPTY_TRAINING, days: [] },
+  };
+}
+
+function cleanPer100(v: unknown): Macros | null {
+  const o = obj(v);
+  const cal = n(o.calories);
+  if (cal === null) return null;
+  const pos = (x: unknown) => Math.max(0, Math.min(1000, n(x) ?? 0));
+  return { calories: pos(cal), protein: pos(o.protein), carbs: pos(o.carbs), fat: pos(o.fat), fiber: pos(o.fiber) };
+}
+
+/**
+ * Checks meals sent from the coach's meal builder (same shape as PlanMeal). Keeps ids and nutrition
+ * data; an ingredient with no data is looked up again when saved. Returns an error for anything unusable.
+ */
+export function sanitizeEditedMeals(raw: unknown): { ok: true; meals: PlanMeal[] } | { ok: false; error: string } {
+  const meals: PlanMeal[] = [];
+  const seen = new Set<string>();
+  for (const [i, m] of arr(raw).slice(0, 60).entries()) {
+    const o = obj(m);
+    const name = s(o.name, 120);
+    if (!name) return { ok: false, error: `Meal ${i + 1} needs a name.` };
+    const ingredients: Ingredient[] = [];
+    for (const [j, ing] of arr(o.ingredients).slice(0, 25).entries()) {
+      const x = obj(ing);
+      const food = s(x.food, 120);
+      const grams = n(x.grams);
+      if (!food && (grams === null || grams === 0)) continue; // empty row
+      if (!food) return { ok: false, error: `“${name}”, ingredient ${j + 1}: add the food.` };
+      if (grams === null || grams <= 0 || grams > 3000) return { ok: false, error: `“${name}”: grams for ${food} must be between 1 and 3,000.` };
+      const per100 = cleanPer100(x.per100);
+      const source = x.source === "usda" || x.source === "ai" ? x.source : "none";
+      ingredients.push({
+        food,
+        grams: Math.round(grams),
+        household: s(x.household, 60),
+        per100,
+        source: per100 ? (source === "none" ? "ai" : source) : "none",
+        ...(source === "usda" && per100 && typeof x.usdaName === "string" ? { usdaName: s(x.usdaName, 200) } : {}),
+      });
+    }
+    if (ingredients.length === 0) return { ok: false, error: `“${name}” needs at least one ingredient.` };
+    let id = s(o.id, 40);
+    if (!/^[a-z0-9]+$/i.test(id) || seen.has(id)) id = newId();
+    seen.add(id);
+    const cat = s(o.category).toLowerCase();
+    const prep = n(o.prepMinutes);
+    meals.push({
+      id,
+      category: isCategory(cat) ? cat : "lunch",
+      name,
+      time: s(o.time, 40),
+      prepMinutes: prep !== null && prep > 0 && prep < 600 ? Math.round(prep) : null,
+      ingredients,
+      instructions: s(o.instructions, 1500),
+      why: s(o.why, 400),
+    });
+  }
+  return { ok: true, meals };
+}
+
+export function sanitizePerfectDay(raw: unknown, meals: PlanMeal[]): { note: string; items: PerfectDayItem[] } {
+  const o = obj(raw);
+  const ids = new Set(meals.map((m) => m.id));
+  const items: PerfectDayItem[] = [];
+  for (const it of arr(o.items).slice(0, 12)) {
+    const x = obj(it);
+    const mealId = s(x.mealId, 40);
+    if (!ids.has(mealId)) continue;
+    const sv = n(x.servings) ?? 1;
+    items.push({ time: s(x.time, 40), mealId, servings: Math.max(0.25, Math.min(4, Math.round(sv * 4) / 4)) });
+  }
+  return { note: s(o.note, 600), items };
+}
+
+/** Checks a program sent from the coach's workout builder. */
+export function sanitizeEditedTraining(raw: unknown): { ok: true; training: Training } | { ok: false; error: string } {
+  const o = obj(raw);
+  const days: TrainingDay[] = [];
+  for (const [i, d] of arr(o.days).slice(0, 7).entries()) {
+    const x = obj(d);
+    const name = s(x.name, 60) || `Day ${i + 1}`;
+    const exercises: Exercise[] = [];
+    for (const e of arr(x.exercises).slice(0, 20)) {
+      const ex = cleanExercise(e);
+      if (ex) exercises.push(ex);
+    }
+    if (exercises.length === 0) return { ok: false, error: `${name} needs at least one exercise (or remove the day).` };
+    days.push({ name, focus: s(x.focus, 120), exercises });
+  }
+  return {
+    ok: true,
+    training: { overview: s(o.overview, 1500), warmup: s(o.warmup, 800), progression: s(o.progression, 1000), notes: s(o.notes, 1000), days },
+  };
+}

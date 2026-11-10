@@ -7,21 +7,19 @@ import { addEvent, getClient, updateClient, type ClientRow } from "@/lib/clients
 import { firstName } from "@/lib/client-input";
 import { appOrigin } from "@/lib/origin";
 import { planPublishedClientEmail, sendEmail } from "@/lib/email";
-import { lookupFood } from "@/lib/food-data";
+import { fillMissing } from "@/lib/food-data";
+import { aiConfigured } from "@/lib/ai";
+import { getResponse } from "@/lib/onboarding-data";
+import { withTrainingNotes } from "@/lib/training-brief";
 import { defaultTargets, loadContext, runDraft, startDraft, type DraftPart } from "@/lib/plan-draft";
 import { computeTargets, isActivity, isPace, type Targets } from "@/lib/targets";
-import {
-  parseExerciseLines,
-  parseIngredientLines,
-  type Ingredient,
-  type PerfectDayItem,
-  type PlanContent,
-} from "@/lib/plan";
+import { emptyContent, sanitizeEditedMeals, sanitizeEditedTraining, sanitizePerfectDay, type PlanMeal } from "@/lib/plan";
 import {
   claimForDrafting,
   getOpenPlan,
   getPublishedPlan,
   hasContent,
+  hasTargets,
   insertPlan,
   publishPlan,
   updatePlan,
@@ -141,121 +139,92 @@ export async function resetTargetsAction(clientId: string): Promise<void> {
   back(client.id, { msg: "targets" }, "#targets");
 }
 
-async function saveContent(plan: PlanRow, content: PlanContent): Promise<void> {
-  await updatePlan(plan.id, { content });
-}
+export type SaveResult = { ok: true; message: string; meals?: PlanMeal[] } | { ok: false; error: string };
 
-export async function editMealAction(clientId: string, form: FormData): Promise<void> {
-  const client = await loadClient(clientId);
-  const plan = await editable(client);
-  if (!plan) back(client.id);
-  const mealId = str(form, "mealId");
-  const meal = plan.content.meals.find((m) => m.id === mealId);
-  if (!meal) back(client.id, { error: "That meal is gone. Refresh the page." });
-  const parsed = parseIngredientLines(str(form, "ingredients", 4000));
-  if (!parsed.ok) back(client.id, { error: parsed.error }, `#${mealId}`);
-  const known = new Map(plan.content.meals.flatMap((m) => m.ingredients).map((i) => [i.food.toLowerCase(), i]));
-  const ingredients: Ingredient[] = [];
-  for (const item of parsed.items) {
-    const prev = known.get(item.food.toLowerCase());
-    if (prev) {
-      ingredients.push({ ...prev, grams: item.grams, household: item.household });
-      continue;
-    }
-    const hit = await lookupFood(item.food).catch(() => null);
-    ingredients.push(
-      hit?.per100
-        ? { food: item.food, grams: item.grams, household: item.household, per100: hit.per100, source: "usda", usdaName: hit.description ?? undefined }
-        : { food: item.food, grams: item.grams, household: item.household, per100: null, source: "none" },
-    );
+function parseJson(payload: string): unknown {
+  try {
+    return JSON.parse(payload);
+  } catch {
+    return null;
   }
-  const prep = Number(form.get("prepMinutes"));
-  const updated = {
-    ...meal,
-    name: str(form, "name", 120) || meal.name,
-    time: str(form, "time", 40),
-    prepMinutes: Number.isFinite(prep) && prep > 0 ? Math.round(prep) : null,
-    instructions: str(form, "instructions", 1500),
-    why: str(form, "why", 400),
-    ingredients,
-  };
-  await saveContent(plan, { ...plan.content, meals: plan.content.meals.map((m) => (m.id === mealId ? updated : m)) });
-  back(client.id, { msg: "saved" }, `#${mealId}`);
 }
 
-export async function deleteMealAction(clientId: string, form: FormData): Promise<void> {
+/** Saves the whole program from the workout builder. */
+export async function saveTrainingAction(clientId: string, payload: string): Promise<SaveResult> {
   const client = await loadClient(clientId);
   const plan = await editable(client);
-  if (!plan) back(client.id);
-  const mealId = str(form, "mealId");
-  await saveContent(plan, {
-    ...plan.content,
-    meals: plan.content.meals.filter((m) => m.id !== mealId),
-    perfectDay: { ...plan.content.perfectDay, items: plan.content.perfectDay.items.filter((i) => i.mealId !== mealId) },
-  });
-  back(client.id, { msg: "saved" }, "#library");
-}
-
-/** Perfect day as lines: "7:00 AM | Meal name | 1". */
-export async function perfectDayAction(clientId: string, form: FormData): Promise<void> {
-  const client = await loadClient(clientId);
-  const plan = await editable(client);
-  if (!plan) back(client.id);
-  const byName = new Map(plan.content.meals.map((m) => [m.name.toLowerCase(), m.id]));
-  const items: PerfectDayItem[] = [];
-  const lines = str(form, "lines", 3000)
-    .split("\n")
-    .map((l) => l.trim())
-    .filter(Boolean);
-  for (const [i, line] of lines.entries()) {
-    const [time = "", name = "", servings = "1"] = line.split("|").map((p) => p.trim());
-    const id = byName.get(name.toLowerCase());
-    if (!id) back(client.id, { error: `Line ${i + 1}: “${name}” isn't a meal in the library. Copy its name exactly.` }, "#perfect-day");
-    const sv = Number(servings);
-    items.push({ time, mealId: id, servings: Number.isFinite(sv) && sv > 0 && sv <= 4 ? Math.round(sv * 4) / 4 : 1 });
-  }
-  await saveContent(plan, { ...plan.content, perfectDay: { note: str(form, "note", 600), items } });
-  back(client.id, { msg: "saved" }, "#perfect-day");
-}
-
-export async function trainingDayAction(clientId: string, form: FormData): Promise<void> {
-  const client = await loadClient(clientId);
-  const plan = await editable(client);
-  if (!plan) back(client.id);
-  const index = Number(form.get("index"));
-  const days = [...plan.content.training.days];
-  const remove = form.get("remove") === "yes";
-  if (remove) {
-    days.splice(index, 1);
-  } else {
-    const parsed = parseExerciseLines(str(form, "exercises", 5000));
-    if (!parsed.ok) back(client.id, { error: parsed.error }, `#day-${index}`);
-    const day = { name: str(form, "name", 60) || `Day ${index + 1}`, focus: str(form, "focus", 120), exercises: parsed.items };
-    if (index >= 0 && index < days.length) days[index] = day;
-    else days.push(day);
-  }
-  await saveContent(plan, { ...plan.content, training: { ...plan.content.training, days } });
-  back(client.id, { msg: "saved" }, "#training");
-}
-
-export async function textsAction(clientId: string, form: FormData): Promise<void> {
-  const client = await loadClient(clientId);
-  const plan = await editable(client);
-  if (!plan) back(client.id);
-  const c = plan.content;
-  await saveContent(plan, {
-    ...c,
-    welcome: str(form, "welcome", 800),
-    insights: { ...c.insights, easingIn: str(form, "easingIn", 800) },
-    training: {
-      ...c.training,
-      overview: str(form, "overview", 1500),
-      warmup: str(form, "warmup", 800),
-      progression: str(form, "progression", 1000),
-      notes: str(form, "trainingNotes", 1000),
+  if (!plan) return { ok: false, error: "This plan can't be edited right now (the AI may be working on it). Refresh the page." };
+  const checked = sanitizeEditedTraining(parseJson(payload));
+  if (!checked.ok) return checked;
+  const answers = (await getResponse(client.id))?.answers ?? {};
+  await updatePlan(plan.id, {
+    content: {
+      ...plan.content,
+      training: checked.training,
+      coachNotes: withTrainingNotes(plan.content.coachNotes, checked.training, answers),
     },
   });
-  back(client.id, { msg: "saved" }, "#texts");
+  return { ok: true, message: "Workouts saved ✓" };
+}
+
+/** Saves the meal library, perfect day and client messages from the meal builder. */
+export async function saveNutritionAction(clientId: string, payload: string): Promise<SaveResult> {
+  const client = await loadClient(clientId);
+  const plan = await editable(client);
+  if (!plan) return { ok: false, error: "This plan can't be edited right now (the AI may be working on it). Refresh the page." };
+  const raw = (parseJson(payload) ?? {}) as Record<string, unknown>;
+  const checked = sanitizeEditedMeals(raw.meals);
+  if (!checked.ok) return checked;
+  const { meals, missing } = await fillMissing(checked.meals);
+  const text = (k: string, max: number) => (typeof raw[k] === "string" ? (raw[k] as string).trim().slice(0, max) : "");
+  await updatePlan(plan.id, {
+    content: {
+      ...plan.content,
+      meals,
+      perfectDay: sanitizePerfectDay(raw.perfectDay, meals),
+      welcome: text("welcome", 800),
+      insights: { ...plan.content.insights, easingIn: text("easingIn", 800) },
+    },
+  });
+  return {
+    ok: true,
+    message: missing.length
+      ? `Saved, but there's no nutrition data for: ${missing.join(", ")}. Try a more common name (e.g. “chicken breast, cooked”).`
+      : "Meals saved ✓",
+    meals,
+  };
+}
+
+/** Starts an empty plan (calculator targets, no meals, no workouts) for the coach to build himself. */
+export async function buildManuallyAction(clientId: string): Promise<void> {
+  const client = await loadClient(clientId);
+  const open = await getOpenPlan(client.id);
+  if (!open) {
+    await insertPlan({ client_id: client.id, status: "draft", targets: defaultTargets(await loadContext(client)), content: emptyContent() });
+  } else if (!hasContent(open) && open.status !== "drafting") {
+    await updatePlan(open.id, {
+      status: "draft",
+      error: null,
+      content: emptyContent(),
+      ...(hasTargets(open) ? {} : { targets: defaultTargets(await loadContext(client)) }),
+    });
+  }
+  back(client.id, { msg: "manual" });
+}
+
+/** Lets the AI draft just the meals or just the workouts, replacing that part. */
+export async function aiPartAction(clientId: string, form: FormData): Promise<void> {
+  const client = await loadClient(clientId);
+  const part = str(form, "part") === "training" ? "training" : "nutrition";
+  if (!aiConfigured()) back(client.id, { error: "The Claude API key isn't set up yet (see Settings)." });
+  if (client.health_flag && form.get("health") !== "yes") {
+    back(client.id, { error: "They answered YES on the health questions. Tick the box to confirm you've reviewed it." });
+  }
+  const plan = await editable(client);
+  if (!plan) back(client.id, { error: "This plan can't be edited right now. Refresh the page." });
+  if (!(await claimForDrafting(plan.id))) back(client.id, { error: "The AI is already working on this plan. Give it a minute." });
+  after(() => runDraft(plan.id, { part, fresh: true }));
+  back(client.id, { msg: "drafting" });
 }
 
 // ───────── Publishing ─────────

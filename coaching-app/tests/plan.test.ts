@@ -16,6 +16,8 @@ import {
   servingsLabel,
 } from "../lib/plan";
 import { per100FromFdc, plausible } from "../lib/food-data";
+import { emptyContent, sanitizeEditedMeals, sanitizeEditedTraining, sanitizePerfectDay } from "../lib/plan";
+import { estimateMinutes, restMinutes, trainingBrief, trainingFacts, trainingWarnings, withTrainingNotes } from "../lib/training-brief";
 import { calculate } from "../lib/macros";
 
 // ───────── Targets ─────────
@@ -195,5 +197,71 @@ assert.equal(plausible({ ...est, calories: 365 }, est), false); // dry rice flou
 assert.equal(plausible({ ...est, calories: 150 }, est), true);
 assert.equal(plausible({ ...est, calories: 30 }, { ...est, calories: 20 }), true); // small foods: small gap is fine
 assert.equal(plausible({ ...est, calories: 365 }, null), true);
+
+// ───────── Training must follow their answers ─────────
+const home = { goal: "Build muscle", daysPerWeek: "3", sessionLength: "45 minutes", trainWhere: "At home with little equipment", equipment: ["Dumbbells", "Resistance bands"], experience: "Some (under 1 year)", injuries: "left knee hurts on deep squats" };
+const brief = trainingBrief(home);
+assert.ok(brief.includes("Exactly 3 training days"));
+assert.ok(brief.includes("about 45 minutes"));
+assert.ok(brief.includes("ONLY use this equipment: Dumbbells, Resistance bands"));
+assert.ok(brief.includes("left knee"));
+assert.ok(trainingBrief({ ...home, trainWhere: "Commercial gym" }).includes("any standard gym equipment"));
+assert.ok(trainingFacts(home).some((f) => f.label === "Equipment" && f.value === "Dumbbells, Resistance bands"));
+assert.equal(restMinutes("90 sec"), 1.5);
+assert.equal(restMinutes("2 min"), 2);
+assert.equal(restMinutes("60–90s"), 1);
+const shortDay = { name: "Day 1", focus: "", exercises: [{ name: "Goblet squat", sets: "3", reps: "10", rest: "60 sec", notes: "" }] };
+assert.equal(estimateMinutes(shortDay), 8 + Math.round(3 * 1.75));
+const longDay = { name: "Day 2", focus: "", exercises: Array.from({ length: 8 }, () => ({ name: "Dumbbell row", sets: "4", reps: "10", rest: "2 min", notes: "" })) };
+const program = { overview: "", warmup: "", progression: "", notes: "", days: [shortDay, { ...longDay, exercises: [...longDay.exercises, { name: "Barbell back squat", sets: "3", reps: "5", rest: "2 min", notes: "" }] }] };
+const warn = trainingWarnings(program, home);
+assert.ok(warn.some((w) => w.includes("2 training days") && w.includes("3 days")));
+assert.ok(warn.some((w) => w.startsWith("Day 2 looks like")));
+assert.ok(warn.some((w) => w.includes("Barbell back squat") && w.includes("a barbell")));
+assert.ok(!warn.some((w) => w.includes("Dumbbell row"))); // they have dumbbells
+// At a commercial gym with 2 days: only the (genuinely) too-long day is flagged, not the equipment.
+const gym = trainingWarnings(program, { ...home, trainWhere: "Commercial gym", daysPerWeek: "2", sessionLength: "75+ minutes" });
+assert.deepEqual(gym.map((w) => w.slice(0, 16)), ["Day 2 looks like"]);
+assert.equal(trainingWarnings({ ...program, days: [shortDay, shortDay] }, { ...home, trainWhere: "Commercial gym", daysPerWeek: "2" }).length, 0);
+const notes = withTrainingNotes(["Check allergies", "Training: old warning"], program, home);
+assert.equal(notes[0], "Check allergies");
+assert.ok(!notes.includes("Training: old warning"));
+assert.ok(notes.slice(1).every((x) => x.startsWith("Training: ")));
+
+// ───────── Saving the builders ─────────
+const content = emptyContent();
+assert.equal(content.meals.length, 0);
+assert.equal(content.training.days.length, 0);
+const edited = sanitizeEditedMeals([
+  {
+    id: "abc123",
+    category: "breakfast",
+    name: "Oats",
+    ingredients: [
+      { food: "rolled oats, dry", grams: 60, household: "2/3 cup", per100: { calories: 379, protein: 13, carbs: 68, fat: 6.5, fiber: 10 }, source: "usda" },
+      { food: "banana", grams: 100, household: "1 small", per100: null, source: "none" },
+      { food: "", grams: 0 }, // empty row is skipped
+    ],
+  },
+  { id: "abc123", category: "nope", name: "Copy with same id", ingredients: [{ food: "apple", grams: 150 }] },
+]);
+assert.ok(edited.ok);
+if (edited.ok) {
+  assert.equal(edited.meals[0].ingredients.length, 2);
+  assert.equal(edited.meals[0].ingredients[0].source, "usda");
+  assert.equal(edited.meals[0].ingredients[1].per100, null);
+  assert.equal(edited.meals[0].ingredients[1].source, "none");
+  assert.notEqual(edited.meals[1].id, "abc123"); // duplicate ids get a new one
+  assert.equal(edited.meals[1].category, "lunch");
+  const pd = sanitizePerfectDay({ note: "x", items: [{ time: "7 AM", mealId: "abc123", servings: 1.3 }, { mealId: "gone" }] }, edited.meals);
+  assert.equal(pd.items.length, 1);
+  assert.equal(pd.items[0].servings, 1.25);
+}
+assert.equal(sanitizeEditedMeals([{ name: "", ingredients: [{ food: "x", grams: 1 }] }]).ok, false);
+assert.equal(sanitizeEditedMeals([{ name: "Empty", ingredients: [] }]).ok, false);
+assert.equal(sanitizeEditedMeals([{ name: "Huge", ingredients: [{ food: "rice", grams: 5000 }] }]).ok, false);
+const tOk = sanitizeEditedTraining({ overview: "o", days: [{ name: "Day 1", exercises: [{ name: "Push-up", sets: "3", reps: "10", rest: "60 sec" }, { name: "" }] }] });
+assert.ok(tOk.ok && tOk.training.days[0].exercises.length === 1);
+assert.equal(sanitizeEditedTraining({ days: [{ name: "Day 1", exercises: [] }] }).ok, false);
 
 console.log("plan tests passed");

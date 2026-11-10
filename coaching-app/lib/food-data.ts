@@ -124,3 +124,25 @@ export async function lookupFood(food: string): Promise<CacheRow | null> {
   const found = await lookupAll([food]);
   return found.get(cacheKey(food)) ?? null;
 }
+
+/**
+ * For meals saved from the coach's builder: ingredients without nutrition data (new or renamed foods)
+ * are looked up in USDA. Returns the foods that still have no data so the coach can rename them.
+ */
+export async function fillMissing(meals: PlanMeal[]): Promise<{ meals: PlanMeal[]; missing: string[] }> {
+  const need = meals.flatMap((m) => m.ingredients.filter((i) => !i.per100).map((i) => i.food));
+  if (need.length === 0) return { meals, missing: [] };
+  const found = await lookupAll(need);
+  const missing = new Set<string>();
+  const out = meals.map((m) => ({
+    ...m,
+    ingredients: m.ingredients.map((i): Ingredient => {
+      if (i.per100) return i;
+      const hit = found.get(cacheKey(i.food));
+      if (hit?.per100) return { ...i, per100: hit.per100, source: "usda", usdaName: hit.description ?? undefined };
+      missing.add(i.food);
+      return i;
+    }),
+  }));
+  return { meals: out, missing: [...missing] };
+}

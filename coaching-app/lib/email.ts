@@ -236,9 +236,9 @@ export function planPublishedClientEmail(firstName: string, link: string) {
     html: card(
       `${firstName}, your plan is live!`,
       `<p style="margin:0 0 12px">Your daily targets, your meal plan and your training program are now in the app.</p>
-       <p style="margin:0">Start with the Today tab: it shows your numbers for the day. Your meals are under Learn and your workouts under Train.</p>
+       <p style="margin:0">Start with the Today tab: it shows your numbers for the day. Your meals are under Nutrition and your workouts under Training.</p>
        <p style="margin:12px 0 0">– Tyler</p>${button("Open my plan", link)}`,
     ),
-    text: `${firstName}, your plan is live!\n\nYour daily targets, meal plan and training program are now in the app. Start with the Today tab; your meals are under Learn and your workouts under Train.\n\n${link}\n\n– Tyler`,
+    text: `${firstName}, your plan is live!\n\nYour daily targets, meal plan and training program are now in the app. Start with the Today tab; your meals are under Nutrition and your workouts under Training.\n\n${link}\n\n– Tyler`,
   };
 }

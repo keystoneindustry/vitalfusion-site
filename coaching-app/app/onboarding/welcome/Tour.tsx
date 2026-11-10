@@ -7,12 +7,12 @@ import SubmitButton from "@/app/components/SubmitButton";
 const SLIDES = [
   { icon: "🏠", title: "Today", text: "Your daily targets, habits, today's workout and anything that's due. Open the app and you'll know exactly what to do." },
   { icon: "📅", title: "Calendar", text: "Everything Tyler schedules for you: weekly check-ins, weigh-ins, progress pictures, habits and calls." },
-  { icon: "🏋️", title: "Train", text: "Your workouts with sets, reps, rest and a demo video for every exercise. Log your weights as you go." },
-  { icon: "📚", title: "Learn", text: "Your meal plan, sample meals, and guides and videos from Tyler." },
-  { icon: "📈", title: "Progress", text: "Your weight trend, progress pictures side by side, habit streaks, and booking a call with Tyler." },
+  { icon: "🏋️", title: "Training", text: "Your workouts with sets, reps, rest and a demo video for every exercise. Log your weights as you go." },
+  { icon: "🍽️", title: "Nutrition", text: "Your daily targets, your perfect day and a meal library built around foods you like. Your food log lives here until your plan is ready." },
+  { icon: "☰", title: "More", text: "Your progress (weight trend, progress pictures, habit streaks), your food log, guides from Tyler, and settings." },
 ];
 
-/** A short swipe-through tour of the five tabs. */
+/** A short swipe-through tour of the tabs. */
 export default function Tour() {
   const [i, setI] = useState(0);
   const last = i === SLIDES.length - 1;

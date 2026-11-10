@@ -58,7 +58,7 @@ export default async function TodayPage() {
           <section className="card">
             <h2 className="h2">Your plan</h2>
             <div className="link-list">
-              <Link href="/plan">🍽️ Your meals and perfect day →</Link>
+              <Link href="/nutrition">🍽️ Your meals and perfect day →</Link>
               <Link href="/train">🏋️ Your training program →</Link>
             </div>
           </section>
@@ -122,7 +122,7 @@ export default async function TodayPage() {
       </section>
 
       <p className="center small muted">
-        <Link href="/progress">Settings &amp; sign out</Link>
+        <Link href="/settings">Settings &amp; sign out</Link>
       </p>
     </>
   );

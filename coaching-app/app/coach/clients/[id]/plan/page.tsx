@@ -11,26 +11,27 @@ import { aiConfigured } from "@/lib/ai";
 import { getOpenPlan, getPublishedPlan, hasContent, isStale, type PlanRow, type ReadyPlan } from "@/lib/plans";
 import { ACTIVITY_LEVELS, GOALS, PACES } from "@/lib/macros";
 import { activityLabel, paceLabel } from "@/lib/targets";
-import { exercisesToText, hasEstimates, ingredientsToText, perfectDayLines } from "@/lib/plan";
+import { hasEstimates } from "@/lib/plan";
+import { trainingFacts } from "@/lib/training-brief";
 import SubmitButton from "@/app/components/SubmitButton";
 import AutoRefresh from "@/app/components/AutoRefresh";
 import TargetsCard from "@/app/components/TargetsCard";
-import { MealCard, PerfectDay, TrainingProgram } from "@/app/components/PlanViews";
-import { MEAL_CATEGORIES } from "@/lib/plan";
+import { MealLibrary, PerfectDay, TrainingProgram } from "@/app/components/PlanViews";
+import TrainingBuilder from "./TrainingBuilder";
+import MealBuilder from "./MealBuilder";
 import {
-  deleteMealAction,
+  aiPartAction,
+  buildManuallyAction,
   discardDraftAction,
   draftPlanAction,
-  editMealAction,
   makeChangesAction,
-  perfectDayAction,
   publishAction,
   resetTargetsAction,
   reviseAction,
   saveCallNotesAction,
+  saveNutritionAction,
+  saveTrainingAction,
   targetsAction,
-  textsAction,
-  trainingDayAction,
 } from "./actions";
 
 export const metadata = { title: "Plan · Vital Fusion Coach" };
@@ -46,6 +47,7 @@ const MESSAGES: Record<string, string> = {
   updated: "Changes published ✓ Their app shows the new version.",
   discarded: "Draft discarded. They still see the published plan.",
   editing: "Editing a copy. They keep seeing the published plan until you publish again.",
+  manual: "Empty plan started. Build the workouts and meals below, or let the AI draft either one.",
 };
 
 export default async function CoachPlanPage({
@@ -76,6 +78,32 @@ export default async function CoachPlanPage({
   const editable = isDraft && !drafting;
   const bind = <A extends unknown[]>(fn: (clientId: string, ...a: A) => Promise<void>) => fn.bind(null, client.id);
   const name = firstName(client.full_name);
+  const answers = response?.answers ?? {};
+  const facts = trainingFacts(answers);
+
+  /** "Let the AI draft the workouts/meals" — replaces only that part of the plan. */
+  const AiPart = ({ part, label, has }: { part: "training" | "nutrition"; label: string; has: boolean }) => (
+    <details className="ai-part">
+      <summary className="summary-link small">✨ {has ? `Redo the ${label} with AI` : `Let the AI draft the ${label}`}</summary>
+      <form action={bind(aiPartAction)}>
+        <input type="hidden" name="part" value={part} />
+        <p className="small muted">
+          {has ? `Replaces the ${label} above (unsaved edits are lost). ` : ""}
+          {part === "training"
+            ? "Built from their goal, days a week, session length, equipment, experience and injuries."
+            : "Built from their food log, food answers and targets."}
+          {" "}Takes 1–3 minutes.
+        </p>
+        {client.health_flag && (
+          <label className="confirm">
+            <input type="checkbox" name="health" value="yes" required />
+            <span>I've reviewed their YES on the health questions.</span>
+          </label>
+        )}
+        <SubmitButton className="btn btn-ghost btn-wide" label={`✨ Draft the ${label}`} pendingLabel="Starting…" />
+      </form>
+    </details>
+  );
 
   return (
     <>
@@ -144,8 +172,14 @@ export default async function CoachPlanPage({
                 </span>
               </label>
             )}
-            <SubmitButton label="✨ Draft the plan now" pendingLabel="Starting…" />
+            <SubmitButton label="✨ Draft the plan with AI" pendingLabel="Starting…" />
           </form>
+          <form action={bind(buildManuallyAction)} style={{ marginTop: 10 }}>
+            <SubmitButton className="btn btn-ghost btn-wide" label="🛠 Build it myself" pendingLabel="Starting…" />
+          </form>
+          <p className="small muted center" style={{ marginBottom: 0 }}>
+            Either way you can edit everything afterwards, and let the AI draft just the meals or just the workouts.
+          </p>
         </section>
       )}
 
@@ -248,58 +282,131 @@ export default async function CoachPlanPage({
               </section>
             )}
 
-            <section className="card">
-              <h2 className="h2">What their food log shows</h2>
-              <p className="coming" style={{ marginTop: 0 }}>{ready.content.insights.summary || "—"}</p>
-              <dl className="kv kv-wide">
-                {ready.content.insights.usualFoods.length > 0 && (
-                  <>
-                    <dt>Usual foods</dt>
-                    <dd>{ready.content.insights.usualFoods.join(", ")}</dd>
-                  </>
-                )}
-                {ready.content.insights.mealTiming && (
-                  <>
-                    <dt>Timing</dt>
-                    <dd>{ready.content.insights.mealTiming}</dd>
-                  </>
-                )}
-                {ready.content.insights.portions && (
-                  <>
-                    <dt>Portions</dt>
-                    <dd>{ready.content.insights.portions}</dd>
-                  </>
-                )}
-                {ready.content.insights.patterns && (
-                  <>
-                    <dt>Patterns</dt>
-                    <dd>{ready.content.insights.patterns}</dd>
-                  </>
-                )}
-                {(ready.content.insights.estimatedCalories || ready.content.insights.intakeNote) && (
-                  <>
-                    <dt>Eating now</dt>
-                    <dd>
-                      {ready.content.insights.estimatedCalories
-                        ? `≈ ${Math.round(ready.content.insights.estimatedCalories).toLocaleString("en-US")} kcal${
-                            ready.content.insights.estimatedProtein ? `, ${Math.round(ready.content.insights.estimatedProtein)} g protein` : ""
-                          } a day. `
-                        : ""}
-                      {ready.content.insights.intakeNote}
-                    </dd>
-                  </>
-                )}
-                {ready.content.insights.easingIn && (
-                  <>
-                    <dt>Easing in</dt>
-                    <dd>{ready.content.insights.easingIn}</dd>
-                  </>
-                )}
-              </dl>
-              <p className="small" style={{ marginBottom: 0 }}>
-                <Link href={`/coach/clients/${client.id}/food`}>See all {stats.total} food photos →</Link>
-              </p>
+            <section className="card" id="training">
+              <div className="row-between">
+                <h2 className="h2" style={{ margin: 0 }}>🏋️ Workouts</h2>
+                <span className="muted small">{ready.content.training.days.length} days</span>
+              </div>
+              <details className="facts" open={ready.content.training.days.length === 0}>
+                <summary className="summary-link small">Their training answers</summary>
+                <dl className="kv kv-wide">
+                  {facts.map((f) => (
+                    <div key={f.label} style={{ display: "contents" }}>
+                      <dt>{f.label}</dt>
+                      <dd>{f.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </details>
+              {editable ? (
+                <>
+                  <TrainingBuilder
+                    key={`t-${ready.id}-${ready.usage?.runs ?? 0}`}
+                    initial={ready.content.training}
+                    answers={answers}
+                    save={saveTrainingAction.bind(null, client.id)}
+                  />
+                  <AiPart part="training" label="workouts" has={ready.content.training.days.length > 0} />
+                </>
+              ) : (
+                <TrainingProgram training={ready.content.training} />
+              )}
             </section>
+
+            <section className="card" id="meals">
+              <div className="row-between">
+                <h2 className="h2" style={{ margin: 0 }}>🍽️ Meals</h2>
+                <span className="muted small">{ready.content.meals.length} meals</span>
+              </div>
+              <div className="spacer" />
+              {editable ? (
+                <>
+                  <MealBuilder
+                    key={`m-${ready.id}-${ready.usage?.runs ?? 0}`}
+                    initial={{
+                      meals: ready.content.meals,
+                      perfectDay: ready.content.perfectDay,
+                      welcome: ready.content.welcome,
+                      easingIn: ready.content.insights.easingIn,
+                    }}
+                    targets={ready.targets}
+                    save={saveNutritionAction.bind(null, client.id)}
+                  />
+                  <AiPart part="nutrition" label="meals" has={ready.content.meals.length > 0} />
+                </>
+              ) : (
+                <>
+                  <PerfectDay nutrition={ready.content} targets={ready.targets} />
+                  <MealLibrary meals={ready.content.meals} />
+                </>
+              )}
+              {hasEstimates(ready.content.meals) && (
+                <p className="small muted" style={{ marginBottom: 0 }}>
+                  “(est.)” = no USDA match, so the AI's estimate is used for that ingredient.
+                </p>
+              )}
+            </section>
+
+            {isDraft && !drafting && (
+              <form action={bind(publishAction)} style={{ marginBottom: 14 }}>
+                <SubmitButton label={published ? "Publish changes" : `Publish to ${name}`} pendingLabel="Publishing…" />
+                <p className="center small muted">
+                  Save your workouts and meals first.{" "}
+                  {published ? `${name} sees the new version right away.` : `${name} gets an email and their app fills with the plan.`}
+                </p>
+              </form>
+            )}
+          </div>
+
+          <div>
+            {ready.content.insights.summary && (
+              <section className="card">
+                <h2 className="h2">What their food log shows</h2>
+                <p className="coming" style={{ marginTop: 0 }}>{ready.content.insights.summary}</p>
+                <dl className="kv kv-wide">
+                  {ready.content.insights.usualFoods.length > 0 && (
+                    <>
+                      <dt>Usual foods</dt>
+                      <dd>{ready.content.insights.usualFoods.join(", ")}</dd>
+                    </>
+                  )}
+                  {ready.content.insights.mealTiming && (
+                    <>
+                      <dt>Timing</dt>
+                      <dd>{ready.content.insights.mealTiming}</dd>
+                    </>
+                  )}
+                  {ready.content.insights.portions && (
+                    <>
+                      <dt>Portions</dt>
+                      <dd>{ready.content.insights.portions}</dd>
+                    </>
+                  )}
+                  {ready.content.insights.patterns && (
+                    <>
+                      <dt>Patterns</dt>
+                      <dd>{ready.content.insights.patterns}</dd>
+                    </>
+                  )}
+                  {(ready.content.insights.estimatedCalories || ready.content.insights.intakeNote) && (
+                    <>
+                      <dt>Eating now</dt>
+                      <dd>
+                        {ready.content.insights.estimatedCalories
+                          ? `≈ ${Math.round(ready.content.insights.estimatedCalories).toLocaleString("en-US")} kcal${
+                              ready.content.insights.estimatedProtein ? `, ${Math.round(ready.content.insights.estimatedProtein)} g protein` : ""
+                            } a day. `
+                          : ""}
+                        {ready.content.insights.intakeNote}
+                      </dd>
+                    </>
+                  )}
+                </dl>
+              </section>
+            )}
+            <p className="small">
+              <Link href={`/coach/clients/${client.id}/food`}>📷 See all {stats.total} food photos →</Link>
+            </p>
 
             {ready.content.coachNotes.length > 0 && (
               <section className="card">
@@ -325,10 +432,11 @@ export default async function CoachPlanPage({
 
             {editable && (
               <section className="card card-accent" id="call">
-                <h2 className="h2">Update the draft with the AI</h2>
+                <h2 className="h2">Change it with the AI</h2>
                 <p className="coming" style={{ marginTop: 0 }}>
                   Add your call notes and/or tell the AI what to change, e.g. “swap salmon for chicken”, “make lunches
-                  quicker”, “resize the meals to the new targets”, “no deadlifts until her back is better”.
+                  quicker”, “resize the meals to the new targets”, “no deadlifts until her back is better”. Save any edits
+                  you made in the builders first.
                 </p>
                 <form action={bind(reviseAction)}>
                   <div className="field">
@@ -342,22 +450,22 @@ export default async function CoachPlanPage({
                   <div className="field">
                     <label htmlFor="part">Update</label>
                     <select id="part" name="part" defaultValue="both">
-                      <option value="both">Nutrition and training</option>
-                      <option value="nutrition">Nutrition only</option>
-                      <option value="training">Training only</option>
+                      <option value="both">Meals and workouts</option>
+                      <option value="nutrition">Meals only</option>
+                      <option value="training">Workouts only</option>
                     </select>
                   </div>
-                  <SubmitButton label="✨ Update the draft" pendingLabel="Starting…" />
+                  <SubmitButton label="✨ Update with AI" pendingLabel="Starting…" />
                   <button className="btn-link small" type="submit" formAction={bind(saveCallNotesAction)} style={{ marginTop: 10 }}>
                     Just save my call notes (no AI)
                   </button>
                 </form>
                 <details style={{ marginTop: 14 }}>
-                  <summary className="summary-link small">Start over with a brand-new draft</summary>
+                  <summary className="summary-link small">Start over with a brand-new AI draft</summary>
                   <form action={bind(draftPlanAction)} style={{ marginTop: 10 }}>
                     {client.health_flag && <input type="hidden" name="health" value="yes" />}
-                    <p className="small muted">Throws away this draft and your edits, and drafts again from scratch.</p>
-                    <SubmitButton className="btn btn-ghost btn-wide" label="Redraft from scratch" pendingLabel="Starting…" />
+                    <p className="small muted">Replaces the meals AND workouts (and your edits) with a fresh draft.</p>
+                    <SubmitButton className="btn btn-ghost btn-wide" label="Redraft everything" pendingLabel="Starting…" />
                   </form>
                 </details>
               </section>
@@ -367,7 +475,7 @@ export default async function CoachPlanPage({
               <section className="card">
                 <h2 className="h2">Make changes</h2>
                 <p className="coming" style={{ marginTop: 0 }}>
-                  Edit a copy. {name} keeps seeing this version until you publish the changes.
+                  Edit a copy in the builders. {name} keeps seeing this version until you publish the changes.
                 </p>
                 <form action={bind(makeChangesAction)}>
                   <SubmitButton className="btn btn-ghost btn-wide" label="Edit the plan" pendingLabel="Opening…" />
@@ -377,190 +485,6 @@ export default async function CoachPlanPage({
             {isDraft && published && !drafting && (
               <form action={bind(discardDraftAction)} className="center" style={{ marginBottom: 14 }}>
                 <SubmitButton className="btn-link small" label="Discard this draft (keep the published plan)" pendingLabel="Discarding…" />
-              </form>
-            )}
-          </div>
-
-          <div>
-            <section className="card" id="perfect-day">
-              <h2 className="h2">Perfect day</h2>
-              <PerfectDay nutrition={ready.content} targets={ready.targets} />
-              {hasEstimates(ready.content.meals) && (
-                <p className="small muted">
-                  Some ingredients use the AI's estimate instead of USDA data. They're listed when you edit a meal.
-                </p>
-              )}
-              {editable && (
-                <details>
-                  <summary className="summary-link">Edit the perfect day</summary>
-                  <form action={bind(perfectDayAction)} style={{ marginTop: 10 }}>
-                    <div className="field">
-                      <label htmlFor="pd-lines">One line per meal: time | meal name | servings</label>
-                      <textarea
-                        id="pd-lines"
-                        name="lines"
-                        rows={6}
-                        className="mono"
-                        defaultValue={perfectDayLines(ready.content)
-                          .map(({ item, meal }) => `${item.time} | ${meal.name} | ${item.servings}`)
-                          .join("\n")}
-                      />
-                    </div>
-                    <div className="field">
-                      <label htmlFor="pd-note">Note to {name}</label>
-                      <textarea id="pd-note" name="note" rows={2} defaultValue={ready.content.perfectDay.note} />
-                    </div>
-                    <SubmitButton className="btn btn-ghost btn-wide" label="Save perfect day" pendingLabel="Saving…" />
-                  </form>
-                </details>
-              )}
-            </section>
-
-            <section className="card" id="library">
-              <h2 className="h2">Meal library</h2>
-              {MEAL_CATEGORIES.map((c) => {
-                const list = ready.content.meals.filter((m) => m.category === c.value);
-                if (!list.length) return null;
-                return (
-                  <div key={c.value} className="library-group">
-                    <h3>{c.label}</h3>
-                    {list.map((m) => (
-                      <div key={m.id} id={m.id}>
-                        <MealCard meal={m}>
-                          {editable && (
-                            <details className="edit-box">
-                              <summary className="summary-link small">Edit this meal</summary>
-                              <form action={bind(editMealAction)}>
-                                <input type="hidden" name="mealId" value={m.id} />
-                                <div className="field">
-                                  <label>Name</label>
-                                  <input name="name" defaultValue={m.name} />
-                                </div>
-                                <div className="grid-2">
-                                  <div className="field">
-                                    <label>Usual time</label>
-                                    <input name="time" defaultValue={m.time} />
-                                  </div>
-                                  <div className="field">
-                                    <label>Prep minutes</label>
-                                    <input name="prepMinutes" type="number" inputMode="numeric" defaultValue={m.prepMinutes ?? ""} />
-                                  </div>
-                                </div>
-                                <div className="field">
-                                  <label>Ingredients: grams | food | household measure</label>
-                                  <textarea name="ingredients" rows={Math.max(3, m.ingredients.length + 1)} className="mono" defaultValue={ingredientsToText(m.ingredients)} />
-                                  <span className="hint">
-                                    {m.ingredients.some((i) => i.source !== "usda")
-                                      ? `Estimated (not USDA): ${m.ingredients
-                                          .filter((i) => i.source !== "usda")
-                                          .map((i) => i.food)
-                                          .join(", ")}. `
-                                      : ""}
-                                    New foods are looked up in the USDA database.
-                                  </span>
-                                </div>
-                                <div className="field">
-                                  <label>How to make it</label>
-                                  <textarea name="instructions" rows={3} defaultValue={m.instructions} />
-                                </div>
-                                <div className="field">
-                                  <label>Why it's in their plan</label>
-                                  <input name="why" defaultValue={m.why} />
-                                </div>
-                                <SubmitButton className="btn btn-ghost btn-wide" label="Save meal" pendingLabel="Saving…" />
-                              </form>
-                              <form action={bind(deleteMealAction)} style={{ marginTop: 8 }}>
-                                <input type="hidden" name="mealId" value={m.id} />
-                                <SubmitButton className="btn-link small" label="Remove this meal" pendingLabel="Removing…" />
-                              </form>
-                            </details>
-                          )}
-                        </MealCard>
-                      </div>
-                    ))}
-                  </div>
-                );
-              })}
-            </section>
-
-            <section className="card" id="training">
-              <h2 className="h2">Training program</h2>
-              <TrainingProgram training={ready.content.training} />
-              {editable && (
-                <details>
-                  <summary className="summary-link">Edit workouts</summary>
-                  {[...ready.content.training.days, null].map((d, i) => (
-                    <form key={i} action={bind(trainingDayAction)} className="edit-box" id={`day-${i}`}>
-                      <input type="hidden" name="index" value={i} />
-                      <div className="grid-2">
-                        <div className="field">
-                          <label>{d ? "Day name" : "Add a day"}</label>
-                          <input name="name" defaultValue={d?.name ?? `Day ${i + 1}`} />
-                        </div>
-                        <div className="field">
-                          <label>Focus</label>
-                          <input name="focus" defaultValue={d?.focus ?? ""} />
-                        </div>
-                      </div>
-                      <div className="field">
-                        <label>Exercises: name | sets | reps | rest | notes</label>
-                        <textarea name="exercises" rows={d ? d.exercises.length + 1 : 4} className="mono" defaultValue={d ? exercisesToText(d.exercises) : ""} />
-                      </div>
-                      <div className="row">
-                        <SubmitButton className="btn btn-ghost btn-sm" label={d ? "Save day" : "Add day"} pendingLabel="Saving…" />
-                        {d && (
-                          <label className="small muted row" style={{ gap: 6 }}>
-                            <input type="checkbox" name="remove" value="yes" style={{ width: "auto", appearance: "auto", WebkitAppearance: "checkbox" }} /> remove this day
-                          </label>
-                        )}
-                      </div>
-                    </form>
-                  ))}
-                </details>
-              )}
-            </section>
-
-            {editable && (
-              <section className="card" id="texts">
-                <details>
-                  <summary className="summary-link">Edit what {name} reads (welcome, easing in, training notes)</summary>
-                  <form action={bind(textsAction)} style={{ marginTop: 10 }}>
-                    <div className="field">
-                      <label>Welcome message at the top of their meal plan</label>
-                      <textarea name="welcome" rows={3} defaultValue={ready.content.welcome} />
-                    </div>
-                    <div className="field">
-                      <label>Easing in (leave empty to hide)</label>
-                      <textarea name="easingIn" rows={3} defaultValue={ready.content.insights.easingIn} />
-                    </div>
-                    <div className="field">
-                      <label>Program overview</label>
-                      <textarea name="overview" rows={3} defaultValue={ready.content.training.overview} />
-                    </div>
-                    <div className="field">
-                      <label>Warm-up</label>
-                      <textarea name="warmup" rows={2} defaultValue={ready.content.training.warmup} />
-                    </div>
-                    <div className="field">
-                      <label>How to progress</label>
-                      <textarea name="progression" rows={2} defaultValue={ready.content.training.progression} />
-                    </div>
-                    <div className="field">
-                      <label>Other training notes (steps, cardio, recovery)</label>
-                      <textarea name="trainingNotes" rows={2} defaultValue={ready.content.training.notes} />
-                    </div>
-                    <SubmitButton className="btn btn-ghost btn-wide" label="Save" pendingLabel="Saving…" />
-                  </form>
-                </details>
-              </section>
-            )}
-
-            {isDraft && !drafting && (
-              <form action={bind(publishAction)} style={{ marginBottom: 14 }}>
-                <SubmitButton label={published ? "Publish changes" : `Publish to ${name}`} pendingLabel="Publishing…" />
-                <p className="center small muted">
-                  {published ? `${name} sees the new version right away.` : `${name} gets an email and their app fills with the plan.`}
-                </p>
               </form>
             )}
             {ready.usage?.runs ? (

@@ -4,7 +4,7 @@ import { requireClient } from "@/lib/auth";
 export const metadata = { title: "Progress · Vital Fusion" };
 
 export default async function ProgressPage() {
-  const { client, email } = await requireClient("/progress");
+  await requireClient("/progress");
   return (
     <>
       <p className="eyebrow">Progress</p>
@@ -21,33 +21,9 @@ export default async function ProgressPage() {
         </ul>
       </section>
 
-      <section className="card">
-        <h2 className="h2">Your account</h2>
-        <dl className="kv">
-          <dt>Name</dt>
-          <dd>{client.full_name}</dd>
-          <dt>Email</dt>
-          <dd>{email}</dd>
-        </dl>
-        <div className="spacer" />
-        {client.onboarding_step !== "welcome" && client.onboarding_step !== "install" && client.onboarding_step !== "agreement" && (
-          <>
-            <a className="btn btn-ghost btn-wide" href="/agreement" target="_blank" rel="noopener noreferrer">
-              My signed coaching agreement (PDF)
-            </a>
-            <div className="spacer" />
-          </>
-        )}
-        <Link className="btn btn-ghost btn-wide" href="/install">
-          How to add the app to your home screen
-        </Link>
-        <div className="spacer" />
-        <form action="/auth/logout" method="post">
-          <button className="btn btn-ghost btn-wide" type="submit">
-            Sign out
-          </button>
-        </form>
-      </section>
+      <p className="center small muted">
+        <Link href="/settings">Account, agreement &amp; sign out are in Settings</Link>
+      </p>
     </>
   );
 }
