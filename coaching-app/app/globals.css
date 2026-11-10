@@ -141,6 +141,14 @@ input:focus, textarea:focus, select:focus { border-color: var(--accent); box-sha
 .sheet a:active, .sheet button:active { background: var(--card-2); }
 .sheet li + li { border-top: 1px solid var(--card-border); }
 .sheet span { width: 26px; text-align: center; font-size: 20px; }
+.signout-confirm { padding: 12px 14px; border-radius: 12px; background: var(--card-2); }
+.signout-confirm p { margin: 0 0 10px; color: var(--text-2); font-size: 15px; line-height: 1.4; }
+.signout-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.signout-actions form { margin: 0; }
+.sheet .signout-actions button { width: auto; min-height: 40px; padding: 8px 14px; font-size: 15px; justify-content: center; }
+.sheet .signout-actions .btn-ghost { border: 1px solid #3a3e48; }
+.sheet .signout-actions .btn-danger { background: #b84a4a; color: #fff; }
+.btn-danger { background: #b84a4a; color: #fff; }
 @keyframes rise { from { transform: translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 

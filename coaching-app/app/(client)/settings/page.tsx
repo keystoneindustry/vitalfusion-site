@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireClient } from "@/lib/auth";
 import { stepIndex } from "@/lib/onboarding";
 import { formatDate } from "@/lib/dates";
+import SignOutButton from "@/app/components/SignOutButton";
 
 export const metadata = { title: "Settings · Vital Fusion" };
 
@@ -45,11 +46,7 @@ export default async function SettingsPage() {
           How to add the app to your home screen
         </Link>
         <div className="spacer" />
-        <form action="/auth/logout" method="post">
-          <button className="btn btn-ghost btn-wide" type="submit">
-            Sign out
-          </button>
-        </form>
+        <SignOutButton />
       </section>
     </>
   );

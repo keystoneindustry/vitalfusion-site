@@ -9,7 +9,7 @@ const SLIDES = [
   { icon: "📅", title: "Calendar", text: "Everything Tyler schedules for you: weekly check-ins, weigh-ins, progress pictures, habits and calls." },
   { icon: "🏋️", title: "Training", text: "Your workouts with sets, reps, rest and a demo video for every exercise. Log your weights as you go." },
   { icon: "🍽️", title: "Nutrition", text: "Your daily targets, your perfect day and a meal library built around foods you like. Your food log lives here until your plan is ready." },
-  { icon: "☰", title: "More", text: "Your progress (weight trend, progress pictures, habit streaks), your food log, guides from Tyler, and settings." },
+  { icon: "☰", title: "More", text: "Your progress (weight trend, progress pictures, habit streaks), your food log, videos and documents from Tyler, and settings." },
 ];
 
 /** A short swipe-through tour of the tabs. */

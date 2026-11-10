@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import SignOutButton from "@/app/components/SignOutButton";
 
 const TABS = [
   { href: "/", label: "Today", icon: "M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z" },
@@ -19,7 +20,7 @@ const TABS = [
 const MORE = [
   { href: "/progress", label: "Progress", emoji: "📈" },
   { href: "/food", label: "Food log", emoji: "📷" },
-  { href: "/learn", label: "Library", emoji: "📚" },
+  { href: "/resources", label: "Resources", emoji: "📚" },
   { href: "/settings", label: "Settings", emoji: "⚙️" },
   { href: "/install", label: "Add to home screen", emoji: "📲" },
 ];
@@ -54,12 +55,7 @@ export default function TabBar() {
                 </li>
               ))}
               <li>
-                <form action="/auth/logout" method="post">
-                  <button type="submit">
-                    <span aria-hidden="true">👋</span>
-                    Sign out
-                  </button>
-                </form>
+                <SignOutButton className="" icon="👋" />
               </li>
             </ul>
           </div>

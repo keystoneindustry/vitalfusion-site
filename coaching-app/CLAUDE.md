@@ -1,6 +1,6 @@
 # Vital Fusion coaching app — notes for Claude
 
-Separate Next.js app (App Router, TypeScript, plain CSS, no extra dependencies) that lives in
+Production deploys automatically from the `coaching-app` branch (Vercel production branch). Separate Next.js app (App Router, TypeScript, plain CSS, no extra dependencies) that lives in
 `coaching-app/` of the website repo and deploys as its OWN Vercel project (root directory
 `coaching-app`). It never touches the marketing site in the repo root. The full product plan is the
 "Vital Fusion Coaching App — Full Plan" doc; phase-by-phase status is in the Claude project note
@@ -58,8 +58,9 @@ Separate Next.js app (App Router, TypeScript, plain CSS, no extra dependencies) 
   time). The client sees targets on Today and meals on Nutrition (`/nutrition`) once meals are live, and the program
   on Training (`/train`) once training is live.
 - Client app (`app/(client)/`): tabs Today, Calendar, Training (`/train`), Nutrition (`/nutrition`) and a ☰ More
-  sheet (`TabBar.tsx`) with Progress, Food log, Library (`/learn`), Settings (`/settings`: account, agreement PDF,
-  sign out), Add to home screen (`/install`) and Sign out.
+  sheet (`TabBar.tsx`) with Progress, Food log, Resources (`/resources`, Tyler's videos and documents; `/learn`
+  redirects), Settings (`/settings`: account, agreement PDF, sign out), Add to home screen (`/install`) and Sign out.
+  Sign out always asks first (`app/components/SignOutButton.tsx`).
   Installable PWA: `app/manifest.ts`, icons in `public/icons/`, service worker `public/sw.js`.
 - Dates: package math lives in `lib/dates.ts` (end date = start + weeks × 7 − 1 day). Dates are stored as
   plain `YYYY-MM-DD` and handled as UTC so they never shift a day.
