@@ -215,7 +215,7 @@ assert.equal(restMinutes("60–90s"), 1);
 const shortDay = { name: "Day 1", focus: "", exercises: [{ name: "Goblet squat", sets: "3", reps: "10", rest: "60 sec", notes: "" }] };
 assert.equal(estimateMinutes(shortDay), 8 + Math.round(3 * 1.75));
 const longDay = { name: "Day 2", focus: "", exercises: Array.from({ length: 8 }, () => ({ name: "Dumbbell row", sets: "4", reps: "10", rest: "2 min", notes: "" })) };
-const program = { overview: "", warmup: "", progression: "", notes: "", days: [shortDay, { ...longDay, exercises: [...longDay.exercises, { name: "Barbell back squat", sets: "3", reps: "5", rest: "2 min", notes: "" }] }] };
+const program = { overview: "", warmup: "", progression: "", cardio: "", notes: "", days: [shortDay, { ...longDay, exercises: [...longDay.exercises, { name: "Barbell back squat", sets: "3", reps: "5", rest: "2 min", notes: "" }] }] };
 const warn = trainingWarnings(program, home);
 assert.ok(warn.some((w) => w.includes("2 training days") && w.includes("3 days")));
 assert.ok(warn.some((w) => w.startsWith("Day 2 looks like")));
