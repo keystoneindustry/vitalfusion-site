@@ -46,6 +46,9 @@ export default function InstallSteps() {
         <li>
           Tap <b>Add</b>. Then open <b>Vital Fusion</b> from your home screen from now on.
         </li>
+        <li>
+          The first time you open it there, sign in once: enter your email and type the code we send you.
+        </li>
       </ol>
     </section>
   );

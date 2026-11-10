@@ -12,9 +12,11 @@ Separate Next.js app (App Router, TypeScript, plain CSS, no extra dependencies) 
   database reads/writes run on the server with the secret key, and every page checks who is signed in
   first (`lib/auth.ts`). Never expose the secret key to the browser.
 - Sign-in: no passwords. `lib/signin.ts` asks Supabase Auth (admin generate_link) for a one-time token
-  and emails our own branded link through Resend (`lib/email.ts`). The link opens `/auth/confirm`, which
-  needs a tap on "Sign in" (so email scanners can't use up the token) and then sets two httpOnly cookies
-  (`lib/session.ts`). Expired access tokens are refreshed through `/auth/refresh?next=…`.
+  and emails our own branded link AND 6-digit code through Resend (`lib/email.ts`). The link opens
+  `/auth/confirm`, which needs a tap on "Sign in" (so email scanners can't use up the token). The code is
+  typed on `/login` (`signInWithCode`) — needed on iPhone, where a home-screen app has its own cookies and
+  email links open in Safari instead. Both set two httpOnly cookies (`lib/session.ts`); the refresh cookie
+  lasts 60 days and renews on use. Expired access tokens are refreshed through `/auth/refresh?next=…`.
 - Roles: emails in `COACH_EMAILS` are the coach (→ `/coach`); everyone else must have a row in
   `clients` (→ the client app at `/`). Unknown emails get the same "check your email" screen but no email.
 - Coach CRM: `/coach` (client list, flags), `/coach/clients/new` (add + invite), `/coach/clients/[id]`
