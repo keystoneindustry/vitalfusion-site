@@ -24,6 +24,7 @@ import {
   cleanTraining,
   ingredientMacros,
   roundMacros,
+  type MealCategory,
   type Nutrition,
   type PlanContent,
   type Training,
@@ -117,20 +118,35 @@ async function foodLogBlocks(ctx: ClientContext): Promise<ContentBlock[]> {
 
 const VOICE = `Anything written TO THE CLIENT (welcome, each meal's "why" and instructions, training notes) is in Tyler's voice: friendly, direct and encouraging, plain English, short sentences, no hype, no medical claims, at most one emoji. Use US units.`;
 
-const NUTRITION_SYSTEM = `You help Tyler Kendrick, owner and coach at Vital Fusion Coaching, draft a new client's nutrition plan. Tyler reviews and edits everything before the client sees it.
+const NUTRITION_RULES = `- The daily targets are fixed. Never change them.
+- Build around what they already eat and like (from the photos and their answers). Keep their favorite foods and swap in better versions rather than replacing their diet. Strictly respect allergies, foods they won't eat and their way of eating. Match their cooking time, kitchen skills, budget and how often they eat out.
+- Ingredients use plain, generic names the way the USDA food database writes them, including the state: e.g. "chicken breast, cooked", "white rice, cooked", "rolled oats, dry", "egg, whole", "greek yogurt, nonfat, plain", "olive oil". No brand names. Give grams, a household measure (e.g. "1 cup", "1 palm-size piece") and your estimate of calories, protein, carbs, fat and fiber for THAT amount.
+- Keep meals realistic and simple, with short instructions.`;
 
-You get the client's onboarding answers, their fixed daily targets, and their food log (meal photos with times and notes from the days before their kickoff call).
+const ANALYSIS_SYSTEM = `You help Tyler Kendrick, owner and coach at Vital Fusion Coaching, plan a new client's nutrition. Tyler reviews and edits everything before the client sees it.
+
+You get the client's onboarding answers, their fixed daily targets, and their food log (meal photos with times and notes from the days before their kickoff call). In this step you study how they eat and lay out their day; separate writers then create the meals from your notes.
 
 Rules:
-1. The targets are fixed. Never change them. Design the meals so that the perfect day lands within 5% of the calories and protein targets and close on carbs and fat.
-2. Build around what they already eat and like (from the photos and their answers). Keep their favorite foods, swap in better versions rather than replacing their diet. Strictly respect allergies, foods they won't eat, and their way of eating. Match their cooking time, kitchen skills, budget and how often they eat out.
-3. Use their real meal times and number of meals (from the food log and their wake, bed and training times).
-4. Meal library: 5 breakfasts, 5 lunches, 5 dinners and 5 snacks. Meals in the same category should have similar calories and protein so they can swap one for another. Keep them realistic and simple.
-5. Ingredients use plain, generic names the way the USDA food database writes them, including the state: e.g. "chicken breast, cooked", "white rice, cooked", "rolled oats, dry", "egg, whole", "greek yogurt, nonfat, plain", "olive oil". Avoid brand names. Give grams, a household measure (e.g. "1 cup", "1 palm-size piece") and your estimate of calories, protein, carbs, fat and fiber for THAT amount.
-6. The perfect day uses meals from the library (by exact name), at their usual times, with servings (usually 1; snacks can be 0.5 to 2).
-7. Food-log insights: what and when they eat, portion sizes, snack/drink/weekend patterns, and a rough estimate of what they eat now (photos are rough; say so). If that estimate is far from the target (about 400+ kcal off, or protein far below), suggest easing in over 1 to 2 weeks in "easingIn"; otherwise leave it empty.
-8. Call agenda: 4 to 8 specific questions or topics for Tyler's kickoff call, based on gaps or surprises in the log and answers.
-9. Coach notes: anything Tyler should double-check before publishing (health answers, unclear allergies, photos you couldn't read, numbers that look off, signs of disordered eating). Never diagnose.
+1. Insights: what and when they eat, portion sizes, snack/drink/weekend patterns, and a rough estimate of what they eat now (photos are rough; say so). If that estimate is far from the target (about 400+ kcal off, or protein far below), suggest easing in over 1 to 2 weeks in "easingIn"; otherwise leave it empty.
+2. Slots: their perfect day as 3 to 6 eating times, using their real meal times and number of meals (from the food log and their wake, bed and training times). Each slot is a breakfast, lunch, dinner or snack with its share of the day's calories, protein, carbs and fat. The slots must add up to the daily targets.
+3. Food guide: a short brief for the meal writers: the foods, dishes, flavors and cuisines to build around, foods to avoid, cooking time, budget and eating-out habits.
+4. Call agenda: 4 to 8 specific questions or topics for Tyler's kickoff call, based on gaps or surprises in the log and answers.
+5. Coach notes: anything Tyler should double-check before publishing (health answers, unclear allergies, photos you couldn't read, numbers that look off, signs of disordered eating). Never diagnose.
+${VOICE}`;
+
+const MEALS_SYSTEM = `You write meal options for a client of Tyler Kendrick, coach at Vital Fusion Coaching. Tyler reviews and edits everything before the client sees it.
+
+Rules:
+- Write exactly the number of meals asked for, all in the requested group. Each one is ONE serving that lands close to the given calories and protein (within about 5%) and near the carbs and fat, so the client can swap any of them for another.
+- Make the options genuinely different from each other.
+${NUTRITION_RULES}
+${VOICE}`;
+
+const NUTRITION_REVISE_SYSTEM = `You update a client's nutrition plan for Tyler Kendrick, coach at Vital Fusion Coaching, following his call notes and requested changes. Tyler reviews everything before the client sees it.
+
+Return ONLY what changes: meals to replace (give the old meal's exact name), new meals (empty old name), meals to remove (exact names), and the full perfect day (meal names, times and servings) after your changes. Leave everything that the changes don't touch alone.
+${NUTRITION_RULES}
 ${VOICE}`;
 
 const TRAINING_SYSTEM = `You help Tyler Kendrick, owner and coach at Vital Fusion Coaching, draft a new client's training program. Tyler reviews and edits everything before the client sees it.
@@ -160,62 +176,86 @@ const INGREDIENT_SCHEMA = {
   required: ["food", "grams", "household", "calories", "protein", "carbs", "fat"],
 };
 
-const NUTRITION_OUTPUT: JsonSpec = {
-  name: "nutrition_plan",
+const MEAL_SCHEMA = {
+  type: "object",
+  properties: {
+    category: { type: "string", enum: ["breakfast", "lunch", "dinner", "snack"] },
+    name: { type: "string" },
+    time: { type: "string", description: "When they'd usually eat it, e.g. 7:00 AM" },
+    prepMinutes: { type: "number" },
+    ingredients: { type: "array", items: INGREDIENT_SCHEMA },
+    instructions: { type: "string" },
+    why: { type: "string", description: "One sentence to the client on why it's in their plan." },
+  },
+};
+
+const INSIGHTS_SCHEMA = {
+  type: "object",
+  properties: {
+    summary: { type: "string" },
+    usualFoods: { type: "array", items: { type: "string" } },
+    mealTiming: { type: "string" },
+    portions: { type: "string" },
+    patterns: { type: "string" },
+    estimatedCalories: { type: "number", description: "Rough current daily calories; 0 if there's no food log." },
+    estimatedProtein: { type: "number", description: "Rough current daily protein in grams; 0 if there's no food log." },
+    intakeNote: { type: "string" },
+    easingIn: { type: "string" },
+  },
+};
+
+const ANALYSIS_OUTPUT: JsonSpec = {
+  name: "nutrition_analysis",
   schema: {
     type: "object",
     properties: {
       welcome: { type: "string", description: "2-4 sentences to the client introducing their plan." },
-      insights: {
-        type: "object",
-        properties: {
-          summary: { type: "string" },
-          usualFoods: { type: "array", items: { type: "string" } },
-          mealTiming: { type: "string" },
-          portions: { type: "string" },
-          patterns: { type: "string" },
-          estimatedCalories: { type: "number", description: "Rough current daily calories; 0 if there's no food log." },
-          estimatedProtein: { type: "number", description: "Rough current daily protein in grams; 0 if there's no food log." },
-          intakeNote: { type: "string" },
-          easingIn: { type: "string" },
-        },
-        required: ["summary", "usualFoods", "mealTiming", "portions", "patterns", "intakeNote", "easingIn"],
-      },
+      insights: INSIGHTS_SCHEMA,
       callAgenda: { type: "array", items: { type: "string" } },
       coachNotes: { type: "array", items: { type: "string" } },
-      meals: {
+      foodGuide: { type: "string" },
+      perfectDayNote: { type: "string", description: "1-2 sentences to the client about their perfect day." },
+      slots: {
         type: "array",
         items: {
           type: "object",
           properties: {
             category: { type: "string", enum: ["breakfast", "lunch", "dinner", "snack"] },
-            name: { type: "string" },
-            time: { type: "string", description: "When they'd usually eat it, e.g. 7:00 AM" },
-            prepMinutes: { type: "number" },
-            ingredients: { type: "array", items: INGREDIENT_SCHEMA },
-            instructions: { type: "string" },
-            why: { type: "string", description: "One sentence to the client on why it's in their plan." },
-          },
-          required: ["category", "name", "time", "ingredients", "instructions", "why"],
-        },
-      },
-      perfectDay: {
-        type: "object",
-        properties: {
-          note: { type: "string" },
-          items: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: { time: { type: "string" }, mealName: { type: "string" }, servings: { type: "number" } },
-              required: ["time", "mealName", "servings"],
-            },
+            time: { type: "string" },
+            calories: { type: "number" },
+            protein: { type: "number" },
+            carbs: { type: "number" },
+            fat: { type: "number" },
           },
         },
-        required: ["note", "items"],
       },
     },
-    required: ["welcome", "insights", "callAgenda", "coachNotes", "meals", "perfectDay"],
+  },
+};
+
+const MEALS_OUTPUT: JsonSpec = {
+  name: "meal_options",
+  schema: { type: "object", properties: { meals: { type: "array", items: MEAL_SCHEMA } } },
+};
+
+const NUTRITION_REVISION_OUTPUT: JsonSpec = {
+  name: "nutrition_changes",
+  schema: {
+    type: "object",
+    properties: {
+      replace: {
+        type: "array",
+        items: { type: "object", properties: { oldName: { type: "string", description: "Exact name of the meal to replace; empty for a new meal." }, meal: MEAL_SCHEMA } },
+      },
+      remove: { type: "array", items: { type: "string" } },
+      perfectDay: {
+        type: "array",
+        items: { type: "object", properties: { time: { type: "string" }, mealName: { type: "string" }, servings: { type: "number" } } },
+      },
+      perfectDayNote: { type: "string" },
+      welcome: { type: "string" },
+      coachNotes: { type: "array", items: { type: "string" }, description: "Things Tyler should double-check after these changes (may be empty)." },
+    },
   },
 };
 
@@ -294,23 +334,166 @@ function revisionText(kind: "nutrition plan" | "training program", current: unkn
 
 // ───────── Running a draft ─────────
 
-async function draftNutrition(ctx: ClientContext, t: Targets, revise: { current: Nutrition; instruction: string; callNotes: string } | null) {
-  const content: ContentBlock[] = [
-    { type: "text", text: `CLIENT PROFILE\n${profileText(ctx)}` },
-    { type: "text", text: targetsText(t) },
-  ];
-  if (revise) {
-    content.push({ type: "text", text: revisionText("nutrition plan", nutritionForAi(revise.current), revise.instruction, revise.callNotes) });
-  } else {
-    content.push(...(await foodLogBlocks(ctx)));
-    if (ctx.client.kickoff_at) content.push({ type: "text", text: `Kickoff call: ${formatCallTime(ctx.client.kickoff_at, ctx.client.timezone)}.` });
-    content.push({ type: "text", text: "Draft the nutrition plan now." });
+type Slot = { category: MealCategory; time: string; calories: number; protein: number; carbs: number; fat: number };
+
+/** The analysis' eating slots, scaled so they add up exactly to the targets. */
+export function normalizeSlots(raw: unknown, t: Targets): Slot[] {
+  const cats = ["breakfast", "lunch", "dinner", "snack"];
+  let slots: Slot[] = (Array.isArray(raw) ? raw : [])
+    .map((x) => (x && typeof x === "object" ? (x as Record<string, unknown>) : {}))
+    .filter((x) => cats.includes(String(x.category).toLowerCase()))
+    .slice(0, 6)
+    .map((x) => ({
+      category: String(x.category).toLowerCase() as MealCategory,
+      time: typeof x.time === "string" ? x.time.slice(0, 40) : "",
+      calories: Math.max(0, Number(x.calories) || 0),
+      protein: Math.max(0, Number(x.protein) || 0),
+      carbs: Math.max(0, Number(x.carbs) || 0),
+      fat: Math.max(0, Number(x.fat) || 0),
+    }));
+  if (slots.length < 2) {
+    slots = [
+      { category: "breakfast", time: "8:00 AM", calories: 0.25, protein: 0.25, carbs: 0.25, fat: 0.25 },
+      { category: "lunch", time: "12:30 PM", calories: 0.3, protein: 0.3, carbs: 0.3, fat: 0.3 },
+      { category: "snack", time: "3:30 PM", calories: 0.15, protein: 0.15, carbs: 0.15, fat: 0.15 },
+      { category: "dinner", time: "6:30 PM", calories: 0.3, protein: 0.3, carbs: 0.3, fat: 0.3 },
+    ];
   }
-  const res = await askForJson({ system: NUTRITION_SYSTEM, content, output: NUTRITION_OUTPUT, maxTokens: 20000 });
-  const n = cleanNutrition(res.data);
-  if (n.meals.length === 0) throw new Error("The AI's nutrition plan came back empty. Try again.");
+  const scale = (k: "calories" | "protein" | "carbs" | "fat") => {
+    const sum = slots.reduce((a, x) => a + x[k], 0);
+    const target = t[k];
+    slots = slots.map((x) => ({ ...x, [k]: Math.round(sum > 0 ? (x[k] / sum) * target : target / slots.length) }));
+  };
+  scale("calories");
+  scale("protein");
+  scale("carbs");
+  scale("fat");
+  return slots;
+}
+
+/** One meal-size budget per group: the average of that group's slots (or a typical share if it has none). */
+export function budgets(slots: Slot[], t: Targets): Record<MealCategory, Omit<Slot, "category" | "time">> {
+  const share: Record<MealCategory, number> = { breakfast: 0.25, lunch: 0.3, dinner: 0.3, snack: 0.15 };
+  const out = {} as Record<MealCategory, Omit<Slot, "category" | "time">>;
+  for (const c of ["breakfast", "lunch", "dinner", "snack"] as MealCategory[]) {
+    const list = slots.filter((x) => x.category === c);
+    const avg = (k: "calories" | "protein" | "carbs" | "fat") =>
+      Math.round(list.length ? list.reduce((a, x) => a + x[k], 0) / list.length : t[k] * share[c]);
+    out[c] = { calories: avg("calories"), protein: avg("protein"), carbs: avg("carbs"), fat: avg("fat") };
+  }
+  return out;
+}
+
+const MEALS_PER_GROUP = 5;
+
+async function draftNutrition(ctx: ClientContext, t: Targets, revise: { current: Nutrition; instruction: string; callNotes: string } | null) {
+  const profile: ContentBlock = { type: "text", text: `CLIENT PROFILE\n${profileText(ctx)}` };
+  const targets: ContentBlock = { type: "text", text: targetsText(t) };
+  if (revise) return reviseNutrition(revise, profile, targets);
+
+  // 1. Study the food log and lay out the day (with the photos).
+  const content: ContentBlock[] = [profile, targets, ...(await foodLogBlocks(ctx))];
+  if (ctx.client.kickoff_at) content.push({ type: "text", text: `Kickoff call: ${formatCallTime(ctx.client.kickoff_at, ctx.client.timezone)}.` });
+  content.push({ type: "text", text: "Study their eating and lay out their day now." });
+  const analysis = await askForJson({ system: ANALYSIS_SYSTEM, content, output: ANALYSIS_OUTPUT, maxTokens: 16000, effort: "low", timeoutMs: 150_000 });
+  const a = (analysis.data && typeof analysis.data === "object" ? analysis.data : {}) as Record<string, unknown>;
+  const slots = normalizeSlots(a.slots, t);
+  const sizes = budgets(slots, t);
+  const guide = typeof a.foodGuide === "string" ? a.foodGuide : "";
+  const insights = a.insights && typeof a.insights === "object" ? JSON.stringify(a.insights) : "";
+
+  // 2. Write each group's meals at the same time (no photos needed: the analysis describes them).
+  const groups = (["breakfast", "lunch", "dinner", "snack"] as MealCategory[]).map(async (c) => {
+    const b = sizes[c];
+    const times = slots.filter((x) => x.category === c).map((x) => x.time).filter(Boolean);
+    const res = await askForJson({
+      system: MEALS_SYSTEM,
+      content: [
+        profile,
+        targets,
+        { type: "text", text: `FOOD GUIDE FROM THE FOOD-LOG REVIEW:\n${guide}\n\nFOOD-LOG INSIGHTS: ${insights}` },
+        {
+          type: "text",
+          text: `Write ${MEALS_PER_GROUP} ${c} options${times.length ? ` (usually eaten around ${times.join(", ")})` : ""}. Each one serving ≈ ${b.calories} kcal, ${b.protein} g protein, ${b.carbs} g carbs, ${b.fat} g fat.`,
+        },
+      ],
+      output: MEALS_OUTPUT,
+      maxTokens: 16000,
+      effort: "low",
+      timeoutMs: 120_000,
+    });
+    const list = (res.data as { meals?: unknown[] })?.meals ?? [];
+    return { list: list.map((m) => ({ ...(m as object), category: c })), usage: res.usage };
+  });
+  const written = await Promise.all(groups);
+
+  // 3. The perfect day: each slot gets the next meal of its group, in time order.
+  const allMeals = written.flatMap((w) => w.list) as Record<string, unknown>[];
+  const used: Record<string, number> = {};
+  const items = slots.map((sl) => {
+    const options = allMeals.filter((m) => m.category === sl.category);
+    const i = used[sl.category] ?? 0;
+    used[sl.category] = i + 1;
+    const pick = options[i % Math.max(1, options.length)];
+    return { time: sl.time, mealName: pick ? String(pick.name ?? "") : "", servings: 1 };
+  });
+
+  const n = cleanNutrition({
+    welcome: a.welcome,
+    insights: a.insights,
+    callAgenda: a.callAgenda,
+    coachNotes: a.coachNotes,
+    meals: allMeals,
+    perfectDay: { note: a.perfectDayNote, items },
+  });
+  if (n.meals.length === 0) throw new Error("The AI's meals came back empty. Try again.");
   const { meals } = await applyUsda(n.meals);
-  return { value: { ...n, meals }, usage: res.usage, model: res.model };
+  return { value: { ...n, meals }, usage: [analysis.usage, ...written.map((w) => w.usage)], model: analysis.model };
+}
+
+/** Applies only the meals the AI changed, so a revision stays short and fast. */
+async function reviseNutrition(revise: { current: Nutrition; instruction: string; callNotes: string }, profile: ContentBlock, targets: ContentBlock) {
+  const current = nutritionForAi(revise.current) as { meals: Record<string, unknown>[]; perfectDay: { note: string; items: unknown[] }; welcome: string; insights: unknown; callAgenda: string[]; coachNotes: string[] };
+  const res = await askForJson({
+    system: NUTRITION_REVISE_SYSTEM,
+    content: [
+      profile,
+      targets,
+      { type: "text", text: `CURRENT MEAL LIBRARY AND PERFECT DAY (JSON):\n${JSON.stringify({ meals: current.meals, perfectDay: current.perfectDay })}` },
+      revise.callNotes ? { type: "text", text: `TYLER'S KICKOFF CALL NOTES (these override earlier answers where they differ):\n${revise.callNotes}` } : { type: "text", text: "No call notes." },
+      { type: "text", text: revise.instruction ? `TYLER'S REQUESTED CHANGES:\n${revise.instruction}` : "Update the plan to reflect the call notes." },
+    ],
+    output: NUTRITION_REVISION_OUTPUT,
+    maxTokens: 24000,
+  });
+  const d = (res.data && typeof res.data === "object" ? res.data : {}) as {
+    replace?: { oldName?: string; meal?: Record<string, unknown> }[];
+    remove?: string[];
+    perfectDay?: unknown[];
+    perfectDayNote?: string;
+    welcome?: string;
+    coachNotes?: string[];
+  };
+  const lower = (x: unknown) => String(x ?? "").trim().toLowerCase();
+  const removed = new Set((d.remove ?? []).map(lower));
+  let meals = current.meals.filter((m) => !removed.has(lower(m.name)));
+  for (const r of d.replace ?? []) {
+    if (!r.meal) continue;
+    const idx = r.oldName ? meals.findIndex((m) => lower(m.name) === lower(r.oldName)) : -1;
+    if (idx >= 0) meals = meals.map((m, k) => (k === idx ? r.meal! : m));
+    else meals = [...meals, r.meal];
+  }
+  const n = cleanNutrition({
+    welcome: d.welcome || current.welcome,
+    insights: current.insights,
+    callAgenda: current.callAgenda,
+    coachNotes: [...current.coachNotes.filter((x) => !x.startsWith("Training: ")), ...(d.coachNotes ?? [])],
+    meals,
+    perfectDay: { note: d.perfectDayNote || current.perfectDay.note, items: d.perfectDay?.length ? d.perfectDay : current.perfectDay.items },
+  });
+  if (n.meals.length === 0) throw new Error("The AI removed every meal. Try again with a clearer instruction.");
+  const fixed = await applyUsda(n.meals);
+  return { value: { ...n, meals: fixed.meals }, usage: [res.usage], model: res.model };
 }
 
 async function draftTraining(ctx: ClientContext, t: Targets, revise: { current: Training; instruction: string; callNotes: string } | null) {
@@ -326,7 +509,7 @@ async function draftTraining(ctx: ClientContext, t: Targets, revise: { current: 
       text: revise ? revisionText("training program", revise.current, revise.instruction, revise.callNotes) : "Draft the training program now.",
     },
   ];
-  const res = await askForJson({ system: TRAINING_SYSTEM, content, output: TRAINING_OUTPUT, maxTokens: 8000 });
+  const res = await askForJson({ system: TRAINING_SYSTEM, content, output: TRAINING_OUTPUT, maxTokens: 16000 });
   let training = cleanTraining(res.data);
   const usage: AiUsage[] = [res.usage];
   if (training.days.length === 0) throw new Error("The AI's training program came back empty. Try again.");
@@ -350,7 +533,7 @@ async function draftTraining(ctx: ClientContext, t: Targets, revise: { current: 
           },
         ],
         output: TRAINING_OUTPUT,
-        maxTokens: 8000,
+        maxTokens: 16000,
       });
       const fixed = cleanTraining(fix.data);
       usage.push(fix.usage);
@@ -430,7 +613,7 @@ export async function runDraft(
       content = { ...content, ...n.value, coachNotes: [...n.value.coachNotes, ...trainingNotes], training: base.training };
     }
     if (t) content = { ...content, training: t.value, coachNotes: withTrainingNotes(content.coachNotes, t.value, ctx.answers) };
-    const usage = addUsage(before.usage, [n?.usage, ...(t?.usage ?? [])].filter((u): u is AiUsage => !!u));
+    const usage = addUsage(before.usage, [...(n?.usage ?? []), ...(t?.usage ?? [])]);
     const saved = await updatePlan(planId, {
       status: "draft",
       drafting_part: null,

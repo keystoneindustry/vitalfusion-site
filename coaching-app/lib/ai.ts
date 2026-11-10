@@ -81,6 +81,8 @@ export async function askForJson(opts: {
   output: JsonSpec;
   maxTokens?: number;
   timeoutMs?: number;
+  /** How hard the model thinks: "low" is fastest. Default "medium". */
+  effort?: "low" | "medium" | "high";
 }): Promise<{ data: unknown; usage: AiUsage; model: string }> {
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) throw new AiError("The Claude API key isn't set up yet (ANTHROPIC_API_KEY in Vercel).");
@@ -92,7 +94,7 @@ export async function askForJson(opts: {
     system: opts.system,
     messages: [{ role: "user", content: opts.content }],
     // Medium effort keeps drafts to a couple of minutes; plans are reviewed by the coach anyway.
-    output_config: { format, effort: "medium" },
+    output_config: { format, effort: opts.effort ?? "medium" },
   };
   const timeout = opts.timeoutMs ?? 270_000;
   let res = await call(body, key, timeout);

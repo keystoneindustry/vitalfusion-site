@@ -291,4 +291,27 @@ assert.deepEqual(strict.properties.list.items.required, ["x"]);
 assert.equal(strict.properties.list.items.additionalProperties, false);
 assert.equal(strict.properties.a.additionalProperties, undefined);
 
+// ───────── Meal slots from the AI's analysis ─────────
+const { normalizeSlots, budgets } = await import("../lib/plan-draft");
+const tgt = computeTargets(inputsFromAnswers(answers, 34).inputs);
+const slots = normalizeSlots(
+  [
+    { category: "Breakfast", time: "7:00 AM", calories: 400, protein: 30, carbs: 40, fat: 12 },
+    { category: "lunch", time: "12:30 PM", calories: 500, protein: 40, carbs: 50, fat: 15 },
+    { category: "snack", time: "3:30 PM", calories: 200, protein: 20, carbs: 20, fat: 5 },
+    { category: "dinner", time: "7:00 PM", calories: 600, protein: 45, carbs: 55, fat: 20 },
+    { category: "dessert", time: "9 PM", calories: 300 }, // unknown group: dropped
+  ],
+  tgt,
+);
+assert.equal(slots.length, 4);
+assert.equal(slots[0].category, "breakfast");
+// Scaled so the day adds up to the targets (within rounding).
+assert.ok(Math.abs(slots.reduce((a, x) => a + x.calories, 0) - tgt.calories) <= 2);
+assert.ok(Math.abs(slots.reduce((a, x) => a + x.protein, 0) - tgt.protein) <= 2);
+assert.equal(normalizeSlots([], tgt).length, 4); // falls back to a typical day
+const sizes = budgets(slots, tgt);
+assert.equal(sizes.lunch.calories, slots[1].calories);
+assert.ok(sizes.breakfast.calories > 0 && sizes.snack.calories < sizes.dinner.calories);
+
 console.log("plan tests passed");
