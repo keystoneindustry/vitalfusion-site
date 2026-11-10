@@ -155,10 +155,11 @@ Rules:
 1. Follow the TRAINING REQUIREMENTS block exactly: their goal, the exact number of training days (one day object per session), the session length, ONLY the equipment they have, and their experience level. The program must clearly serve their goal; say how in the overview.
 2. Work around injuries and pain: leave out movements that could aggravate them and mention safer swaps in the exercise notes.
 3. Use standard exercise names (e.g. "Barbell back squat", "Dumbbell Romanian deadlift", "Lat pulldown"). Prefer exercises they said they enjoy; avoid ones they hate.
-4. For each exercise give sets, reps (a range like "8–10"), rest (e.g. "90 sec") and a short coaching cue. Fit the session length including the warm-up.
-5. Goals: fat loss and general fitness keep strength training at the center; muscle building gets enough weekly volume per muscle. Add a step or cardio suggestion in notes when it fits their goal.
+4. For each exercise give sets (a number), reps (a range like "8–10"), rest (short, e.g. "90s" or "2 min") and ONE short coaching cue under 10 words (e.g. "Sit back to the box, chest up"). Fit the session length including the warm-up.
+5. Goals: fat loss and general fitness keep strength training at the center; muscle building gets enough weekly volume per muscle. Steps and cardio go ONLY in "cardio", never in "notes".
 6. Progression: a simple rule they can follow, like double progression (add reps until the top of the range, then add weight).
-7. Training days are named "Day 1 – Upper", "Day 2 – Lower" etc., not weekdays.
+7. Training days are named "Day 1 – Upper", "Day 2 – Lower" etc., not weekdays. Each day's focus is 2-5 words (e.g. "Legs & core").
+8. Keep everything the client reads SHORT and scannable: short lines, no long paragraphs, no repeating their answers back to them.
 ${VOICE}`;
 
 const INGREDIENT_SCHEMA = {
@@ -264,10 +265,11 @@ const TRAINING_OUTPUT: JsonSpec = {
   schema: {
     type: "object",
     properties: {
-      overview: { type: "string", description: "2-3 sentences to the client about the program." },
-      warmup: { type: "string" },
-      progression: { type: "string" },
-      notes: { type: "string", description: "Steps, cardio, recovery tips." },
+      overview: { type: "string", description: "ONE or TWO short sentences to the client: what the program is and how it serves their goal." },
+      warmup: { type: "string", description: "3-4 short steps, one per line, each under 12 words." },
+      progression: { type: "string", description: "2-3 short lines, one per line, each under 15 words." },
+      cardio: { type: "string", description: "Steps and cardio only: a daily step goal plus any cardio sessions. 2-4 short lines, one per line, each under 15 words." },
+      notes: { type: "string", description: "Recovery tips only (sleep, soreness, pain rules). NO cardio or steps. 0-3 short lines, one per line, each under 15 words." },
       days: {
         type: "array",
         items: {

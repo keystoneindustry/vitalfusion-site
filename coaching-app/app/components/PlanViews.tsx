@@ -11,7 +11,9 @@ import {
   type Nutrition,
   type PlanMeal,
   type Training,
+  toLines,
 } from "@/lib/plan";
+import { estimateMinutes } from "@/lib/training-brief";
 import type { Targets } from "@/lib/targets";
 
 /** Read-only pieces of a plan, shared by the client screens and the coach's review screen. */
@@ -110,43 +112,89 @@ export function MealLibrary({ meals }: { meals: PlanMeal[] }) {
   );
 }
 
+function Bullets({ text }: { text: string }) {
+  const lines = toLines(text);
+  if (lines.length === 0) return null;
+  return (
+    <ul className="tips">
+      {lines.map((l, i) => (
+        <li key={i}>{l}</li>
+      ))}
+    </ul>
+  );
+}
+
+function Section({ icon, title, children, open = false }: { icon: string; title: string; children: React.ReactNode; open?: boolean }) {
+  return (
+    <details className="t-section" open={open}>
+      <summary>
+        <span aria-hidden="true">{icon}</span> {title}
+      </summary>
+      {children}
+    </details>
+  );
+}
+
+/** A training program, laid out to scan on a phone: workouts first, then short tip sections. */
 export function TrainingProgram({ training }: { training: Training }) {
   return (
-    <>
-      {training.overview && <p className="coming" style={{ marginTop: 0 }}>{training.overview}</p>}
-      {training.warmup && (
-        <p className="coming">
-          <b>Warm-up:</b> {training.warmup}
-        </p>
-      )}
-      {training.days.map((d, k) => (
-        <details key={k} className="meal-card" open={k === 0}>
-          <summary>
-            <span className="meal-name">{d.name}</span>
-            <span className="muted small">
-              {d.focus ? `${d.focus} · ` : ""}
-              {d.exercises.length} exercises
-            </span>
-          </summary>
-          <ol className="exercises">
-            {d.exercises.map((e, j) => (
-              <li key={j}>
-                <b>{e.name}</b>
-                <span className="ex-sets">
-                  {[e.sets && `${e.sets} sets`, e.reps && `${e.reps} reps`, e.rest && `rest ${e.rest}`].filter(Boolean).join(" · ")}
+    <div className="program">
+      {training.overview && <p className="program-intro">{toLines(training.overview).slice(0, 2).join(" ")}</p>}
+
+      <div className="workouts">
+        {training.days.map((d, k) => (
+          <details key={k} className="workout" open={k === 0}>
+            <summary>
+              <span className="workout-num">{k + 1}</span>
+              <span className="workout-title">
+                <b>{d.name.replace(/^Day\s*\d+\s*[–—-]\s*/i, "") || d.name}</b>
+                <span className="muted small">
+                  {d.focus ? `${d.focus} · ` : ""}
+                  {d.exercises.length} exercises · ~{estimateMinutes(d)} min
                 </span>
-                {e.notes && <span className="muted small">{e.notes}</span>}
-              </li>
-            ))}
-          </ol>
-        </details>
-      ))}
-      {training.progression && (
-        <p className="coming">
-          <b>How to progress:</b> {training.progression}
-        </p>
+              </span>
+              <span className="chev" aria-hidden="true">›</span>
+            </summary>
+            <ol className="ex-list">
+              {d.exercises.map((e, j) => (
+                <li key={j}>
+                  <span className="ex-num">{j + 1}</span>
+                  <div>
+                    <b className="ex-name">{e.name}</b>
+                    <div className="ex-tags">
+                      {e.sets && <span>{/^\d+$/.test(e.sets) ? `${e.sets} sets` : e.sets}</span>}
+                      {e.reps && <span>{/reps?|sec|min|s$/i.test(e.reps) ? e.reps : `${e.reps} reps`}</span>}
+                      {e.rest && <span className="ex-rest">⏱ {e.rest.replace(/^rest\s*/i, "")}</span>}
+                    </div>
+                    {e.notes && <p className="ex-cue">{e.notes}</p>}
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </details>
+        ))}
+      </div>
+
+      {training.warmup && (
+        <Section icon="🔥" title="Warm-up">
+          <Bullets text={training.warmup} />
+        </Section>
       )}
-      {training.notes && <p className="coming">{training.notes}</p>}
-    </>
+      {training.cardio && (
+        <Section icon="🚶" title="Cardio & steps">
+          <Bullets text={training.cardio} />
+        </Section>
+      )}
+      {training.progression && (
+        <Section icon="📈" title="How to progress">
+          <Bullets text={training.progression} />
+        </Section>
+      )}
+      {training.notes && (
+        <Section icon={training.cardio ? "😴" : "💡"} title={training.cardio ? "Recovery tips" : "Tips"}>
+          <Bullets text={training.notes} />
+        </Section>
+      )}
+    </div>
   );
 }

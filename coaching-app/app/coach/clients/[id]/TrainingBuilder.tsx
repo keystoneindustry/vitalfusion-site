@@ -32,7 +32,7 @@ export default function TrainingBuilder({
   save: (payload: string) => Promise<Result>;
 }) {
   const router = useRouter();
-  const [t, setT] = useState<Training>(initial);
+  const [t, setT] = useState<Training>({ ...initial, cardio: initial.cardio ?? "", notes: initial.notes ?? "" });
   const [dirty, setDirty] = useState(false);
   const [status, setStatus] = useState<Result | null>(null);
   const [pending, start] = useTransition();
@@ -178,20 +178,25 @@ export default function TrainingBuilder({
       </button>
 
       <div className="spacer" />
+      <p className="small muted">What they read under the workouts. Keep it short: one tip per line, shown as bullets.</p>
       <div className="field">
-        <label htmlFor="tb-overview">Overview (what {"they'll"} read first)</label>
-        <textarea id="tb-overview" rows={3} value={t.overview} onChange={(e: Ev) => change({ ...t, overview: e.target.value })} />
+        <label htmlFor="tb-overview">Intro (1–2 short sentences)</label>
+        <textarea id="tb-overview" rows={2} value={t.overview} onChange={(e: Ev) => change({ ...t, overview: e.target.value })} />
       </div>
       <div className="field">
-        <label htmlFor="tb-warmup">Warm-up</label>
-        <textarea id="tb-warmup" rows={2} value={t.warmup} onChange={(e: Ev) => change({ ...t, warmup: e.target.value })} />
+        <label htmlFor="tb-warmup">🔥 Warm-up</label>
+        <textarea id="tb-warmup" rows={3} value={t.warmup} placeholder={"3 min easy bike\n10 glute bridges\n2 light sets of your first lift"} onChange={(e: Ev) => change({ ...t, warmup: e.target.value })} />
       </div>
       <div className="field">
-        <label htmlFor="tb-prog">How to progress</label>
-        <textarea id="tb-prog" rows={2} value={t.progression} onChange={(e: Ev) => change({ ...t, progression: e.target.value })} />
+        <label htmlFor="tb-cardio">🚶 Cardio &amp; steps</label>
+        <textarea id="tb-cardio" rows={3} value={t.cardio} placeholder={"8,000–10,000 steps a day\n10-min walk after dinner\n1–2 easy 20-min bike sessions on rest days"} onChange={(e: Ev) => change({ ...t, cardio: e.target.value })} />
       </div>
       <div className="field">
-        <label htmlFor="tb-notes">Other notes (steps, cardio, recovery)</label>
+        <label htmlFor="tb-prog">📈 How to progress</label>
+        <textarea id="tb-prog" rows={3} value={t.progression} onChange={(e: Ev) => change({ ...t, progression: e.target.value })} />
+      </div>
+      <div className="field">
+        <label htmlFor="tb-notes">😴 Recovery tips (no cardio here)</label>
         <textarea id="tb-notes" rows={2} value={t.notes} onChange={(e: Ev) => change({ ...t, notes: e.target.value })} />
       </div>
 

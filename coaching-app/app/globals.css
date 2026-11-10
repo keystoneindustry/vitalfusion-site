@@ -357,6 +357,37 @@ textarea.mono { font-family: SFMono-Regular, Menlo, Consolas, monospace; font-si
 .part-bar.state-draft b, .part-bar.state-changed b { color: var(--warn); }
 .right { text-align: right; }
 
+/* ───────── Training program (client + coach read-only) ───────── */
+.chips-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 16px; }
+.info-chip { padding: 7px 12px; border-radius: 999px; background: var(--card); border: 1px solid var(--card-border); font-size: 14.5px; font-weight: 600; color: var(--text-2); }
+.program-intro { color: var(--text-2); font-size: 16px; line-height: 1.5; margin: 0 0 14px; }
+.workouts { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.workout { background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; overflow: hidden; }
+.workout > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 14px; }
+.workout > summary::-webkit-details-marker { display: none; }
+.workout-num { flex: 0 0 auto; width: 36px; height: 36px; border-radius: 12px; background: #1c2a3d; color: var(--accent); font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.workout-title { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.workout-title b { font-size: 17px; }
+.chev { color: var(--muted); font-size: 22px; transition: transform 0.15s ease; }
+.workout[open] .chev { transform: rotate(90deg); }
+.workout[open] > summary { border-bottom: 1px solid var(--card-border); }
+.ex-list { list-style: none; margin: 0; padding: 4px 14px 8px; }
+.ex-list li { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--card-border); }
+.ex-list li:last-child { border-bottom: 0; }
+.ex-num { flex: 0 0 auto; width: 24px; height: 24px; border-radius: 50%; border: 1px solid #3a3e48; color: var(--muted); font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+.ex-name { display: block; font-size: 16px; line-height: 1.3; }
+.ex-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.ex-tags span { padding: 3px 9px; border-radius: 8px; background: #1c2a3d; color: #cfe0f0; font-size: 13.5px; font-weight: 600; }
+.ex-tags .ex-rest { background: var(--card-2); color: var(--text-3); }
+.ex-cue { margin: 6px 0 0; color: var(--muted); font-size: 14px; line-height: 1.4; }
+.t-section { background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; margin-bottom: 10px; }
+.t-section > summary { list-style: none; cursor: pointer; padding: 14px; font-weight: 700; font-size: 16px; }
+.t-section > summary::-webkit-details-marker { display: none; }
+.t-section > summary::after { content: "›"; float: right; color: var(--muted); font-size: 20px; line-height: 1; transition: transform 0.15s ease; }
+.t-section[open] > summary::after { transform: rotate(90deg); }
+.tips { margin: 0; padding: 0 14px 14px 34px; color: var(--text-2); font-size: 15px; line-height: 1.45; }
+.tips li { margin-bottom: 6px; }
+
 @media (min-width: 860px) {
   .page { padding-top: 28px; }
   .h1 { font-size: 34px; }

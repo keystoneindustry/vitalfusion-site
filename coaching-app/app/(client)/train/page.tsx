@@ -2,6 +2,9 @@ import { requireClient } from "@/lib/auth";
 import { getPublishedPlan, hasContent } from "@/lib/plans";
 import { TrainingProgram } from "@/app/components/PlanViews";
 import ComingSoon from "../ComingSoon";
+import { estimateMinutes } from "@/lib/training-brief";
+
+const GOAL_LABEL: Record<string, string> = { lose: "Fat loss", muscle: "Build muscle", maintain: "Get fitter" };
 
 export const metadata = { title: "Training · Vital Fusion" };
 
@@ -21,14 +24,16 @@ export default async function TrainPage() {
   return (
     <>
       <p className="eyebrow">Training</p>
-      <h1 className="h1">Your training program</h1>
-      <p className="lead">
-        {published.content.training.days.length} workouts a week. Do them in order, with at least one rest day between hard
-        sessions when you can.
-      </p>
-      <section className="card">
-        <TrainingProgram training={published.content.training} />
-      </section>
+      <h1 className="h1">Your training</h1>
+      <div className="chips-row">
+        <span className="info-chip">🗓 {published.content.training.days.length}× a week</span>
+        <span className="info-chip">
+          ⏱ ~{Math.round(published.content.training.days.reduce((a, d) => a + estimateMinutes(d), 0) / published.content.training.days.length)} min
+        </span>
+        <span className="info-chip">🎯 {GOAL_LABEL[published.targets.inputs.goal] ?? "Your goal"}</span>
+      </div>
+      <TrainingProgram training={published.content.training} />
+      <p className="small muted" style={{ marginTop: 14 }}>Do the workouts in order. Rest a day between them when you can.</p>
       <p className="center small muted">Exercise demo videos and weight logging are coming soon.</p>
     </>
   );

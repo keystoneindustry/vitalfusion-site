@@ -16,7 +16,7 @@ import {
   servingsLabel,
 } from "../lib/plan";
 import { per100FromFdc, plausible } from "../lib/food-data";
-import { partState, partSnapshot } from "../lib/plan";
+import { partState, partSnapshot, toLines } from "../lib/plan";
 import { strictSchema } from "../lib/ai";
 import { emptyContent, sanitizeEditedMeals, sanitizeEditedTraining, sanitizePerfectDay } from "../lib/plan";
 import { estimateMinutes, restMinutes, trainingBrief, trainingFacts, trainingWarnings, withTrainingNotes } from "../lib/training-brief";
@@ -279,6 +279,17 @@ assert.equal(partState({ ...withBoth, targets: { ...tg, calories: 1900 } }, with
 assert.equal(partState({ ...withBoth, targets: { ...tg, calories: 1900 } }, withBoth, "training"), "live");
 assert.equal(partState(null, withBoth, "training"), "live");
 assert.notEqual(partSnapshot(withBoth, "training"), partSnapshot(withBoth, "nutrition"));
+
+// ───────── Short bullet lines ─────────
+assert.deepEqual(toLines("- 3 min easy bike\n• 10 glute bridges\n\n2. Light sets"), ["3 min easy bike", "10 glute bridges", "Light sets"]);
+assert.deepEqual(
+  toLines("Steps: aim for 8,000 a day on most days of the week. Cardio: add 1–2 easy 20-minute sessions on rest days. Skip hard running for now."),
+  ["Steps: aim for 8,000 a day on most days of the week.", "Cardio: add 1–2 easy 20-minute sessions on rest days.", "Skip hard running for now."],
+);
+assert.deepEqual(toLines("Short line."), ["Short line."]);
+assert.equal(cleanTraining({ cardio: "8k steps", days: [] }).cardio, "8k steps");
+const tCardio = sanitizeEditedTraining({ cardio: "Walk 10 min", days: [{ name: "D1", exercises: [{ name: "Plank" }] }] });
+assert.ok(tCardio.ok && tCardio.training.cardio === "Walk 10 min");
 
 // ───────── Structured output schemas ─────────
 const strict = strictSchema({

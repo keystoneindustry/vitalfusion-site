@@ -40,7 +40,16 @@ export type PlanMeal = {
 
 export type Exercise = { name: string; sets: string; reps: string; rest: string; notes: string };
 export type TrainingDay = { name: string; focus: string; exercises: Exercise[] };
-export type Training = { overview: string; warmup: string; progression: string; days: TrainingDay[]; notes: string };
+export type Training = {
+  overview: string;
+  warmup: string;
+  progression: string;
+  /** Steps and cardio, one tip per line. */
+  cardio: string;
+  /** Recovery and other tips (not cardio), one per line. */
+  notes: string;
+  days: TrainingDay[];
+};
 
 export type Insights = {
   summary: string;
@@ -163,6 +172,7 @@ export function cleanTraining(raw: unknown): Training {
     overview: s(r.overview, 1500),
     warmup: s(r.warmup, 800),
     progression: s(r.progression, 1000),
+    cardio: s(r.cardio, 1000),
     notes: s(r.notes, 1000),
     days: arr(r.days)
       .map((d) => {
@@ -219,7 +229,7 @@ export function cleanNutrition(raw: unknown): Nutrition {
   };
 }
 
-export const EMPTY_TRAINING: Training = { overview: "", warmup: "", progression: "", notes: "", days: [] };
+export const EMPTY_TRAINING: Training = { overview: "", warmup: "", progression: "", cardio: "", notes: "", days: [] };
 
 // ───────── Macros ─────────
 
@@ -485,7 +495,7 @@ export function sanitizeEditedTraining(raw: unknown): { ok: true; training: Trai
   }
   return {
     ok: true,
-    training: { overview: s(o.overview, 1500), warmup: s(o.warmup, 800), progression: s(o.progression, 1000), notes: s(o.notes, 1000), days },
+    training: { overview: s(o.overview, 1500), warmup: s(o.warmup, 800), progression: s(o.progression, 1000), cardio: s(o.cardio, 1000), notes: s(o.notes, 1000), days },
   };
 }
 
@@ -523,4 +533,22 @@ export function partState(work: HasPart | null, pub: HasPart | null, part: PlanP
 
 export function partStateLabel(s: PartState): string {
   return { empty: "Not started", draft: "Draft · not published", live: "Live ✓", changed: "Live · unpublished changes" }[s];
+}
+
+/**
+ * Turns a block of advice into short bullet lines: one per line, with leading "-", "•" or "1." removed.
+ * A single long paragraph is split into sentences, so older wordy text still reads as bullets.
+ */
+export function toLines(text: string): string[] {
+  const lines = text
+    .split("\n")
+    .map((l) => l.replace(/^\s*(?:[-•*]|\d+[.)])\s*/, "").trim())
+    .filter(Boolean);
+  if (lines.length === 1 && lines[0].length > 120) {
+    return lines[0]
+      .split(/(?<=[.!?])\s+(?=[A-Z0-9])/)
+      .map((x) => x.trim())
+      .filter(Boolean);
+  }
+  return lines;
 }
