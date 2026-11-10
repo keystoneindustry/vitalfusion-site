@@ -31,8 +31,8 @@ is not a developer; explain changes plainly and keep the site simple.
   `/api/apply` sends `coaching.applied`, which stops it. Day 2 = their obstacles + steps, payoff
   (goal date), reality, soft CTA; day 4 = biggest mistake for their goal; day 7 = check-in.
   Personalized pieces are built in `lib/sequence.ts` and sent in the event payload; templates
-  macro-seq-1/2/3 live in Resend (copies in `docs/email-templates/`). Subjects: "I looked at your quiz
-  answers" / "Are you making this mistake?" / "Quick question". Duplicate guard: the automation
+  macro-seq-1/2/3 live in Resend (copies in `docs/email-templates/`). Subjects: "👀 I found the problem in
+  your quiz answers" / "❌ Stop doing this (it's why you're stuck)" / "🤔 Be honest with me…". Duplicate guard: the automation
   sets contact property `macro_sequence = started` and skips anyone who already has it. Footer address:
   1802 Charolais Court, Bel Air, MD 21015.
 - Old Emergent URLs (/application, /vital-method-application) redirect in `next.config.mjs`.
