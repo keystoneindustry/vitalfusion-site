@@ -7,6 +7,8 @@ export const site = {
   brand: "Vital Fusion Coaching",
   logo: "/images/vf-logo.png",
   coachName: "Tyler Kendrick",
+  // Required in marketing email footers (CAN-SPAM).
+  mailingAddress: "1802 Charolais Court, Bel Air, MD 21015",
   instagram: "", // e.g. "vitalfusioncoaching" (no @). Leave "" to hide the link.
   applyCta: "Start Now",
 
@@ -118,7 +120,6 @@ export const site = {
     note: "Takes about 60 seconds · 100% free",
     leadTitle: "Where should I send your plan?",
     leadNote: "Your results show on the next screen, and I'll email you a copy.",
-    consent: "I'll also send you a few tips by email. Unsubscribe anytime.",
     resultsButton: "Show My Results →",
     // Titles and "why it works" change with the goal they pick.
     mealsTitle: {
