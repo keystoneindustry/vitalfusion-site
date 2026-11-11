@@ -82,7 +82,7 @@ export function coachEmail(a: Application): { subject: string; html: string; tex
     a.whyNow,
   ].join("\n");
 
-  return { subject: `💪 New Coaching Application — ${a.fullName}`, html, text };
+  return { subject: `[Lead] 💪 New Coaching Application — ${a.fullName}`, html, text };
 }
 
 /** Pulls the video ID out of any common YouTube link format. */
