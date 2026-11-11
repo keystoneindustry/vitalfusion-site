@@ -69,8 +69,8 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   sections (`ProgressTabs`): `/progress/weight` (graph of every weigh-in + weekly average, history; logging at
   `/progress/weigh-in`) and `/progress/photos` (compare + gallery; taking them at `/progress/photos/new`, front/side/back,
   posted to `app/api/progress-photos`, private `progress-photos` bucket). `/progress` redirects to Weight. Tables `weigh_ins`, `progress_photos`, `water_logs`.
-- Check-ins & forms (Phase 5): `forms` table (one `kind = checkin` weekly check-in, placeholder questions until Tyler
-  sends his; plus custom forms) edited in the coach form builder `/coach/forms` (shapes/validation in `lib/form-schema.ts`,
+- Check-ins & forms (Phase 5): `forms` table (one `kind = checkin` weekly check-in with Tyler's 30 questions in 4 sections, set Nov 11, 2026;
+  plus custom forms; question types incl. "Pick any" (`multi`, saved as "A, B") and an optional `section` heading) edited in the coach form builder `/coach/forms` (shapes/validation in `lib/form-schema.ts`,
   safe for the browser; DB in `lib/forms.ts`). Forms go on a client's calendar as `schedules` with `kind = form` +
   `form_id`; the starting setup adds the weekly check-in on the client's `photoDay` ("check-in and progress photos" day).
   Client: Today/Calendar cards → `/check-ins/new/[formId]?date=` (up to 3 days late), list `/check-ins`, view + Tyler's
