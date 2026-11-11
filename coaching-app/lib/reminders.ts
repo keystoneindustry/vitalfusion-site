@@ -51,7 +51,7 @@ export function morningReminder(d: DayTasks, call: string | null = null): Remind
     lines,
     important,
     push: {
-      title: first ? `Today: ${first}` : "Your plan for today",
+      title: first ? `REMINDER: ${first} today` : "REMINDER: Your plan for today",
       // The first workout is already in the title, so the body lists everything else.
       body: lines.filter((l) => !first || l !== `🏋️ ${first}`).map((l) => l.replace(/^\S+\s/, "")).join(" · ") || "Tap to open today's workout.",
       url: first ? `/train?day=${d.workouts[0].day}` : "/",
@@ -75,7 +75,7 @@ export function eveningReminder(d: DayTasks): Reminder | null {
     lines: open,
     important,
     push: {
-      title: form ? `Don't forget your ${form.title.toLowerCase()}` : "Still to do today",
+      title: form ? `REMINDER: Don't forget your ${form.title.toLowerCase()}` : "REMINDER: Still to do today",
       body: open.map((l) => l.replace(/^\S+\s/, "")).join(" · "),
       url: form ? `/check-ins/new/${form.formId}?date=${d.date}` : "/",
       tag: "evening",

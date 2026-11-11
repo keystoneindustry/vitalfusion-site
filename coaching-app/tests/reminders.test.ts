@@ -24,14 +24,14 @@ const day: DayTasks = {
   workouts: [{ day: 0, name: "Full body A" }],
 };
 const m = morningReminder(day, "2:00 PM EST")!;
-assert.equal(m.push.title, "Today: Full body A");
+assert.equal(m.push.title, "REMINDER: Full body A today");
 assert.ok(m.push.body.includes("Weekly check-in") && m.push.body.includes("Weigh-in") && m.push.body.includes("call with Tyler"));
 assert.ok(m.important);
 assert.ok(!m.push.body.includes("Full body A"));
 assert.equal(m.push.url, "/train?day=0");
 assert.equal(morningReminder({ ...day, habits: [], weighIn: { due: false, weight: null }, forms: [] })!.push.body, "Tap to open today's workout.");
 const e = eveningReminder(day)!;
-assert.equal(e.push.title, "Don't forget your weekly check-in");
+assert.equal(e.push.title, "REMINDER: Don't forget your weekly check-in");
 assert.equal(e.push.url, "/check-ins/new/f1?date=2026-11-11");
 assert.ok(e.important);
 // Everything done → no evening nudge; nothing scheduled → no morning summary.
