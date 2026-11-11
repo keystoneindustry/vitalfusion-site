@@ -32,17 +32,17 @@ export default async function HowItWorksPage() {
           <li>
             <h3>Right after the call: your plan</h3>
             <p>
-              Your training program and nutrition plan land in the app: your calorie and macro targets and a “perfect
-              day” of eating built around foods you like (more meals to swap in are in your meal library). You'll track
-              your calories in Cronometer or MyFitnessPal; the links are on your Nutrition tab.
+              Your training program, your daily calorie and macro targets, and a “perfect day” of eating built around foods
+              you like all land in the app. You'll track your calories in Cronometer or MyFitnessPal (the download links are on
+              your Nutrition tab).
             </p>
           </li>
           <li>
             <h3>Every week after that</h3>
             <p>
-              Do the workouts on your calendar, tick off your daily habits, and weigh in on your scheduled days. On your
-              check-in day, take your progress photos and fill out your weekly check-in. Tyler reads it, replies in the app
-              and adjusts your plan, and you can book an optional 1-on-1 call that week.
+              Do the workouts on your calendar, tick off your daily habits and weigh in on your set days. Once a week, on your
+              check-in day, take progress photos and fill out a short check-in. Tyler replies in the app and adjusts your
+              plan, and you can book an optional 1-on-1 call. Reminders on your phone keep you on track.
             </p>
           </li>
         </ol>

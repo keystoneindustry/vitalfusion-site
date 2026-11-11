@@ -79,6 +79,15 @@ function codeText(code: string | null): string {
   return code ? `\n\nUsing the app from your home screen? Type this code instead: ${code}` : "";
 }
 
+/** The app's sign-in page, from any link into the app (for "link expired" notes). */
+function loginUrl(link: string): string {
+  try {
+    return `${new URL(link).origin}/login`;
+  } catch {
+    return "the app";
+  }
+}
+
 /** First email a new client gets when the coach adds them. */
 export function inviteEmail(firstName: string, link: string, code: string | null = null) {
   const subject = "Welcome to Vital Fusion Coaching 💪 Your app is ready";
@@ -90,9 +99,9 @@ export function inviteEmail(firstName: string, link: string, code: string | null
     "Open my coaching app",
     link,
     code,
-    "The button and code sign you in, so please don't forward this email. They work once and expire in 1 hour. If they've expired, open the app and enter your email to get new ones.",
+    `The button and code sign you in, so please don't forward this email. They work once and expire in 1 hour. If they've expired, go to ${loginUrl(link)} and enter your email to get new ones.`,
   );
-  const text = `Welcome, ${firstName}!\n\nEverything for your coaching lives in the Vital Fusion app. Open it here:\n${link}${codeText(code)}\n\nThe link and code sign you in, work once and expire in 1 hour. If they've expired, open the app and enter your email to get new ones.\n\n– Tyler`;
+  const text = `Welcome, ${firstName}!\n\nEverything for your coaching lives in the Vital Fusion app. Open it here:\n${link}${codeText(code)}\n\nThe link and code sign you in, work once and expire in 1 hour. If they've expired, go to ${loginUrl(link)} and enter your email to get new ones.\n\n– Tyler`;
   return { subject, html, text };
 }
 
@@ -135,11 +144,11 @@ export function agreementClientEmail(firstName: string) {
     subject: "Your signed Vital Fusion coaching agreement",
     html: card(
       `Thanks, ${firstName}!`,
-      `<p style="margin:0 0 12px">Your coaching agreement is signed. A copy is attached for your records, and you can find it any time in the app under Progress.</p>
+      `<p style="margin:0 0 12px">Your coaching agreement is signed. A copy is attached for your records, and you can find it any time in the app under ☰ More → Settings.</p>
        <p style="margin:0">Next up: your onboarding questions, so I can build your plan around your life.</p>
        <p style="margin:12px 0 0">– Tyler</p>`,
     ),
-    text: `Thanks, ${firstName}!\n\nYour coaching agreement is signed. A copy is attached for your records, and you can find it any time in the app under Progress.\n\nNext up: your onboarding questions.\n\n– Tyler`,
+    text: `Thanks, ${firstName}!\n\nYour coaching agreement is signed. A copy is attached for your records, and you can find it any time in the app under ☰ More → Settings.\n\nNext up: your onboarding questions.\n\n– Tyler`,
   };
 }
 
@@ -234,7 +243,7 @@ export function planPublishedClientEmail(firstName: string, part: "nutrition" | 
   const subject = meals ? "Your Vital Fusion nutrition plan is ready 🎉" : "Your Vital Fusion training program is ready 💪";
   const heading = meals ? `${firstName}, your nutrition plan is live!` : `${firstName}, your training program is live!`;
   const body = meals
-    ? "Your daily targets, your perfect day and your meal library are now in the app, under the Nutrition tab. The Today tab shows your numbers for the day."
+    ? "Your daily targets and your perfect day are now in the app, under the Nutrition tab, with links to the calorie-tracking app to use. More meals to swap in are under ☰ More → Meal library."
     : "Your workouts are now in the app, under the Training tab, with sets, reps and rest for every exercise.";
   return {
     subject,

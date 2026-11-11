@@ -126,16 +126,6 @@ export default async function TodayPage() {
         </section>
       )}
 
-      {guide && (
-        <Link href={`/resources/${guide.id}`} className="task-link start-link">
-          <span className="task-icon">📚</span>
-          <span className="task-text">
-            <b>Start here: {guide.title.replace(/^\(?read first\)?\s*[:\-–]?\s*/i, "")}</b>
-            <span className="small">How weigh-ins, photos and tracking work</span>
-          </span>
-          <span className="chev" aria-hidden="true">›</span>
-        </Link>
-      )}
 
       {onboarding ? (
         <section className="card card-accent">
@@ -156,6 +146,16 @@ export default async function TodayPage() {
         </section>
       ) : plan ? (
         <>
+          {guide && (
+            <Link href={`/resources/${guide.id}`} className="task-link start-link">
+              <span className="task-icon">📚</span>
+              <span className="task-text">
+                <b>Start here: {guide.title.replace(/^\(?read first\)?\s*[:\-–]?\s*/i, "")}</b>
+                <span className="small">How weigh-ins, photos and tracking work</span>
+              </span>
+              <span className="chev" aria-hidden="true">›</span>
+            </Link>
+          )}
           <TargetsCard targets={plan.targets} />
           <InstallCard />
           {client.reminders_enabled !== false && <Notifications vapidKey={vapidPublicKey()} compact />}
@@ -202,6 +202,16 @@ export default async function TodayPage() {
               <p className="coming" style={{ margin: 0 }}>Your kickoff call time will show here once it's confirmed.</p>
             )}
           </section>
+          {guide && (
+            <Link href={`/resources/${guide.id}`} className="task-link start-link">
+              <span className="task-icon">📚</span>
+              <span className="task-text">
+                <b>Start here: {guide.title.replace(/^\(?read first\)?\s*[:\-–]?\s*/i, "")}</b>
+                <span className="small">How weigh-ins, photos and tracking work</span>
+              </span>
+              <span className="chev" aria-hidden="true">›</span>
+            </Link>
+          )}
         </>
       )}
 

@@ -91,7 +91,7 @@ export default function AgreementFlow({
 
       {screen === "contact" && (
         <>
-          <p className="muted small" style={{ marginTop: 0 }}>{intro}</p>
+          <p className="legal" style={{ marginTop: 0, fontSize: 14.5 }}>{intro}</p>
           <h2 className="h2">Section I: Your contact information</h2>
           {contactFields.map((f) => (
             <div className="field" key={f.key}>

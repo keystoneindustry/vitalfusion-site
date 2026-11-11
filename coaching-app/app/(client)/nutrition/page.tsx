@@ -22,8 +22,7 @@ export default async function NutritionPage() {
       <>
         <h1 className="h1">Your nutrition plan</h1>
         <p className="lead">
-          Your daily targets, your perfect day and a meal library built around foods you like arrive right after your kickoff
-          call{client.kickoff_at ? ` (${formatCallTime(client.kickoff_at, client.timezone)})` : ""}.
+          Your daily calorie and macro targets and your perfect day of eating arrive right after your kickoff call{client.kickoff_at ? ` (${formatCallTime(client.kickoff_at, client.timezone)})` : ""}.
         </p>
         {onboarding ? (
           <div className="card empty">

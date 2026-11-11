@@ -51,7 +51,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
 
       {empty && (
         <div className="card empty">
-          <p style={{ margin: 0 }}>Nothing scheduled this week yet. Tyler adds your habits, weigh-ins and photos when your plan starts.</p>
+          <p style={{ margin: 0 }}>Nothing scheduled this week yet. Your workouts, habits, weigh-ins and check-ins show up here once your plan starts.</p>
         </div>
       )}
 

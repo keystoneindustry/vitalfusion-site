@@ -13,7 +13,7 @@ export default async function WelcomePage() {
 
   return (
     <>
-      <StepHeader step="welcome" title={`Welcome, ${firstName(client.full_name)}!`} lead="A quick hello from Tyler, then a 30-second tour of your app." />
+      <StepHeader step="welcome" title={`Welcome, ${firstName(client.full_name)}!`} lead="A quick hello from Tyler, then a short tour of your app." />
 
       <section className="card" style={{ padding: 0, overflow: "hidden" }}>
         {embed ? (
