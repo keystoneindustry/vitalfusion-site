@@ -3,6 +3,8 @@ import { requireClient } from "@/lib/auth";
 import { stepIndex } from "@/lib/onboarding";
 import { formatDate } from "@/lib/dates";
 import SignOutButton from "@/app/components/SignOutButton";
+import Notifications from "@/app/components/Notifications";
+import { vapidPublicKey } from "@/lib/push";
 
 export const metadata = { title: "Settings · Vital Fusion" };
 
@@ -30,6 +32,8 @@ export default async function SettingsPage() {
           Need to change something? Email Tyler at <a href="mailto:tyler@vitalfusioncoaching.com">tyler@vitalfusioncoaching.com</a>.
         </p>
       </section>
+
+      <Notifications vapidKey={vapidPublicKey()} remindersOn={client.reminders_enabled !== false} />
 
       <section className="card">
         <h2 className="h2">Documents &amp; app</h2>

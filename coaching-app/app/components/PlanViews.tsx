@@ -160,48 +160,57 @@ function Bullets({ text }: { text: string }) {
   );
 }
 
-function Section({ icon, title, children, open = false }: { icon: string; title: string; children: React.ReactNode; open?: boolean }) {
-  return (
-    <details className="t-section" open={open}>
-      <summary>
-        <span aria-hidden="true">{icon}</span> {title}
-      </summary>
-      {children}
-    </details>
-  );
+
+/** "Full body A" from "Day 1 – Full body A"; "Day 1" stays when that's all there is. */
+export function workoutTitle(name: string, index: number): string {
+  return name.replace(/^Day\s*\d+\s*[–—:-]\s*/i, "").trim() || `Workout ${index + 1}`;
 }
 
-/** A training program, laid out to scan on a phone: workouts first, then short tip sections. */
+/** "3 × 8–12" / "3 × 30–45 s" / "3 sets · As many as you can". */
+function setsReps(e: { sets: string; reps: string }): string {
+  const sets = e.sets.trim();
+  const reps = e.reps.trim();
+  if (!reps) return /^\d+$/.test(sets) ? `${sets} sets` : sets;
+  if (/^\d+$/.test(sets)) return /^[\d\s–—\-+/]+$/.test(reps) ? `${sets} × ${reps} reps` : `${sets} × ${reps}`;
+  return [sets, reps].filter(Boolean).join(" · ");
+}
+
+/** A training program, laid out to scan on a phone: workouts first, then one card of program notes. */
 export function TrainingProgram({ training, openDay = 0 }: { training: Training; openDay?: number }) {
+  const warmup = toLines(training.warmup);
+  const notes: { icon: string; title: string; text: string }[] = [
+    { icon: "🔥", title: "Warm-up", text: training.warmup },
+    { icon: "🚶", title: "Cardio & steps", text: training.cardio },
+    { icon: "📈", title: "How to progress", text: training.progression },
+    { icon: training.cardio ? "😴" : "💡", title: training.cardio ? "Recovery" : "Tips", text: training.notes },
+  ].filter((n) => toLines(n.text).length > 0);
+
   return (
     <div className="program">
-      {training.overview && <p className="program-intro">{toLines(training.overview).slice(0, 2).join(" ")}</p>}
-
       <div className="workouts">
         {training.days.map((d, k) => (
           <details key={k} id={`workout-${k + 1}`} className="workout" open={k === openDay}>
             <summary>
-              <span className="workout-num">{k + 1}</span>
               <span className="workout-title">
-                <b>{d.name.replace(/^Day\s*\d+\s*[–—-]\s*/i, "") || d.name}</b>
+                <b>{workoutTitle(d.name, k)}</b>
                 <span className="muted small">
-                  {d.focus ? `${d.focus} · ` : ""}
+                  {d.focus && !workoutTitle(d.name, k).toLowerCase().includes(d.focus.toLowerCase()) ? `${d.focus} · ` : ""}
                   {d.exercises.length} exercises · ~{estimateMinutes(d)} min
                 </span>
               </span>
               <span className="chev" aria-hidden="true">›</span>
             </summary>
+            {warmup.length > 0 && <p className="warmup-line">🔥 Warm up first: {warmup[0].replace(/\.$/, "")}{warmup.length > 1 ? " (more below)" : ""}</p>}
             <ol className="ex-list">
               {d.exercises.map((e, j) => (
                 <li key={j}>
                   <span className="ex-num">{j + 1}</span>
-                  <div>
+                  <div className="ex-body">
                     <b className="ex-name">{e.name}</b>
-                    <div className="ex-tags">
-                      {e.sets && <span>{/^\d+$/.test(e.sets) ? `${e.sets} sets` : e.sets}</span>}
-                      {e.reps && <span>{/^[\d\s–—\-+/]+$/.test(e.reps) ? `${e.reps} reps` : e.reps}</span>}
-                      {e.rest && <span className="ex-rest">⏱ {e.rest.replace(/^rest\s*/i, "")}</span>}
-                    </div>
+                    <span className="ex-plan">
+                      {setsReps(e)}
+                      {e.rest && <span className="ex-rest"> · rest {e.rest.replace(/^rest\s*/i, "")}</span>}
+                    </span>
                     {e.notes && <p className="ex-cue">{e.notes}</p>}
                   </div>
                 </li>
@@ -211,25 +220,18 @@ export function TrainingProgram({ training, openDay = 0 }: { training: Training;
         ))}
       </div>
 
-      {training.warmup && (
-        <Section icon="🔥" title="Warm-up">
-          <Bullets text={training.warmup} />
-        </Section>
-      )}
-      {training.cardio && (
-        <Section icon="🚶" title="Cardio & steps">
-          <Bullets text={training.cardio} />
-        </Section>
-      )}
-      {training.progression && (
-        <Section icon="📈" title="How to progress">
-          <Bullets text={training.progression} />
-        </Section>
-      )}
-      {training.notes && (
-        <Section icon={training.cardio ? "😴" : "💡"} title={training.cardio ? "Recovery tips" : "Tips"}>
-          <Bullets text={training.notes} />
-        </Section>
+      {notes.length > 0 && (
+        <section className="card notes-card">
+          <h2 className="h2">Program notes</h2>
+          {notes.map((n) => (
+            <details key={n.title} className="note-row">
+              <summary>
+                <span aria-hidden="true">{n.icon}</span> {n.title}
+              </summary>
+              <Bullets text={n.text} />
+            </details>
+          ))}
+        </section>
       )}
     </div>
   );

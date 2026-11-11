@@ -397,6 +397,26 @@ textarea.builder-title { resize: vertical; min-height: 0; line-height: 1.35; }
 .workout { background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; overflow: hidden; }
 .workout > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 14px; }
 .workout > summary::-webkit-details-marker { display: none; }
+.warmup-line { margin: 0; padding: 10px 14px 0; color: var(--text-3); font-size: 14px; line-height: 1.4; }
+.ex-body { min-width: 0; }
+.ex-plan { display: block; margin-top: 3px; color: #cfe0f0; font-size: 15px; font-weight: 600; }
+.ex-plan .ex-rest { color: var(--muted); font-weight: 500; }
+.notes-card { padding-bottom: 6px; }
+.note-row { border-top: 1px solid var(--card-border); }
+.note-row > summary { list-style: none; cursor: pointer; padding: 12px 0; font-weight: 700; }
+.note-row > summary::-webkit-details-marker { display: none; }
+.note-row > summary::after { content: "›"; float: right; color: var(--muted); font-size: 20px; line-height: 1; transition: transform 0.15s ease; }
+.note-row[open] > summary::after { transform: rotate(90deg); }
+.note-row .tips { margin-top: 0; }
+.week-strip { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin: 0 0 12px; }
+.ws { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 7px 2px; border-radius: 10px; background: var(--card); border: 1px solid var(--card-border); color: var(--muted); text-decoration: none; min-width: 0; }
+.ws-day { font-size: 12px; font-weight: 700; }
+.ws-name { font-size: 11.5px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ws.has { background: #1c2a3d; border-color: #2c4566; color: var(--text); }
+.ws.has .ws-name { color: var(--accent); font-weight: 700; }
+.ws.today { outline: 2px solid var(--accent); outline-offset: -2px; }
+.ws.past { opacity: 0.55; }
+.today-workout { margin: 0 0 12px; padding: 10px 14px; border-radius: 12px; background: #211b0e; border: 1px solid #5a4a26; color: #ffe2a8; }
 .workout-num { flex: 0 0 auto; width: 36px; height: 36px; border-radius: 12px; background: #1c2a3d; color: var(--accent); font-weight: 800; display: flex; align-items: center; justify-content: center; }
 .workout-title { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .workout-title b { font-size: 17px; }

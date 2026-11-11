@@ -28,6 +28,8 @@ export type ClientRow = {
   /** Their next booked 1-on-1 check-in call (from the Cal.com webhook). */
   next_call_at?: string | null;
   next_call_uid?: string | null;
+  /** Daily 8am / 7pm reminders (phone notifications, or email when those are off). */
+  reminders_enabled?: boolean;
 };
 
 export type ClientEvent = {

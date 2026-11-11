@@ -118,3 +118,12 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   the app tour (Resources slide), Today (first 2 weeks), and the top of Resources. `findGuide()` links "How to Track
   Calories" from the Nutrition tab. Client ☰ More is grouped: Your coaching (Check-ins, Progress, Resources, Meal
   library, Food log) and Account (Settings, Add to home screen — hidden once installed), then Sign out.
+- Reminders (Phase 5b, Nov 11): `lib/push.ts` (Web Push without packages: VAPID ES256 JWT + aes128gcm; env VAPID_PUBLIC_KEY,
+  VAPID_PRIVATE_KEY, optional VAPID_SUBJECT), `app/api/push` (subscribe / unsubscribe / reminders on-off / test),
+  `public/sw.js` push + notificationclick, `app/components/Notifications.tsx` (Settings card; compact prompt on Today).
+  `lib/reminders.ts` + `GET /api/cron/reminders` (Bearer REMINDERS_SECRET or CRON_SECRET), meant to run hourly: 8am
+  summary and 7pm "still open" nudge in each client's time zone (2-hour catch-up window), deduped by `reminder_log`.
+  No notifications → email only for important items (workout/weigh-in/photos/check-in; evening: unsent check-in).
+  Coach reply also pushes. Tables `push_subscriptions`, `reminder_log`; `clients.reminders_enabled`.
+- Client Training tab: meta line, this-week strip (from workout schedules), today's workout opens by default,
+  exercises as "3 × 8–12 reps · rest 90 s", one "Program notes" card.

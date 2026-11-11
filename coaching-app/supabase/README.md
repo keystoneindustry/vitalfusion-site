@@ -30,3 +30,5 @@ The app itself uses the secret key on the server, and checks who is signed in in
   the seeded "Weekly check-in" form the same day (data update, not a migration).
 - `workout_schedules_and_calls` (Nov 11, 2026): `schedules.kind` may be `workout` with `workout_day`; `clients.next_call_at`,
   `clients.next_call_uid` (booked 1-on-1 check-in call).
+- `phase5b_reminders` (Nov 11, 2026): `push_subscriptions` (one row per device), `reminder_log` (client, date, morning/evening,
+  channel), `clients.reminders_enabled`.

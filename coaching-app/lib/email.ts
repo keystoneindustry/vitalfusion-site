@@ -299,3 +299,15 @@ export function checkinReplyClientEmail(firstName: string, link: string) {
     text: `${firstName}, Tyler replied to your check-in.\n\nRead it in the app: ${link}`,
   };
 }
+
+/** Reminder when push notifications aren't set up: today's plan (morning) or what's still open (evening). */
+export function reminderEmail(firstName: string, kind: "morning" | "evening", lines: string[], link: string) {
+  const subject = kind === "morning" ? "Your plan for today" : "Still to do today";
+  const intro = kind === "morning" ? `Here's what's on your calendar today, ${firstName}:` : `${firstName}, a few things are still open today:`;
+  const list = lines.map((l) => `<li style="margin:0 0 6px">${esc(l)}</li>`).join("");
+  return {
+    subject,
+    html: card(subject, `<p style="margin:0 0 10px">${esc(intro)}</p><ul style="margin:0;padding-left:20px">${list}</ul>${button("Open the app", link)}<p style="margin:16px 0 0;color:#8d939e;font-size:13px">Turn on notifications in the app's Settings to get these on your phone instead. You can turn reminders off there too.</p>`),
+    text: `${intro}\n${lines.map((l) => `- ${l}`).join("\n")}\n\nOpen the app: ${link}\n\nTurn on notifications in the app's Settings to get these on your phone instead, or turn reminders off there.`,
+  };
+}

@@ -12,6 +12,8 @@ import { loadDays } from "@/lib/client-days";
 import { listSubmissions } from "@/lib/forms";
 import { addDays } from "@/lib/dates";
 import HabitChecklist from "./HabitChecklist";
+import Notifications from "@/app/components/Notifications";
+import { vapidPublicKey } from "@/lib/push";
 import { listResources, startHere } from "@/lib/resources";
 
 export const metadata = { title: "Today · Vital Fusion" };
@@ -156,6 +158,7 @@ export default async function TodayPage() {
         <>
           <TargetsCard targets={plan.targets} />
           <InstallCard />
+          {client.reminders_enabled !== false && <Notifications vapidKey={vapidPublicKey()} compact />}
         </>
       ) : (
         <>
