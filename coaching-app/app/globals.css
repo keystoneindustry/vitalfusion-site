@@ -578,6 +578,8 @@ p .cg { padding: 0 6px; margin: 0 2px 0 8px; }
 .mini-field { display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; font-weight: 600; color: var(--muted); }
 .ex-n { flex: 0 0 auto; width: 24px; height: 24px; border-radius: 50%; background: var(--card-2); color: var(--muted); font-size: 12.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
 .ex-row { background: var(--card); border: 1px solid var(--card-border) !important; border-radius: 12px; padding: 10px !important; margin-bottom: 8px; }
+.app-links { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.app-links .btn { padding-left: 6px; padding-right: 6px; white-space: nowrap; font-size: 15px; }
 /* Coach Home */
 .stat-link { text-decoration: none; color: var(--text); }
 .stat-warn b { color: var(--gold); }

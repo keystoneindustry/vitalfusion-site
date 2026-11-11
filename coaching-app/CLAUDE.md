@@ -110,3 +110,6 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   library, Resources, Add a client, Settings). Each client's **Calendar** tab is where everything is scheduled
   (`AddToCalendar.tsx` → `addToCalendarAction`: workouts, weigh-ins, photos, forms, habits; weekly or once) and listed
   with Remove; the Progress tab only shows weight and photos. Training builder: one collapsible card per workout.
+- Nutrition tab (Nov 11): targets + perfect day + "Track your calories" (`TrackingApps.tsx`: Cronometer / MyFitnessPal via
+  `/go/[app]`, which redirects to the App Store, Google Play or the website by device). The meal library moved to
+  `/meals` (☰ More → Meal library), with "Easing in". The app tour and "How your coaching works" mention both.

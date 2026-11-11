@@ -30,8 +30,9 @@ export default async function HowItWorksPage() {
           <li>
             <h3>Right after the call: your plan</h3>
             <p>
-              Your training program and full nutrition plan land in the app: your calorie and macro targets, a “perfect day”
-              of eating, and meals you can pick from, built around foods you like.
+              Your training program and nutrition plan land in the app: your calorie and macro targets and a “perfect
+              day” of eating built around foods you like (more meals to swap in are in your meal library). You'll track
+              your calories in Cronometer or MyFitnessPal; the links are on your Nutrition tab.
             </p>
           </li>
           <li>

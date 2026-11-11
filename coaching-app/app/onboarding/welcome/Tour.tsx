@@ -8,9 +8,9 @@ const SLIDES = [
   { icon: "🏠", title: "Today", text: "Today's workout, your habits to tick off, and anything due, like a weigh-in or your check-in. Open the app and you'll know exactly what to do." },
   { icon: "📅", title: "Calendar", text: "Your week at a glance: workout days, weigh-ins, progress photos, check-ins, habits and calls with Tyler." },
   { icon: "🏋️", title: "Training", text: "Your program, one workout per day, with sets, reps and rest for every exercise. Tap a workout on Today to open it." },
-  { icon: "🍽️", title: "Nutrition", text: "Your daily targets, your perfect day and a meal library built around foods you like. Your food log lives here until your plan is ready." },
+  { icon: "🍽️", title: "Nutrition", text: "Your daily calorie and macro targets and your perfect day of eating. You'll track your calories in Cronometer or MyFitnessPal; the download links are right here once your plan is ready." },
   { icon: "📝", title: "Weekly check-in", text: "Once a week, on the day you pick, take your progress photos and answer a short check-in. Tyler replies in the app, and you can book an optional 1-on-1 call." },
-  { icon: "☰", title: "More", text: "Your progress (weight graph and photos), past check-ins and Tyler's replies, your food log, videos and guides from Tyler, and settings." },
+  { icon: "☰", title: "More", text: "Your meal library (every meal in your plan, ready to swap in), your progress (weight graph and photos), past check-ins and Tyler's replies, your food log, videos and guides from Tyler, and settings." },
 ];
 
 /** A short swipe-through tour of the tabs. */

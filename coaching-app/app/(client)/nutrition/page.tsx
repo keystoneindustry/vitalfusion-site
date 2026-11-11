@@ -6,7 +6,8 @@ import { toLines } from "@/lib/plan";
 import { listMeals, logStats } from "@/lib/meals";
 import { todayIn } from "@/lib/dates";
 import { formatCallTime } from "@/lib/booking";
-import { MealLibrary, PerfectDay } from "@/app/components/PlanViews";
+import { PerfectDay } from "@/app/components/PlanViews";
+import TrackingApps from "@/app/components/TrackingApps";
 
 export const metadata = { title: "Nutrition · Vital Fusion" };
 
@@ -60,24 +61,7 @@ export default async function NutritionPage() {
       <h2 className="section-title">Your perfect day</h2>
       <PerfectDay nutrition={content} targets={targets} showTotals={false} />
 
-      <h2 className="section-title">Meal library</h2>
-      <p className="small muted" style={{ margin: "-4px 0 12px" }}>
-        Swap any meal for another in the same group. They all fit your numbers.
-      </p>
-      <MealLibrary meals={content.meals} />
-
-      {content.insights.easingIn && (
-        <details className="t-section">
-          <summary>
-            <span aria-hidden="true">🪜</span> Easing in
-          </summary>
-          <ul className="tips">
-            {toLines(content.insights.easingIn).map((l, i) => (
-              <li key={i}>{l}</li>
-            ))}
-          </ul>
-        </details>
-      )}
+      <TrackingApps />
     </>
   );
 }
