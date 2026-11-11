@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Link from "next/link";
 import TabBar from "./TabBar";
 
 /** Shell for every client screen: logo bar on top, five tabs along the bottom. */
