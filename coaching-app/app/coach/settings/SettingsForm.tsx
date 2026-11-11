@@ -34,6 +34,13 @@ export default function SettingsForm({ initial }: { initial: Record<string, stri
         <label htmlFor="checkin_link">Check-in call booking link (Cal.com)</label>
         <input id="checkin_link" name="checkin_link" type="url" inputMode="url" required defaultValue={initial.checkin_link} />
       </div>
+      <div className="field">
+        <label htmlFor="checkin_email">Send check-ins to</label>
+        <input id="checkin_email" name="checkin_email" type="email" inputMode="email" required defaultValue={initial.checkin_email} />
+        <span className="hint">
+          Every check-in email starts with <b>[Check-in]</b>, so a Gmail filter can file them into a Check-ins label.
+        </span>
+      </div>
       <h3 className="builder-section">New clients' starting schedule</h3>
       <p className="small muted" style={{ marginTop: 0 }}>
         Added when you first publish a client's plan (with a daily step goal from their onboarding answers). You can change it
@@ -57,7 +64,10 @@ export default function SettingsForm({ initial }: { initial: Record<string, stri
           <option value="2">Every 2 weeks</option>
           <option value="4">Every 4 weeks</option>
         </select>
-        <span className="hint">On the day each client picked during onboarding (Sunday if they didn't).</span>
+        <span className="hint">
+          On each client's check-in day (picked during onboarding; Sunday if they didn't). Their weekly check-in goes on the
+          same day.
+        </span>
       </div>
       <button className="btn btn-wide" type="submit" disabled={pending}>
         {pending ? "Saving…" : "Save settings"}

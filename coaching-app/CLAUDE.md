@@ -68,13 +68,24 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   sections (`ProgressTabs`): `/progress/weight` (graph of every weigh-in + weekly average, history; logging at
   `/progress/weigh-in`) and `/progress/photos` (compare + gallery; taking them at `/progress/photos/new`, front/side/back,
   posted to `app/api/progress-photos`, private `progress-photos` bucket). `/progress` redirects to Weight. Tables `weigh_ins`, `progress_photos`, `water_logs`.
+- Check-ins & forms (Phase 5): `forms` table (one `kind = checkin` weekly check-in, placeholder questions until Tyler
+  sends his; plus custom forms) edited in the coach form builder `/coach/forms` (shapes/validation in `lib/form-schema.ts`,
+  safe for the browser; DB in `lib/forms.ts`). Forms go on a client's calendar as `schedules` with `kind = form` +
+  `form_id`; the starting setup adds the weekly check-in on the client's `photoDay` ("check-in and progress photos" day).
+  Client: Today/Calendar cards → `/check-ins/new/[formId]?date=` (up to 3 days late), list `/check-ins`, view + Tyler's
+  reply `/check-ins/[id]`. Submitting (`app/(client)/check-ins/actions.ts`) saves `form_submissions` (with a questions
+  snapshot) and runs `processSubmission` (`lib/checkins.ts`) via `after()`: week numbers (weigh-in averages, habit
+  adherence, photos), AI review for check-ins (summary, wins, concerns, suggested changes, draft reply in Tyler's voice;
+  placeholder coaching rules in the prompt), then emails the `checkin_email` setting with subject "[Check-in] Name · date".
+  Coach client tab Check-ins → review page with numbers, AI summary and reply box (prefilled with the draft); sending
+  emails the client. Dashboard flags check-ins awaiting a reply.
 - Resources: coach manages them at `/coach/resources` (top menu): PDFs and video files (≤50 MB, uploaded straight from the
   browser to the private `resources` bucket through a one-time signed upload URL — `signedUploadUrl` in `lib/storage.ts` —
   because Vercel functions can't take big bodies) or YouTube/Vimeo/Loom links; categories, order, hide/show, unlock by
   coaching week. Table `resources`, helpers `lib/resources.ts`. Clients see `/resources` (locked items show "Unlocks in
   week N") and `/resources/[id]` (embedded video, video player, or "Open the PDF" via signed URL).
 - Client app (`app/(client)/`): tabs Today, Calendar, Training (`/train`), Nutrition (`/nutrition`) and a ☰ More
-  sheet (`TabBar.tsx`) with Progress, Food log, Resources (`/resources`, Tyler's videos and documents; `/learn`
+  sheet (`TabBar.tsx`) with Progress, Check-ins, Food log, Resources (`/resources`, Tyler's videos and documents; `/learn`
   redirects), Settings (`/settings`: account, agreement PDF, sign out), Add to home screen (`/install`) and Sign out.
   Sign out always asks first (`app/components/SignOutButton.tsx`).
   Installable PWA: `app/manifest.ts`, icons in `public/icons/`, service worker `public/sw.js`.

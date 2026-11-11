@@ -48,7 +48,7 @@ export const QUESTIONS: Question[] = [
   { id: "wakeTime", section: "Your schedule", kind: "time", prompt: "What time do you usually wake up?" },
   { id: "bedTime", section: "Your schedule", kind: "time", prompt: "What time do you usually go to bed?" },
   { id: "trainTime", section: "Your schedule", kind: "choice", prompt: "When is the best time for you to train?", options: ["Early morning", "Late morning", "Midday", "Afternoon", "Evening", "It changes day to day"] },
-  { id: "photoDay", section: "Your schedule", kind: "choice", prompt: "Which day works best for your weekly progress photos?", help: "Takes 2 minutes, first thing in the morning. Pick a day you're usually home.", options: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] },
+  { id: "photoDay", section: "Your schedule", kind: "choice", prompt: "Which day works best for your weekly check-in and progress photos?", help: "You'll be assigned your check-in day based on this. It takes about 10 minutes, first thing in the morning, so pick a day you're usually home.", options: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] },
   { id: "workDay", section: "Your schedule", kind: "longtext", prompt: "What does a typical weekday look like?", help: "Work hours, commute, kids, anything that shapes your day.", placeholder: "e.g. desk job 8–5, gym after work, kids' practice Tue/Thu" },
 
   // Food

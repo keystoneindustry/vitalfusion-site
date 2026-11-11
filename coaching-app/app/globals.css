@@ -487,6 +487,23 @@ p .cg { padding: 0 6px; margin: 0 2px 0 8px; }
 .photo-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .task { padding: 12px 0; border-bottom: 1px solid var(--card-border); }
 .task:first-of-type { padding-top: 0; }
+.reply-link { background: #2a2310; border-color: #5a4a26; margin-bottom: 14px; }
+.reply-link .task-text .small { color: var(--gold); }
+.fq { scroll-margin-top: 80px; }
+.fq-error { border-color: #6b3434; }
+.fq-label { display: flex; gap: 10px; align-items: flex-start; font-weight: 700; font-size: 16.5px; line-height: 1.35; margin-bottom: 10px; }
+.fq-num { flex: 0 0 auto; width: 26px; height: 26px; border-radius: 50%; background: #1c2a3d; color: var(--accent); font-size: 13px; display: flex; align-items: center; justify-content: center; }
+.fq-number { max-width: 140px; font-size: 20px; font-weight: 700; }
+.scale { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; }
+.scale button { min-height: 44px; border-radius: 10px; border: 1px solid #3a3e48; background: var(--card-2); color: var(--text); font: inherit; font-weight: 700; cursor: pointer; padding: 0; }
+.scale button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #0b0d12; }
+.reply p { margin: 0 0 10px; line-height: 1.55; color: var(--text-2); font-size: 16px; }
+.sum-h { margin: 12px 0 4px; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); }
+.answers-dl { margin: 0; }
+.answers-dl > div { padding: 8px 0; border-bottom: 1px solid var(--card-border); }
+.answers-dl > div:last-child { border-bottom: 0; }
+.answers-dl dt { color: var(--muted); font-size: 14px; }
+.answers-dl dd { margin: 2px 0 0; font-weight: 600; white-space: pre-wrap; }
 .task-link { display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin: 0 0 10px; border-radius: 14px; background: #1c2a3d; border: 1px solid #2c4566; color: var(--text); text-decoration: none; }
 .task-link:active { background: #22344b; }
 .task-link.done { background: var(--card-2); border-color: var(--card-border); }

@@ -145,6 +145,12 @@ export function describeEvent(e: ClientEvent): string {
       return `Habit removed: ${String(d.habit ?? "")}`;
     case "photos_uploaded":
       return "Uploaded progress photos";
+    case "checkin_submitted":
+      return `Sent their check-in (${String(d.date ?? "")})`;
+    case "form_submitted":
+      return `Filled in “${String(d.form ?? "a form")}”`;
+    case "checkin_replied":
+      return "You replied to their check-in";
     case "email_failed":
       return `An email didn't send${typeof d.what === "string" ? ` (${d.what})` : ""}`;
     default:

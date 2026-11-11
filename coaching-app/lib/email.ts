@@ -242,3 +242,60 @@ export function planPublishedClientEmail(firstName: string, part: "nutrition" | 
     text: `${heading}\n\n${body}\n\n${link}\n\n– Tyler`,
   };
 }
+
+/** A client's check-in (or other form) for the coach. Subject starts with "[Check-in]" for a Gmail filter. */
+export function checkinCoachEmail(opts: {
+  clientName: string;
+  formTitle: string;
+  isCheckin: boolean;
+  date: string;
+  numbers: string[];
+  summary: { summary: string[]; wins: string[]; concerns: string[]; suggestions: { change: string; reason: string }[] } | null;
+  answers: { prompt: string; answer: string }[];
+  link: string;
+}) {
+  const subject = opts.isCheckin ? `[Check-in] ${opts.clientName} · ${opts.date}` : `[Form] ${opts.clientName} · ${opts.formTitle}`;
+  const list = (title: string, items: string[]) =>
+    items.length ? `<p style="margin:14px 0 4px"><b>${esc(title)}</b></p><ul style="margin:0 0 0 18px;padding:0">${items.map((i) => `<li>${esc(i)}</li>`).join("")}</ul>` : "";
+  const s = opts.summary;
+  const html = card(
+    opts.isCheckin ? `${opts.clientName}'s check-in` : `${opts.clientName} filled in “${opts.formTitle}”`,
+    `${list("This week's numbers", opts.numbers)}${
+      s
+        ? `${list("AI summary", s.summary)}${list("Wins", s.wins)}${list("Watch", s.concerns)}${list(
+            "Suggested changes",
+            s.suggestions.map((x) => `${x.change} (${x.reason})`),
+          )}`
+        : ""
+    }<p style="margin:14px 0 4px"><b>Their answers</b></p><table style="width:100%;border-collapse:collapse;font-size:14px">${opts.answers
+      .map(
+        (a) =>
+          `<tr><td style="padding:6px 8px 6px 0;color:#9aa3b2;vertical-align:top;width:45%">${esc(a.prompt)}</td><td style="padding:6px 0;vertical-align:top">${esc(a.answer)}</td></tr>`,
+      )
+      .join("")}</table>${button(s ? "Review & reply (AI draft ready)" : "Review & reply", opts.link)}`,
+    "Reply from the app so it shows up in their app. Replying to this email goes to them by email instead.",
+  );
+  const text = [
+    subject,
+    "",
+    "This week's numbers:",
+    ...opts.numbers.map((n) => `- ${n}`),
+    ...(s ? ["", "AI summary:", ...s.summary.map((x) => `- ${x}`), ...(s.suggestions.length ? ["", "Suggested changes:", ...s.suggestions.map((x) => `- ${x.change} (${x.reason})`)] : [])] : []),
+    "",
+    "Their answers:",
+    ...opts.answers.map((a) => `- ${a.prompt}: ${a.answer}`),
+    "",
+    `Review and reply: ${opts.link}`,
+  ].join("\n");
+  return { subject, html, text };
+}
+
+/** To the client when the coach replies to their check-in. */
+export function checkinReplyClientEmail(firstName: string, link: string) {
+  const subject = "Tyler replied to your check-in 💬";
+  return {
+    subject,
+    html: card(`${firstName}, Tyler replied`, `<p style="margin:0">Your coach has read your check-in and sent you feedback in the app.</p>${button("Read Tyler's reply", link)}`),
+    text: `${firstName}, Tyler replied to your check-in.\n\nRead it in the app: ${link}`,
+  };
+}

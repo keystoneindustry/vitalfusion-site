@@ -5,6 +5,7 @@ import { firstName } from "@/lib/client-input";
 import { formatDate, todayIn } from "@/lib/dates";
 import { scheduleLabel } from "@/lib/calendar";
 import { listPhotos, listSchedules, listWeighIns, PHOTO_BUCKET } from "@/lib/progress";
+import { listForms } from "@/lib/forms";
 import { signedUrls } from "@/lib/storage";
 import SubmitButton from "@/app/components/SubmitButton";
 import DayChips from "@/app/components/DayChips";
@@ -26,7 +27,8 @@ export default async function ClientProgressPage({ params, searchParams }: { par
   await requireCoach(`/coach/clients/${id}/progress`);
   const client = await getClient(id);
   if (!client) notFound();
-  const [schedules, weighIns, photos] = await Promise.all([listSchedules(client.id), listWeighIns(client.id), listPhotos(client.id)]);
+  const [schedules, weighIns, photos, forms] = await Promise.all([listSchedules(client.id), listWeighIns(client.id), listPhotos(client.id), listForms()]);
+  const formTitle = new Map(forms.map((f) => [f.id, f.title]));
   const urls = await signedUrls(PHOTO_BUCKET, photos.map((p) => p.path)).catch(() => ({}) as Record<string, string>);
   const name = firstName(client.full_name);
   const today = todayIn(client.timezone);
@@ -65,6 +67,7 @@ export default async function ClientProgressPage({ params, searchParams }: { par
         <div>
           <section className="card card-accent">
             <h2 className="h2">📅 On {name}'s calendar</h2>
+            <p className="small muted" style={{ marginTop: -6 }}>Weigh-ins, progress photos, check-ins and other forms.</p>
             {schedules.length === 0 ? (
               <>
                 <p className="muted">Nothing scheduled yet.</p>
@@ -77,7 +80,7 @@ export default async function ClientProgressPage({ params, searchParams }: { par
                 {schedules.map((s) => (
                   <li key={s.id} className="row-between">
                     <span>
-                      {s.kind === "weigh_in" ? "⚖️ Weigh-in" : "📸 Progress photos"} · {scheduleLabel(s)}
+                      {s.kind === "weigh_in" ? "⚖️ Weigh-in" : s.kind === "photos" ? "📸 Progress photos" : `📝 ${formTitle.get(s.form_id ?? "") ?? "Form"}`} · {scheduleLabel(s)}
                     </span>
                     <form action={endScheduleAction.bind(null, client.id, s.id)}>
                       <SubmitButton className="btn-link small" label="Remove" pendingLabel="…" />
@@ -85,6 +88,11 @@ export default async function ClientProgressPage({ params, searchParams }: { par
                   </li>
                 ))}
               </ul>
+            )}
+            {schedules.length > 0 && (
+              <form action={applyDefaultsAction.bind(null, client.id, "progress")} style={{ margin: "4px 0 8px" }}>
+                <SubmitButton className="btn-link small" label="Add anything missing from the starting setup (weigh-ins, photos, check-in, step goal)" pendingLabel="Adding…" />
+              </form>
             )}
             <details className="edit-box" open={schedules.length === 0}>
               <summary className="summary-link small">+ Schedule weigh-ins or photos</summary>
@@ -94,6 +102,11 @@ export default async function ClientProgressPage({ params, searchParams }: { par
                   <select name="kind" defaultValue="weigh_in">
                     <option value="weigh_in">⚖️ Weigh-in</option>
                     <option value="photos">📸 Progress photos</option>
+                    {forms.map((f) => (
+                      <option key={f.id} value={`form:${f.id}`}>
+                        📝 {f.title}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div className="field">

@@ -14,6 +14,7 @@ export default function ClientTabs({ id, badges }: { id: string; badges: Partial
     { href: `${base}/training`, label: "Training" },
     { href: `${base}/habits`, label: "Habits" },
     { href: `${base}/progress`, label: "Progress" },
+    { href: `${base}/check-ins`, label: "Check-ins" },
     { href: `${base}/details`, label: "Details" },
   ];
   return (

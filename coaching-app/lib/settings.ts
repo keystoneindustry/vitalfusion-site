@@ -1,6 +1,6 @@
 import { db } from "./supabase";
 
-export const SETTING_KEYS = ["welcome_video_url", "kickoff_link", "checkin_link", "default_weighin_days", "default_photo_every_weeks"] as const;
+export const SETTING_KEYS = ["welcome_video_url", "kickoff_link", "checkin_link", "default_weighin_days", "default_photo_every_weeks", "checkin_email"] as const;
 export type SettingKey = (typeof SETTING_KEYS)[number];
 
 const DEFAULTS: Record<SettingKey, string> = {
@@ -9,6 +9,7 @@ const DEFAULTS: Record<SettingKey, string> = {
   checkin_link: "https://cal.com/tyler-kendrick-rb0c8a/check-in-call",
   default_weighin_days: "1,3,5",
   default_photo_every_weeks: "1",
+  checkin_email: "tyler@vitalfusioncoaching.com",
 };
 
 export async function getSettings(): Promise<Record<SettingKey, string>> {

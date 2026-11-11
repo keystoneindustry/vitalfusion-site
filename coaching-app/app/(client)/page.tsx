@@ -10,6 +10,8 @@ import { getPublishedPlan, hasContent } from "@/lib/plans";
 import TargetsCard from "@/app/components/TargetsCard";
 import { loadDays } from "@/lib/client-days";
 import { getWater } from "@/lib/progress";
+import { listSubmissions } from "@/lib/forms";
+import { addDays } from "@/lib/dates";
 import HabitChecklist from "./HabitChecklist";
 import WaterTracker from "./WaterTracker";
 
@@ -25,9 +27,15 @@ export default async function TodayPage() {
   const plan = live && live.content.meals.length > 0 ? live : null;
   const trainingLive = !!live && live.content.training.days.length > 0;
   const foodLog = !onboarding && !plan ? logStats(await listMeals(client.id), client.timezone, today) : null;
-  const [{ days }, water] = onboarding ? [{ days: [] }, 0] : await Promise.all([loadDays(client.id, [today]), getWater(client.id, today)]);
-  const day = days[0];
-  const hasTasks = !!day && (day.habits.length > 0 || day.weighIn.due || day.photos.due);
+  const recent = [addDays(today, -3), addDays(today, -2), addDays(today, -1), today];
+  const [{ days }, water, subs] = onboarding
+    ? [{ days: [] }, 0, []]
+    : await Promise.all([loadDays(client.id, recent), getWater(client.id, today), listSubmissions(client.id, 5)]);
+  const day = days[days.length - 1];
+  // Forms due today, plus check-ins from the last 3 days that weren't sent yet.
+  const formsDue = days.flatMap((d) => d.forms.filter((f) => d.date === today || !f.submitted).map((f) => ({ ...f, date: d.date })));
+  const newReply = subs.find((x) => x.coach_reply && !x.reply_seen_at);
+  const hasTasks = !!day && (day.habits.length > 0 || day.weighIn.due || day.photos.due || formsDue.length > 0);
   const waterGoal = plan?.targets.waterOz ?? 0;
 
   let packageLine = "Your coaching dates will show here.";
@@ -45,9 +53,34 @@ export default async function TodayPage() {
       <h1 className="h1">Hi {firstName(client.full_name)} 👋</h1>
       <p className="lead">{packageLine}</p>
 
+      {newReply && (
+        <Link href={`/check-ins/${newReply.id}`} className="task-link reply-link">
+          <span className="task-icon">💬</span>
+          <span className="task-text">
+            <b>Tyler replied to your check-in</b>
+            <span className="small">Tap to read it</span>
+          </span>
+          <span className="chev" aria-hidden="true">›</span>
+        </Link>
+      )}
+
       {!onboarding && (hasTasks || waterGoal > 0) && day && (
         <section className="card card-accent">
           <h2 className="h2">Today</h2>
+          {formsDue.map((f) => (
+            <Link
+              key={`${f.formId}-${f.date}`}
+              href={f.submitted ? "/check-ins" : `/check-ins/new/${f.formId}?date=${f.date}`}
+              className={`task-link ${f.submitted ? "done" : ""}`}
+            >
+              <span className="task-icon">📝</span>
+              <span className="task-text">
+                <b>{f.title}</b>
+                <span className="small">{f.submitted ? "Sent ✓" : f.date === today ? "Due today · tap to fill it in" : "Overdue · tap to fill it in"}</span>
+              </span>
+              <span className="chev" aria-hidden="true">›</span>
+            </Link>
+          ))}
           {day.weighIn.due && (
             <Link href="/progress/weigh-in" className={`task-link ${day.weighIn.weight !== null ? "done" : ""}`}>
               <span className="task-icon">⚖️</span>

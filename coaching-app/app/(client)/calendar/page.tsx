@@ -21,7 +21,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
   const dates = weekDates(start);
   const { days } = await loadDays(client.id, dates);
   const kickoffDay = client.kickoff_at ? todayIn(client.timezone, new Date(client.kickoff_at)) : null;
-  const empty = days.every((d) => !d.habits.length && !d.weighIn.due && !d.photos.due) && !(kickoffDay && dates.includes(kickoffDay));
+  const empty = days.every((d) => !d.habits.length && !d.weighIn.due && !d.photos.due && !d.forms.length) && !(kickoffDay && dates.includes(kickoffDay));
 
   return (
     <>
@@ -59,6 +59,13 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
           if (kickoffDay === d.date && client.kickoff_at) items.push({ icon: "📞", text: `Kickoff call · ${formatCallTime(client.kickoff_at, client.timezone).split(" at ")[1] ?? ""}`, state: "due" });
           if (d.weighIn.due || d.weighIn.weight !== null)
             items.push({ icon: "⚖️", text: d.weighIn.weight !== null ? `Weigh-in · ${d.weighIn.weight} lb` : "Weigh-in", state: d.weighIn.weight !== null ? "done" : past ? "missed" : "due", href: isToday ? "/progress/weigh-in" : undefined });
+          for (const f of d.forms)
+            items.push({
+              icon: "📝",
+              text: f.title,
+              state: f.submitted ? "done" : past ? "missed" : "due",
+              href: f.submitted ? "/check-ins" : isToday || (past && d.date >= addDays(today, -3)) ? `/check-ins/new/${f.formId}?date=${d.date}` : undefined,
+            });
           if (d.photos.due) items.push({ icon: "📸", text: "Progress photos", state: d.photos.count >= 3 ? "done" : past ? "missed" : "due", href: isToday ? "/progress/photos/new" : undefined });
           for (const h of d.habits) items.push({ icon: h.icon, text: h.title, state: h.done ? "done" : past ? "missed" : "due" });
           return (

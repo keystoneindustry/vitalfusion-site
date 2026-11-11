@@ -19,6 +19,7 @@ const TABS = [
 /** Extra screens behind the ☰ tab. */
 const MORE = [
   { href: "/progress/weight", label: "Progress", emoji: "📈" },
+  { href: "/check-ins", label: "Check-ins", emoji: "📝" },
   { href: "/food", label: "Food log", emoji: "📷" },
   { href: "/resources", label: "Resources", emoji: "📚" },
   { href: "/settings", label: "Settings", emoji: "⚙️" },

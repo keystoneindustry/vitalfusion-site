@@ -20,7 +20,9 @@ export type HabitAssignment = {
 
 export type Schedule = {
   id: string;
-  kind: "weigh_in" | "photos";
+  kind: "weigh_in" | "photos" | "form";
+  /** For kind "form": which form (e.g. the weekly check-in). */
+  form_id?: string | null;
   days: number[];
   every_weeks: number;
   start_date: string;
@@ -60,7 +62,7 @@ export function scheduleDueOn(s: Schedule, date: string): boolean {
   return weeks % Math.max(1, s.every_weeks) === 0;
 }
 
-export function dueKinds(schedules: Schedule[], date: string): Set<"weigh_in" | "photos"> {
+export function dueKinds(schedules: Schedule[], date: string): Set<Schedule["kind"]> {
   return new Set(schedules.filter((s) => scheduleDueOn(s, date)).map((s) => s.kind));
 }
 

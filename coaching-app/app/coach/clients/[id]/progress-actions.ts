@@ -6,6 +6,7 @@ import { addEvent, getClient, type ClientRow } from "@/lib/clients";
 import { parseDays } from "@/lib/calendar";
 import { isIsoDate, todayIn } from "@/lib/dates";
 import { addSchedule, applyDefaultSchedule, endSchedule } from "@/lib/progress";
+import { getForm } from "@/lib/forms";
 
 async function loadClient(clientId: string): Promise<ClientRow> {
   await requireCoach(`/coach/clients/${clientId}/progress`);
@@ -21,19 +22,23 @@ function back(clientId: string, tab: string, params: Record<string, string>): ne
 /** Puts weigh-ins or progress photos on the client's calendar: weekly on chosen days, every N weeks, or one date. */
 export async function addScheduleAction(clientId: string, form: FormData): Promise<void> {
   const client = await loadClient(clientId);
-  const kind = form.get("kind") === "photos" ? "photos" : "weigh_in";
+  const rawKind = String(form.get("kind") ?? "");
+  const formId = rawKind.startsWith("form:") ? rawKind.slice(5) : null;
+  const theForm = formId ? await getForm(formId) : null;
+  if (formId && !theForm) back(client.id, "progress", { error: "That form doesn't exist anymore." });
+  const kind = theForm ? "form" : rawKind === "photos" ? "photos" : "weigh_in";
   const once = String(form.get("once") ?? "").trim();
   const today = todayIn(client.timezone);
   if (form.get("mode") === "once") {
     if (!isIsoDate(once) || once < today) back(client.id, "progress", { error: "Pick a date from today on." });
-    await addSchedule({ client_id: client.id, kind, days: [], every_weeks: 1, start_date: once, end_date: once, one_date: once });
+    await addSchedule({ client_id: client.id, kind, form_id: theForm?.id ?? null, days: [], every_weeks: 1, start_date: once, end_date: once, one_date: once });
   } else {
     const days = parseDays(form.getAll("days").map(String));
     if (days.length === 0) back(client.id, "progress", { error: "Pick at least one day." });
     const every = Math.max(1, Math.min(8, parseInt(String(form.get("every") ?? "1"), 10) || 1));
-    await addSchedule({ client_id: client.id, kind, days, every_weeks: every, start_date: today, end_date: client.end_date, one_date: null });
+    await addSchedule({ client_id: client.id, kind, form_id: theForm?.id ?? null, days, every_weeks: every, start_date: today, end_date: client.end_date, one_date: null });
   }
-  await addEvent(client.id, "schedule_added", { added: [kind === "photos" ? "progress photos" : "weigh-ins"] });
+  await addEvent(client.id, "schedule_added", { added: [theForm ? theForm.title : kind === "photos" ? "progress photos" : "weigh-ins"] });
   back(client.id, "progress", { msg: "scheduled" });
 }
 

@@ -22,3 +22,6 @@ The app itself uses the secret key on the server, and checks who is signed in in
   private bucket `progress-photos`; settings `default_weighin_days` (1,3,5) and `default_photo_every_weeks` (1).
 - `phase4_resources` (Nov 10, 2026): `resources` table (pdf / video_file / video_link, category, unlock_week, published,
   sort); private bucket `resources` (50 MB, PDF + MP4/MOV/WebM).
+- `phase5_checkins_forms` (Nov 10, 2026): `forms` (seeded "Weekly check-in", kind checkin, placeholder questions),
+  `form_submissions` (answers + questions snapshot, AI summary, coach reply); `schedules.kind` now includes `form` with
+  `form_id`; setting `checkin_email`.

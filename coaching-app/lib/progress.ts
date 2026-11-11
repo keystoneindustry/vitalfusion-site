@@ -7,6 +7,7 @@ import { assignHabit, listClientHabits, stepsHabit } from "./habits";
 import { getSettings } from "./settings";
 import { getResponse } from "./onboarding-data";
 import { addEvent, type ClientRow } from "./clients";
+import { checkinForm } from "./forms";
 
 export const PHOTO_BUCKET = "progress-photos";
 export const POSES = [
@@ -121,8 +122,8 @@ export function isDate(v: unknown): v is string {
 
 /**
  * Gives a client the starting setup, skipping anything they already have: a daily step-goal habit (sized from
- * their onboarding answer), weigh-ins on the default days, and progress photos on the day they picked
- * (default Sunday). Returns what was added.
+ * their onboarding answer), weigh-ins on the default days, and progress photos + the weekly check-in on the
+ * day they picked (default Sunday). Returns what was added.
  */
 export async function applyDefaultSchedule(client: ClientRow): Promise<string[]> {
   const added: string[] = [];
@@ -134,6 +135,7 @@ export async function applyDefaultSchedule(client: ClientRow): Promise<string[]>
   ]);
   const answers = response?.answers ?? {};
   const start = todayIn(client.timezone);
+  const checkin = await checkinForm();
 
   const steps = await stepsHabit();
   if (steps && !habits.some((h) => h.habit_id === steps.id)) {
@@ -153,6 +155,11 @@ export async function applyDefaultSchedule(client: ClientRow): Promise<string[]>
     const every = Math.max(1, Math.min(8, parseInt(settings.default_photo_every_weeks || "1", 10) || 1));
     await addSchedule({ client_id: client.id, kind: "photos", days: [day], every_weeks: every, start_date: start, end_date: client.end_date, one_date: null });
     added.push("progress photos");
+  }
+  if (!schedules.some((s) => s.kind === "form" && s.form_id === checkin?.id) && checkin) {
+    const day = weekdayFromName(typeof answers.photoDay === "string" ? answers.photoDay : "") ?? 0;
+    await addSchedule({ client_id: client.id, kind: "form", form_id: checkin.id, days: [day], every_weeks: 1, start_date: start, end_date: client.end_date, one_date: null });
+    added.push("weekly check-in");
   }
   if (added.length) await addEvent(client.id, "schedule_added", { added });
   return added;

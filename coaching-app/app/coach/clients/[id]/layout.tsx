@@ -8,6 +8,7 @@ import { formatCallTime } from "@/lib/booking";
 import { getOpenPlan, getPublishedPlan, hasContent } from "@/lib/plans";
 import { partState } from "@/lib/plan";
 import ClientTabs from "./ClientTabs";
+import { db, q } from "@/lib/supabase";
 
 /** Header + tabs shared by every page of one client in the coach portal. */
 export default async function ClientLayout({ children, params }: { children: React.ReactNode; params: Promise<{ id: string }> }) {
@@ -15,7 +16,11 @@ export default async function ClientLayout({ children, params }: { children: Rea
   await requireCoach(`/coach/clients/${id}`);
   const client = await getClient(id);
   if (!client) notFound();
-  const [open, pub] = await Promise.all([getOpenPlan(client.id), getPublishedPlan(client.id)]);
+  const [open, pub, unreplied] = await Promise.all([
+    getOpenPlan(client.id),
+    getPublishedPlan(client.id),
+    db<{ id: string }[]>(`form_submissions?select=id&client_id=eq.${q(client.id)}&replied_at=is.null`),
+  ]);
   const work = hasContent(open) ? open : null;
   const live = hasContent(pub) ? pub : null;
   const badge = (part: "nutrition" | "training") => {
@@ -39,7 +44,7 @@ export default async function ClientLayout({ children, params }: { children: Rea
         <span className={`pill pill-${client.stage}`}>{stageLabel(client.stage)}</span>
       </div>
       {client.health_flag && <p className="health-chip">⚠️ Health questions need review</p>}
-      <ClientTabs id={client.id} badges={{ Meals: badge("nutrition"), Training: badge("training") }} />
+      <ClientTabs id={client.id} badges={{ Meals: badge("nutrition"), Training: badge("training"), "Check-ins": unreplied.length ? String(unreplied.length) : undefined }} />
       {children}
     </>
   );

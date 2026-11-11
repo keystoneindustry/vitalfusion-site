@@ -6,6 +6,7 @@ import { daysBetween, formatDate, packageLabel, renewalDue, timeAgo, todayIn } f
 import { ONBOARDING_STEPS } from "@/lib/onboarding";
 import { formatCallTime } from "@/lib/booking";
 import { planSummaries } from "@/lib/plans";
+import { awaitingReply } from "@/lib/forms";
 
 function onboardingLine(step: string, kickoffAt: string | null, tz: string): string | null {
   if (step === "done") return kickoffAt ? `Kickoff: ${formatCallTime(kickoffAt, tz)}` : "Onboarding done";
@@ -20,7 +21,7 @@ export default async function CoachHome({ searchParams }: { searchParams: Promis
   const { stage } = await searchParams;
   const filter = stage && isStage(stage) ? stage : null;
 
-  const [clients, plans] = await Promise.all([listClients(), planSummaries()]);
+  const [clients, plans, unreplied] = await Promise.all([listClients(), planSummaries(), awaitingReply()]);
   const today = todayIn();
   const counts = Object.fromEntries(STAGES.map((s) => [s.value, clients.filter((c) => c.stage === s.value).length]));
   const current = clients.filter((c) => c.stage !== "finished");
@@ -37,6 +38,14 @@ export default async function CoachHome({ searchParams }: { searchParams: Promis
     }
     if (c.stage === "invited" && !c.invited_at) {
       flags.push({ id: c.id, text: `${c.full_name} hasn't been sent an invite yet` });
+    }
+    const waiting = unreplied.filter((x) => x.client_id === c.id);
+    if (waiting.length) {
+      flags.push({
+        id: c.id,
+        text: `📝 ${c.full_name} sent ${waiting.length === 1 ? "a check-in" : `${waiting.length} check-ins`}: reply`,
+        href: waiting.length === 1 ? `/coach/clients/${c.id}/check-ins/${waiting[0].id}` : `/coach/clients/${c.id}/check-ins`,
+      });
     }
     const mine = plans.filter((p) => p.client_id === c.id);
     const isPublished = mine.some((p) => p.status === "published");
