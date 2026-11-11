@@ -1,5 +1,7 @@
 "use server";
 
+import { deleteClientCompletely } from "@/lib/delete-client";
+
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireCoach } from "@/lib/auth";
@@ -125,4 +127,21 @@ export async function resendInviteAction(id: string): Promise<void> {
   const failed = await sendInvite(client);
   revalidatePath(`/coach/clients/${id}`);
   redirect(`/coach/clients/${id}?invite=${failed ? "failed" : "sent"}`);
+}
+
+/** Permanently deletes a client and all their data. The coach has to type "delete" first. */
+export async function deleteClientAction(id: string, form: FormData): Promise<void> {
+  await requireCoach(`/coach/clients/${id}/details`);
+  const client = await getClient(id);
+  if (!client) redirect("/coach/clients");
+  if (String(form.get("confirm") ?? "").trim().toLowerCase() !== "delete") {
+    redirect(`/coach/clients/${id}/details?error=${encodeURIComponent('Type "delete" to confirm.')}`);
+  }
+  try {
+    await deleteClientCompletely(client);
+  } catch (err) {
+    console.error("Delete client failed", err);
+    redirect(`/coach/clients/${id}/details?error=${encodeURIComponent("Something went wrong while deleting. Try again.")}`);
+  }
+  redirect(`/coach/clients?deleted=${encodeURIComponent(client.full_name)}`);
 }

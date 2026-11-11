@@ -29,6 +29,8 @@ import { stepIndex, stepPath, type StepId } from "@/lib/onboarding";
 import { firstProblem, sanitizeAnswers, summarize } from "@/lib/onboarding-questions";
 import { appOrigin } from "@/lib/origin";
 import { uploadFile } from "@/lib/storage";
+import { parseWeight, saveWeighIn } from "@/lib/progress";
+import { todayIn } from "@/lib/dates";
 
 /** The client, if they've reached `step`; otherwise sends them to where they are. */
 async function clientAt(step: StepId, path: string): Promise<ClientRow> {
@@ -101,6 +103,9 @@ export async function submitQuestions(rawAnswers: unknown): Promise<SubmitResult
   if (!existing?.submitted_at) {
     await saveResponse(client.id, { answers, submitted_at: new Date().toISOString() });
     await addEvent(client.id, "questions_submitted");
+    // Their current weight becomes their first weigh-in, so Progress starts with a number.
+    const weight = parseWeight(answers.weight);
+    if (weight !== null) await saveWeighIn(client.id, todayIn(client.timezone), weight, "From onboarding").catch((err) => console.error("Starting weigh-in failed", err));
     const to = coachAddress();
     if (to) {
       const origin = await appOrigin();

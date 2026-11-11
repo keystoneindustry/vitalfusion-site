@@ -30,6 +30,8 @@ export type ClientRow = {
   next_call_uid?: string | null;
   /** Daily 8am / 7pm reminders (phone notifications, or email when those are off). */
   reminders_enabled?: boolean;
+  /** When they finished (or skipped) the live app tour. */
+  tour_seen_at?: string | null;
 };
 
 export type ClientEvent = {

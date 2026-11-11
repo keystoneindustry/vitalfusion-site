@@ -2,7 +2,8 @@ import { getSettings, videoEmbedUrl } from "@/lib/settings";
 import { firstName } from "@/lib/client-input";
 import { onboardingPage } from "../guard";
 import StepHeader from "../StepHeader";
-import Tour from "./Tour";
+import { finishStep } from "../actions";
+import SubmitButton from "@/app/components/SubmitButton";
 
 export const metadata = { title: "Welcome · Vital Fusion" };
 
@@ -13,7 +14,7 @@ export default async function WelcomePage() {
 
   return (
     <>
-      <StepHeader step="welcome" title={`Welcome, ${firstName(client.full_name)}!`} lead="A quick hello from Tyler, then a short tour of your app." />
+      <StepHeader step="welcome" title={`Welcome, ${firstName(client.full_name)}!`} lead="A quick hello from Tyler, then a few short steps to get you set up." />
 
       <section className="card" style={{ padding: 0, overflow: "hidden" }}>
         {embed ? (
@@ -42,7 +43,20 @@ export default async function WelcomePage() {
         )}
       </section>
 
-      <Tour />
+      <section className="card">
+        <h2 className="h2">What's next</h2>
+        <ol className="steps">
+          <li>Add the app to your home screen</li>
+          <li>Sign your coaching agreement</li>
+          <li>Answer a few questions about you</li>
+          <li>Book your kickoff call with Tyler</li>
+        </ol>
+        <p className="small muted" style={{ margin: "10px 0 0" }}>About 15–20 minutes. Once you're done, you'll get a quick tour of the app.</p>
+      </section>
+      <form action={finishStep}>
+        <input type="hidden" name="step" value="welcome" />
+        <SubmitButton label="Let's get started →" pendingLabel="One moment…" />
+      </form>
     </>
   );
 }

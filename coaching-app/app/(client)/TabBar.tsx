@@ -98,7 +98,7 @@ export default function TabBar() {
             const active = tab.href === "/" ? pathname === "/" : pathname.startsWith(tab.href);
             return (
               <li key={tab.href}>
-                <Link href={tab.href} aria-current={active && !open ? "page" : undefined}>
+                <Link href={tab.href} data-tour={tab.label.toLowerCase()} aria-current={active && !open ? "page" : undefined}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d={tab.icon} />
                   </svg>
@@ -111,6 +111,7 @@ export default function TabBar() {
             <button
               type="button"
               className="tab-more"
+              data-tour="more"
               aria-expanded={open}
               aria-current={inMore || open ? "page" : undefined}
               onClick={() => setOpen(!open)}

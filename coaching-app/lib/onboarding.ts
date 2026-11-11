@@ -1,6 +1,6 @@
 /** The onboarding steps, in order. Stored on the client row as `onboarding_step`. */
 export const ONBOARDING_STEPS = [
-  { id: "welcome", label: "Welcome & app tour", path: "/onboarding/welcome" },
+  { id: "welcome", label: "Welcome from Tyler", path: "/onboarding/welcome" },
   { id: "install", label: "Add the app to your home screen", path: "/onboarding/install" },
   { id: "agreement", label: "Coaching agreement & health questions", path: "/onboarding/agreement" },
   { id: "questions", label: "Your onboarding questions", path: "/onboarding/questions" },

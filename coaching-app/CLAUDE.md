@@ -136,3 +136,9 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   (exact name, else all library words present, most specific wins); `demosFor()` gives the client Training tab a
   "▶ Watch demo" per exercise. The builder shows "🎬 Demo: …" per exercise; AI drafts are told which names have videos.
   No client workout logging (Tyler's call).
+- Nov 11: the app tour moved out of onboarding. Welcome step = note/video + "What's next" list. After onboarding,
+  Today shows a live tour once (`app/(client)/AppTour.tsx`: dims the screen and highlights each tab via `data-tour`
+  attributes on the tab bar, then "Open the guide" → the READ FIRST resource); `clients.tour_seen_at` via
+  `markTourSeenAction`; Settings → "Take the app tour again" (`/?tour=1`). The onboarding weight answer becomes the
+  first weigh-in. Coach Details tab → "Delete client" (type "delete"): `lib/delete-client.ts` removes storage files
+  (meal photos, progress photos, agreement PDFs), the clients row (everything else cascades) and the auth user.

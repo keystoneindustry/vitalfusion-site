@@ -55,6 +55,16 @@ export async function authAdmin<T>(path: string, body: unknown): Promise<T> {
   return parse<T>(res);
 }
 
+/** Deletes a sign-in account (Supabase Auth). A missing user counts as done. */
+export async function authAdminDeleteUser(userId: string): Promise<void> {
+  const res = await fetch(`${env.supabaseUrl()}/auth/v1/admin/users/${encodeURIComponent(userId)}`, {
+    method: "DELETE",
+    headers: keyHeaders(env.supabaseSecretKey()),
+    cache: "no-store",
+  });
+  if (!res.ok && res.status !== 404) throw new SupabaseError(res.status, await res.text());
+}
+
 export async function authPublic<T>(
   path: string,
   init: { method?: "GET" | "POST"; body?: unknown; accessToken?: string } = {},

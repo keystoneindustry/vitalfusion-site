@@ -16,9 +16,9 @@ function onboardingLine(step: string, kickoffAt: string | null, tz: string): str
 
 export const metadata = { title: "Clients · Vital Fusion Coach" };
 
-export default async function ClientsPage({ searchParams }: { searchParams: Promise<{ stage?: string }> }) {
+export default async function ClientsPage({ searchParams }: { searchParams: Promise<{ stage?: string; deleted?: string }> }) {
   await requireCoach("/coach/clients");
-  const { stage } = await searchParams;
+  const { stage, deleted } = await searchParams;
   const filter = stage && isStage(stage) ? stage : null;
 
   const [clients, plans, unreplied] = await Promise.all([listClients(), planSummaries(), awaitingReply()]);
@@ -40,6 +40,7 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
         {counts.finished ? ` · ${counts.finished} finished` : ""}
       </p>
 
+      {deleted && <div className="notice notice-good">{deleted} and all their data were deleted.</div>}
       <div className="filters" aria-label="Filter by stage">
         <Link className="chip" aria-pressed={!filter} href="/coach/clients">
           Current ({current.length})

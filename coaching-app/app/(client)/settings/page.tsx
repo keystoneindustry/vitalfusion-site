@@ -45,6 +45,10 @@ export default async function SettingsPage() {
             <div className="spacer" />
           </>
         )}
+        <Link className="btn btn-ghost btn-wide" href="/?tour=1">
+          Take the app tour again
+        </Link>
+        <div className="spacer" />
         <Link className="btn btn-ghost btn-wide" href="/install">
           How to add the app to your home screen
         </Link>

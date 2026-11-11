@@ -89,3 +89,17 @@ export async function fileInfo(bucket: string, path: string): Promise<{ size: nu
   const d = (await res.json()) as { size?: number; metadata?: { size?: number; mimetype?: string }; content_type?: string };
   return { size: d.size ?? d.metadata?.size ?? 0, mimetype: d.content_type ?? d.metadata?.mimetype ?? "" };
 }
+
+/** Deletes many files from one bucket in one call (missing ones are ignored). */
+export async function deleteFiles(bucket: string, paths: string[]): Promise<void> {
+  const list = [...new Set(paths.filter(Boolean))];
+  for (let i = 0; i < list.length; i += 500) {
+    const res = await fetch(`${env.supabaseUrl()}/storage/v1/object/${bucket}`, {
+      method: "DELETE",
+      headers: headers("application/json"),
+      body: JSON.stringify({ prefixes: list.slice(i, i + 500) }),
+      cache: "no-store",
+    });
+    if (!res.ok && res.status !== 404) throw new Error(`Storage delete failed (${res.status}): ${await res.text()}`);
+  }
+}

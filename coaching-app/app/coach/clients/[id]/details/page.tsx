@@ -2,14 +2,15 @@ import { notFound } from "next/navigation";
 import { requireCoach } from "@/lib/auth";
 import { getClient } from "@/lib/clients";
 import { formatDate, timeAgo, todayIn } from "@/lib/dates";
-import { resendInviteAction, updateClientAction } from "../../../actions";
+import { deleteClientAction, resendInviteAction, updateClientAction } from "../../../actions";
 import ClientForm from "../../../ClientForm";
 import SubmitButton from "@/app/components/SubmitButton";
 
 export const metadata = { title: "Details · Vital Fusion Coach" };
 
-export default async function ClientDetails({ params }: { params: Promise<{ id: string }> }) {
+export default async function ClientDetails({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ error?: string }> }) {
   const { id } = await params;
+  const { error } = await searchParams;
   await requireCoach(`/coach/clients/${id}/details`);
   const client = await getClient(id);
   if (!client) notFound();
@@ -68,6 +69,23 @@ export default async function ClientDetails({ params }: { params: Promise<{ id: 
               label={client.invited_at ? "Resend invite email" : "Send invite email"}
               pendingLabel="Sending…"
             />
+          </form>
+        </section>
+
+        <section className="card danger-zone">
+          <h2 className="h2">Delete client</h2>
+          <p className="small" style={{ marginTop: -4 }}>
+            Permanently removes {client.full_name}, their sign-in, answers, agreement, plans, check-ins, weigh-ins and all photos. This can't be undone.
+          </p>
+          {error && <p className="err">{error}</p>}
+          <form action={deleteClientAction.bind(null, client.id)}>
+            <div className="field">
+              <label htmlFor="confirm-delete">
+                Type <b>delete</b> to confirm
+              </label>
+              <input id="confirm-delete" name="confirm" autoComplete="off" autoCapitalize="none" placeholder="delete" />
+            </div>
+            <SubmitButton className="btn btn-danger btn-wide" label="Permanently delete this client" pendingLabel="Deleting…" />
           </form>
         </section>
       </div>

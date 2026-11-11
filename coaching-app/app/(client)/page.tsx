@@ -13,13 +13,15 @@ import { listSubmissions } from "@/lib/forms";
 import { addDays } from "@/lib/dates";
 import HabitChecklist from "./HabitChecklist";
 import Notifications from "@/app/components/Notifications";
+import AppTour from "./AppTour";
 import { vapidPublicKey } from "@/lib/push";
 import { listResources, startHere } from "@/lib/resources";
 
 export const metadata = { title: "Today · Vital Fusion" };
 
-export default async function TodayPage() {
+export default async function TodayPage({ searchParams }: { searchParams: Promise<{ tour?: string }> }) {
   const { client } = await requireClient("/");
+  const { tour } = await searchParams;
   const today = todayIn(client.timezone);
   const status = packageStatus(client.start_date, client.end_date, today);
   const onboarding = client.onboarding_step !== "done";
@@ -37,7 +39,11 @@ export default async function TodayPage() {
   const newReply = subs.find((x) => x.coach_reply && !x.reply_seen_at);
   // First two weeks: point them at the READ FIRST guide.
   const earlyDays = status.kind === "not_started" || (status.kind === "in_progress" && status.week <= 2);
-  const guide = !onboarding && earlyDays ? startHere(await listResources(true).catch(() => [])) : null;
+  const resources = !onboarding ? await listResources(true).catch(() => []) : [];
+  const guide = earlyDays ? startHere(resources) : null;
+  // The live tour runs once, right after onboarding (or again from Settings with ?tour=1).
+  const showTour = !onboarding && (!client.tour_seen_at || tour === "1");
+  const tourGuide = startHere(resources);
   const callToday = client.next_call_at && todayIn(client.timezone, new Date(client.next_call_at)) === today ? client.next_call_at : null;
   const hasTasks = !!day && (day.habits.length > 0 || day.weighIn.due || day.photos.due || formsDue.length > 0 || day.workouts.length > 0 || !!callToday);
 
@@ -54,6 +60,7 @@ export default async function TodayPage() {
     <>
       <h1 className="h1">Hi {firstName(client.full_name)} 👋</h1>
       <p className="lead">{packageLine}</p>
+      {showTour && <AppTour guideHref={tourGuide ? `/resources/${tourGuide.id}` : null} />}
 
       {newReply && (
         <Link href={`/check-ins/${newReply.id}`} className="task-link reply-link">

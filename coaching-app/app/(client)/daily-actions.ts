@@ -5,6 +5,7 @@ import { requireClient } from "@/lib/auth";
 import { addDays, isIsoDate, todayIn } from "@/lib/dates";
 import { getClientHabit, setCheck } from "@/lib/habits";
 import { parseWeight, saveWeighIn } from "@/lib/progress";
+import { updateClient } from "@/lib/clients";
 
 /** Dates a client may log for: today and the past week. */
 function allowedDate(date: string, today: string): boolean {
@@ -35,4 +36,10 @@ export async function saveWeighInAction(_prev: WeighInState, form: FormData): Pr
   revalidatePath("/progress");
   revalidatePath("/calendar");
   return { ok: true };
+}
+
+/** The live app tour was finished or skipped; don't show it again. */
+export async function markTourSeenAction(): Promise<void> {
+  const { client } = await requireClient("/");
+  if (!client.tour_seen_at) await updateClient(client.id, { tour_seen_at: new Date().toISOString() });
 }
