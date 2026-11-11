@@ -22,9 +22,9 @@ const MORE_GROUPS: { label: string; items: { href: string; label: string; emoji:
   {
     label: "Your coaching",
     items: [
-      { href: "/check-ins", label: "Check-ins", emoji: "📝", hint: "Past check-ins and Tyler's replies" },
+      { href: "/check-ins", label: "Check-ins", emoji: "📝", hint: "Past check-ins and replies" },
       { href: "/progress/weight", label: "Progress", emoji: "📈", hint: "Weight graph and photos" },
-      { href: "/resources", label: "Resources", emoji: "📚", hint: "Guides and videos from Tyler" },
+      { href: "/resources", label: "Resources", emoji: "📚", hint: "Guides and videos" },
       { href: "/meals", label: "Meal library", emoji: "🍽️", hint: "Meals to swap into your day" },
       { href: "/food", label: "Food log", emoji: "📷", hint: "Your meal photos" },
     ],
