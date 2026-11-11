@@ -44,7 +44,7 @@ export default function SettingsForm({ initial }: { initial: Record<string, stri
       <h3 className="builder-section">New clients' starting schedule</h3>
       <p className="small muted" style={{ marginTop: 0 }}>
         Added when you first publish a client's plan (with a daily step goal from their onboarding answers). You can change it
-        per client on their Progress and Habits tabs.
+        per client on their Calendar tab.
       </p>
       <div className="field">
         <label>Weigh-in days</label>

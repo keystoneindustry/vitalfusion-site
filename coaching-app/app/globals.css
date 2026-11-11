@@ -334,7 +334,7 @@ textarea.builder-title { resize: vertical; min-height: 0; line-height: 1.35; }
 .ex-rows { list-style: none; margin: 10px 0; padding: 0; counter-reset: ex; }
 .ex-row { counter-increment: ex; border-top: 1px dashed var(--card-border); padding: 10px 0; }
 .ex-top { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.ex-top input { flex: 1 1 100%; min-width: 0; font-weight: 600; }
+.ex-top input { flex: 1 1 calc(100% - 34px); min-width: 0; font-weight: 600; }
 .ex-top .icon-btns { order: 2; margin-left: auto; }
 .ex-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 6px; }
 .ex-grid label { font-size: 12px; color: var(--muted); display: flex; flex-direction: column; gap: 3px; }
@@ -480,6 +480,8 @@ p .cg { padding: 0 6px; margin: 0 2px 0 8px; }
 .seg a[aria-current="page"] { background: #1c2a3d; color: #fff; }
 .seg button { text-align: center; padding: 10px; border-radius: 10px; color: var(--muted); font: inherit; font-weight: 700; font-size: 15px; background: none; border: 0; cursor: pointer; }
 .seg button[aria-current="page"] { background: #1c2a3d; color: #fff; }
+.seg button[aria-pressed="true"] { background: #1c2a3d; color: #fff; }
+.seg-sm button { padding: 8px; font-size: 14px; }
 .res-list { display: flex; flex-direction: column; gap: 8px; }
 .res-card { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 16px; background: var(--card); border: 1px solid var(--card-border); color: var(--text); text-decoration: none; }
 .res-card:active { background: var(--card-2); }
@@ -564,6 +566,29 @@ p .cg { padding: 0 6px; margin: 0 2px 0 8px; }
 .cal-items li.done { color: var(--muted); }
 .cal-items a { color: var(--accent); text-decoration: none; font-weight: 600; }
 .cal-items li.plain .cal-state { border-color: transparent; background: none; }
+/* Coach training builder: one collapsible card per workout */
+.day-card { padding: 0; overflow: hidden; }
+.day-toggle { width: 100%; display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: none; border: 0; color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+.day-toggle-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.day-toggle-text b { font-size: 16.5px; }
+.day-toggle .chev { color: var(--muted); font-size: 22px; transition: transform 0.15s ease; }
+.day-card.open .day-toggle .chev { transform: rotate(90deg); }
+.day-card.open .day-toggle { border-bottom: 1px solid var(--card-border); }
+.day-body { padding: 12px 14px 14px; }
+.mini-field { display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.ex-n { flex: 0 0 auto; width: 24px; height: 24px; border-radius: 50%; background: var(--card-2); color: var(--muted); font-size: 12.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.ex-row { background: var(--card); border: 1px solid var(--card-border) !important; border-radius: 12px; padding: 10px !important; margin-bottom: 8px; }
+/* Coach Home */
+.stat-link { text-decoration: none; color: var(--text); }
+.stat-warn b { color: var(--gold); }
+.today-clients { list-style: none; margin: 0; padding: 0; }
+.today-clients li + li { border-top: 1px solid var(--card-border); }
+.today-clients a { display: flex; flex-direction: column; gap: 6px; padding: 10px 0; color: var(--text); text-decoration: none; }
+.today-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.today-chip { font-size: 13px; padding: 3px 9px; border-radius: 999px; background: var(--card-2); border: 1px solid #3a3e48; color: var(--text-2); }
+.today-chip.done { border-color: #23503a; color: var(--good); }
+.today-chip.due { border-color: #5a4a26; color: #ffe2a8; }
+.timeline a { color: var(--text); text-decoration: none; }
 /* Coach: a client's month */
 .month-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
 .month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }

@@ -1,156 +1,171 @@
 import Link from "next/link";
 import { requireCoach } from "@/lib/auth";
-import { listClients } from "@/lib/clients";
-import { STAGES, isStage, stageLabel } from "@/lib/client-input";
-import { daysBetween, formatDate, packageLabel, renewalDue, timeAgo, todayIn } from "@/lib/dates";
-import { ONBOARDING_STEPS } from "@/lib/onboarding";
+import { describeEvent, listClients, type ClientEvent, type ClientRow } from "@/lib/clients";
+import { firstName } from "@/lib/client-input";
+import { formatDate, timeAgo, todayIn } from "@/lib/dates";
 import { formatCallTime } from "@/lib/booking";
 import { planSummaries } from "@/lib/plans";
 import { awaitingReply } from "@/lib/forms";
+import { loadDays, type DayTasks } from "@/lib/client-days";
+import { coachFlags } from "@/lib/coach-flags";
+import { db } from "@/lib/supabase";
 
-function onboardingLine(step: string, kickoffAt: string | null, tz: string): string | null {
-  if (step === "done") return kickoffAt ? `Kickoff: ${formatCallTime(kickoffAt, tz)}` : "Onboarding done";
-  const i = ONBOARDING_STEPS.findIndex((s) => s.id === step);
-  return i >= 0 ? `Onboarding ${i + 1}/${ONBOARDING_STEPS.length}: ${ONBOARDING_STEPS[i].label}` : null;
+export const metadata = { title: "Home · Vital Fusion Coach" };
+
+function greeting(): string {
+  const h = Number(new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", hourCycle: "h23" }).format(new Date()));
+  return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
 }
 
-export const metadata = { title: "Clients · Vital Fusion Coach" };
+type Chip = { text: string; state: "done" | "due" | "plain" };
 
-export default async function CoachHome({ searchParams }: { searchParams: Promise<{ stage?: string }> }) {
-  await requireCoach("/coach");
-  const { stage } = await searchParams;
-  const filter = stage && isStage(stage) ? stage : null;
-
-  const [clients, plans, unreplied] = await Promise.all([listClients(), planSummaries(), awaitingReply()]);
-  const today = todayIn();
-  const counts = Object.fromEntries(STAGES.map((s) => [s.value, clients.filter((c) => c.stage === s.value).length]));
-  const current = clients.filter((c) => c.stage !== "finished");
-  const shown = filter ? clients.filter((c) => c.stage === filter) : current;
-
-  // Things that need Tyler's attention.
-  const flags: { id: string; text: string; href?: string }[] = [];
-  for (const c of current) {
-    if (c.health_flag) {
-      flags.push({ id: c.id, text: `⚠️ ${c.full_name} answered YES on the health questions: review before their plan` });
-    }
-    if (c.stage === "invited" && c.invited_at && !c.first_signed_in_at && daysBetween(c.invited_at.slice(0, 10), today) >= 3) {
-      flags.push({ id: c.id, text: `${c.full_name} hasn't opened their invite (sent ${timeAgo(c.invited_at)})` });
-    }
-    if (c.stage === "invited" && !c.invited_at) {
-      flags.push({ id: c.id, text: `${c.full_name} hasn't been sent an invite yet` });
-    }
-    const waiting = unreplied.filter((x) => x.client_id === c.id);
-    if (waiting.length) {
-      flags.push({
-        id: c.id,
-        text: `📝 ${c.full_name} sent ${waiting.length === 1 ? "a check-in" : `${waiting.length} check-ins`}: reply`,
-        href: waiting.length === 1 ? `/coach/clients/${c.id}/check-ins/${waiting[0].id}` : `/coach/clients/${c.id}/check-ins`,
-      });
-    }
-    const mine = plans.filter((p) => p.client_id === c.id);
-    const isPublished = mine.some((p) => p.status === "published");
-    const open = mine.find((p) => p.status !== "published");
-    if (open?.error && open.status !== "drafting") {
-      flags.push({ id: c.id, text: `${c.full_name}'s AI draft didn't finish: try again`, href: `/coach/clients/${c.id}/meals` });
-    } else if (open?.status === "draft" && !isPublished) {
-      flags.push({ id: c.id, text: `🧠 ${c.full_name}'s plan draft is ready to review`, href: `/coach/clients/${c.id}/meals` });
-    }
-    if (c.kickoff_at && Date.parse(c.kickoff_at) < Date.now() && !isPublished && c.onboarding_step === "done") {
-      flags.push({
-        id: c.id,
-        text: `📞 ${c.full_name} had their kickoff call: publish their plan`,
-        href: `/coach/clients/${c.id}/meals`,
-      });
-    }
-    if (renewalDue(c.end_date, today) && c.stage !== "paused") {
-      flags.push({ id: c.id, text: `${c.full_name}'s package ends ${formatDate(c.end_date, false)}: renewal coming up` });
-    }
+function chipsFor(d: DayTasks): Chip[] {
+  const out: Chip[] = [];
+  for (const w of d.workouts) out.push({ text: `🏋️ ${w.name}`, state: "plain" });
+  for (const f of d.forms) out.push({ text: `📝 ${f.title}${f.submitted ? " ✓" : ""}`, state: f.submitted ? "done" : "due" });
+  if (d.weighIn.due) out.push({ text: d.weighIn.weight !== null ? `⚖️ ${d.weighIn.weight} lb ✓` : "⚖️ Weigh-in", state: d.weighIn.weight !== null ? "done" : "due" });
+  if (d.photos.due) out.push({ text: `📸 Photos${d.photos.count >= 3 ? " ✓" : d.photos.count ? ` ${d.photos.count}/3` : ""}`, state: d.photos.count >= 3 ? "done" : "due" });
+  if (d.habits.length) {
+    const done = d.habits.filter((h) => h.done).length;
+    out.push({ text: `✅ Habits ${done}/${d.habits.length}`, state: done === d.habits.length ? "done" : "due" });
   }
+  return out;
+}
+
+/** Tyler's start page: what needs him today and what each client has on today. */
+export default async function CoachHome() {
+  await requireCoach("/coach");
+  const today = todayIn();
+  const [clients, plans, unreplied, events] = await Promise.all([
+    listClients(),
+    planSummaries(),
+    awaitingReply(),
+    db<ClientEvent[]>(`client_events?select=*&order=created_at.desc&limit=12`),
+  ]);
+  const current = clients.filter((c) => c.stage !== "finished");
+  const flags = coachFlags(current, plans, unreplied, today);
+  const name = new Map(clients.map((c) => [c.id, c.full_name]));
+
+  // Calls today (in Tyler's time zone).
+  const calls: { client: ClientRow; at: string; kind: string }[] = [];
+  for (const c of current) {
+    if (c.kickoff_at && todayIn("America/New_York", new Date(c.kickoff_at)) === today) calls.push({ client: c, at: c.kickoff_at, kind: "Kickoff call" });
+    if (c.next_call_at && todayIn("America/New_York", new Date(c.next_call_at)) === today) calls.push({ client: c, at: c.next_call_at, kind: "1-on-1 call" });
+  }
+  calls.sort((a, b) => a.at.localeCompare(b.at));
+
+  // What each coached client has on today (their own time zone).
+  const coached = current.filter((c) => c.onboarding_step === "done" && c.stage !== "paused");
+  const todays = await Promise.all(
+    coached.map(async (c) => {
+      const date = todayIn(c.timezone);
+      const { days } = await loadDays(c.id, [date]).catch(() => ({ days: [] as DayTasks[] }));
+      return { client: c, chips: days[0] ? chipsFor(days[0]) : [] };
+    }),
+  );
+  const recent = events.filter((e) => Date.now() - Date.parse(e.created_at) < 3 * 24 * 3600 * 1000).slice(0, 8);
 
   return (
     <>
-      <div className="row-between" style={{ marginBottom: 6 }}>
-        <h1 className="h1" style={{ margin: 0 }}>Clients</h1>
-        <Link className="btn btn-sm" href="/coach/clients/new">
-          + Add client
+      <p className="eyebrow">{formatDate(today)}</p>
+      <h1 className="h1">{greeting()}, Tyler</h1>
+
+      <div className="stat-row">
+        <Link href="/coach/clients" className="stat stat-link">
+          <b>{current.length}</b>
+          <span>clients</span>
         </Link>
-      </div>
-      <p className="lead">
-        {current.length} current client{current.length === 1 ? "" : "s"}
-        {counts.finished ? ` · ${counts.finished} finished` : ""}
-      </p>
-
-      {flags.length > 0 && (
-        <section className="card card-accent">
-          <h2 className="h2">Needs your attention</h2>
-          <ul className="flags">
-            {flags.map((f, i) => (
-              <li key={`${f.id}-${i}`}>
-                <Link href={f.href ?? `/coach/clients/${f.id}`}>{f.text}</Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      <div className="filters" aria-label="Filter by stage">
-        <Link className="chip" aria-pressed={!filter} href="/coach">
-          Current ({current.length})
+        <Link href="/coach/check-ins" className={`stat stat-link${unreplied.length ? " stat-warn" : ""}`}>
+          <b>{unreplied.length}</b>
+          <span>to reply</span>
         </Link>
-        {STAGES.filter((s) => s.value !== "lead" || counts.lead > 0).map((s) => (
-          <Link key={s.value} className="chip" aria-pressed={filter === s.value} href={`/coach?stage=${s.value}`}>
-            {s.label} ({counts[s.value] ?? 0})
-          </Link>
-        ))}
-      </div>
-
-      {shown.length === 0 ? (
-        <div className="card empty">
-          {clients.length === 0 ? (
-            <>
-              <p style={{ marginTop: 0 }}>No clients yet. Add your first one and they'll get their invite email right away.</p>
-              <Link className="btn" href="/coach/clients/new">
-                + Add your first client
-              </Link>
-            </>
-          ) : (
-            <p style={{ margin: 0 }}>No clients in this stage.</p>
-          )}
+        <div className="stat">
+          <b>{calls.length}</b>
+          <span>call{calls.length === 1 ? "" : "s"} today</span>
         </div>
-      ) : (
-        <ul className="client-list">
-          {shown.map((c) => (
-            <li key={c.id} className="client-item">
-              <Link href={`/coach/clients/${c.id}`}>
-                <div className="row-between">
-                  <span className="name">{c.full_name}</span>
-                  <span className={`pill pill-${c.stage}`}>{stageLabel(c.stage)}</span>
-                </div>
-                <div className="meta">
-                  {c.coaching_weeks ? `${c.coaching_weeks}-week package · ` : ""}
-                  {packageLabel(c.start_date, c.end_date, today)}
-                  <br />
-                  {c.start_date ? `${formatDate(c.start_date, false)} – ${formatDate(c.end_date)}` : "No dates set"}
-                  {" · "}
-                  {c.last_seen_at ? `Last signed in ${timeAgo(c.last_seen_at)}` : c.invited_at ? "Not signed in yet" : "Not invited yet"}
-                  {c.first_signed_in_at && (c.stage === "onboarding" || c.onboarding_step !== "done") && (
-                    <>
-                      <br />
-                      {onboardingLine(c.onboarding_step, c.kickoff_at, c.timezone)}
-                    </>
-                  )}
-                  {c.health_flag && (
-                    <>
-                      <br />
-                      <span style={{ color: "var(--warn)" }}>⚠️ Health questions need review</span>
-                    </>
-                  )}
-                </div>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
+      </div>
+
+      <div className="detail-grid">
+        <div>
+          <section className="card card-accent">
+            <h2 className="h2">Needs your attention</h2>
+            {flags.length === 0 ? (
+              <p className="muted" style={{ margin: 0 }}>Nothing right now ✓</p>
+            ) : (
+              <ul className="flags">
+                {flags.map((f, i) => (
+                  <li key={`${f.id}-${i}`}>
+                    <Link href={f.href ?? `/coach/clients/${f.id}`}>{f.text}</Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          {calls.length > 0 && (
+            <section className="card">
+              <h2 className="h2">📞 Calls today</h2>
+              <ul className="flags">
+                {calls.map((x) => (
+                  <li key={`${x.client.id}-${x.at}`}>
+                    <Link href={`/coach/clients/${x.client.id}`}>
+                      <b>{formatCallTime(x.at).split(" at ")[1]}</b> · {x.kind} with {x.client.full_name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          <section className="card">
+            <h2 className="h2">Clients today</h2>
+            {todays.length === 0 ? (
+              <p className="muted" style={{ margin: 0 }}>No clients past onboarding yet.</p>
+            ) : (
+              <ul className="today-clients">
+                {todays.map(({ client, chips }) => (
+                  <li key={client.id}>
+                    <Link href={`/coach/clients/${client.id}/calendar`}>
+                      <b>{client.full_name}</b>
+                      <span className="today-chips">
+                        {chips.length === 0 ? (
+                          <span className="muted small">Nothing scheduled</span>
+                        ) : (
+                          chips.map((ch) => (
+                            <span key={ch.text} className={`today-chip ${ch.state}`}>
+                              {ch.text}
+                            </span>
+                          ))
+                        )}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </div>
+
+        <div>
+          <section className="card">
+            <h2 className="h2">Recent activity</h2>
+            {recent.length === 0 ? (
+              <p className="muted" style={{ margin: 0 }}>Nothing in the last few days.</p>
+            ) : (
+              <ul className="timeline">
+                {recent.map((e) => (
+                  <li key={e.id}>
+                    <Link href={`/coach/clients/${e.client_id}`}>
+                      <b>{firstName(name.get(e.client_id) ?? "Client")}</b>: {describeEvent(e)}
+                    </Link>
+                    <time dateTime={e.created_at}>{timeAgo(e.created_at)}</time>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </div>
+      </div>
     </>
   );
 }

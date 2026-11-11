@@ -105,3 +105,8 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
 - Optional weekly 1-on-1 call: after sending a weekly check-in, `/check-ins/[id]` offers "Book a call" (Settings →
   check-in call booking link, prefilled via `bookingUrl`). The Cal.com webhook stores `clients.next_call_at` /
   `next_call_uid` for check-in calls (event title must contain "check"); shown on Today, both calendars.
+- Coach Home (Nov 11): `/coach` is Home (flags from `lib/coach-flags.ts`, calls today, each client's today via `loadDays`,
+  recent activity); the client list moved to `/coach/clients`. Coach tabs: Home, Clients, Check-ins, Forms, ☰ (Habit
+  library, Resources, Add a client, Settings). Each client's **Calendar** tab is where everything is scheduled
+  (`AddToCalendar.tsx` → `addToCalendarAction`: workouts, weigh-ins, photos, forms, habits; weekly or once) and listed
+  with Remove; the Progress tab only shows weight and photos. Training builder: one collapsible card per workout.

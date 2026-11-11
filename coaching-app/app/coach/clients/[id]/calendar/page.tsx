@@ -4,13 +4,15 @@ import { requireCoach } from "@/lib/auth";
 import { getClient } from "@/lib/clients";
 import { firstName } from "@/lib/client-input";
 import { addDays, formatDate, isIsoDate, todayIn } from "@/lib/dates";
-import { WEEKDAYS, scheduleLabel, weekStart } from "@/lib/calendar";
+import { WEEKDAYS, daysLabel, scheduleLabel, weekStart } from "@/lib/calendar";
 import { loadDays, workoutName, type DayTasks } from "@/lib/client-days";
 import { getOpenPlan, getPublishedPlan, hasContent } from "@/lib/plans";
 import { formatCallTime } from "@/lib/booking";
-import DayChips from "@/app/components/DayChips";
 import SubmitButton from "@/app/components/SubmitButton";
-import { addWorkoutAction, endScheduleAction } from "../progress-actions";
+import { listForms } from "@/lib/forms";
+import { habitTitle, listHabits } from "@/lib/habits";
+import { addToCalendarAction, applyDefaultsAction, endScheduleAction, removeHabitAction } from "../progress-actions";
+import AddToCalendar from "./AddToCalendar";
 
 export const metadata = { title: "Calendar · Vital Fusion Coach" };
 
@@ -59,10 +61,26 @@ export default async function ClientCalendarPage({
   for (let d = gridStart; d < nextMonthFirst || dates.length % 7 !== 0; d = addDays(d, 1)) dates.push(d);
   const selected = sp.d && isIsoDate(sp.d) ? sp.d : today.startsWith(month) ? today : first;
 
-  const [{ days, schedules }, pub, open] = await Promise.all([loadDays(client.id, dates), getPublishedPlan(client.id), getOpenPlan(client.id)]);
+  const [{ days, schedules, habits: clientHabits }, pub, open, forms, library] = await Promise.all([
+    loadDays(client.id, dates),
+    getPublishedPlan(client.id),
+    getOpenPlan(client.id),
+    listForms(),
+    listHabits(),
+  ]);
+  const formTitle = new Map(forms.map((f) => [f.id, f.title]));
   // Workouts come from the live program, or the draft if nothing is live yet.
   const program = hasContent(pub) && pub.content.training?.days?.length ? pub.content.training.days : hasContent(open) ? (open.content.training?.days ?? []) : [];
-  const workoutSchedules = schedules.filter((s) => s.kind === "workout");
+  const ORDER = { workout: 0, weigh_in: 1, photos: 2, form: 3 } as const;
+  const sorted = [...schedules].sort((a, b) => ORDER[a.kind] - ORDER[b.kind]);
+  const scheduleName = (s: (typeof schedules)[number]) =>
+    s.kind === "workout"
+      ? `🏋️ ${workoutName(program, s.workout_day ?? 0)}`
+      : s.kind === "weigh_in"
+        ? "⚖️ Weigh-in"
+        : s.kind === "photos"
+          ? "📸 Progress photos"
+          : `📝 ${formTitle.get(s.form_id ?? "") ?? "Form"}`;
   const kickoffDay = client.kickoff_at ? todayIn(client.timezone, new Date(client.kickoff_at)) : null;
   const callDay = client.next_call_at ? todayIn(client.timezone, new Date(client.next_call_at)) : null;
   const extras = (date: string): Item[] => [
@@ -78,6 +96,8 @@ export default async function ClientCalendarPage({
     <>
       {sp.msg === "scheduled" && <div className="notice notice-good">Added to {name}'s calendar ✓</div>}
       {sp.msg === "removed" && <div className="notice notice-good">Removed ✓</div>}
+      {sp.msg === "defaults" && <div className="notice notice-good">Starting setup added ✓</div>}
+      {sp.msg === "nothing" && <div className="notice notice-good">They already have everything from the starting setup.</div>}
       {sp.error && <div className="notice notice-error">{sp.error}</div>}
 
       <div className="detail-grid">
@@ -153,58 +173,57 @@ export default async function ClientCalendarPage({
 
         <div>
           <section className="card card-accent">
-            <h2 className="h2">🏋️ Workout days</h2>
-            {program.length === 0 ? (
-              <p className="muted" style={{ margin: 0 }}>
-                Build {name}'s program on the <Link href={`/coach/clients/${client.id}/training`}>Training</Link> tab first. Then put each workout on the days they
-                should do it.
+            <h2 className="h2">➕ Add to {name}'s calendar</h2>
+            <AddToCalendar
+              action={addToCalendarAction.bind(null, client.id)}
+              month={month}
+              today={today}
+              workouts={program.map((_, i) => ({ value: `workout:${i}`, label: workoutName(program, i) }))}
+              forms={forms.map((f) => ({ value: `form:${f.id}`, label: f.title }))}
+              habits={library.map((h) => ({ value: `habit:${h.id}`, label: `${h.icon} ${h.title}` }))}
+            />
+            {program.length === 0 && (
+              <p className="small muted" style={{ marginBottom: 0 }}>
+                Workouts show up here once you build their program on the <Link href={`/coach/clients/${client.id}/training`}>Training</Link> tab.
               </p>
-            ) : (
-              <>
-                {workoutSchedules.length === 0 ? (
-                  <p className="muted small" style={{ marginTop: -4 }}>No workouts on {name}'s calendar yet.</p>
-                ) : (
-                  <ul className="flags">
-                    {workoutSchedules.map((s) => (
-                      <li key={s.id} className="row-between">
-                        <span>
-                          <b>{workoutName(program, s.workout_day ?? 0)}</b> · {scheduleLabel(s)}
-                        </span>
-                        <form action={endScheduleAction.bind(null, client.id, s.id, "calendar")}>
-                          <SubmitButton className="btn-link small" label="Remove" pendingLabel="…" />
-                        </form>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                <form action={addWorkoutAction.bind(null, client.id)} style={{ marginTop: 12 }}>
-                  <input type="hidden" name="m" value={month} />
-                  <div className="field">
-                    <label htmlFor="wk">Workout</label>
-                    <select id="wk" name="workout" defaultValue="0">
-                      {program.map((_, i) => (
-                        <option key={i} value={i}>
-                          {i + 1}. {workoutName(program, i)}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="field">
-                    <label>On</label>
-                    <DayChips selected={[]} />
-                    <select name="every" defaultValue="1" style={{ marginTop: 8 }}>
-                      <option value="1">Every week</option>
-                      <option value="2">Every 2 weeks</option>
-                    </select>
-                  </div>
-                  <SubmitButton className="btn btn-sm" label="Add to calendar" pendingLabel="Adding…" />
-                </form>
-                <p className="small muted" style={{ marginBottom: 0 }}>
-                  {name} sees it on Today and their Calendar, and tapping it opens that workout. Weigh-ins, photos and check-ins are set on the{" "}
-                  <Link href={`/coach/clients/${client.id}/progress`}>Progress</Link> tab.
-                </p>
-              </>
             )}
+          </section>
+
+          <section className="card">
+            <h2 className="h2">On {name}'s calendar</h2>
+            {sorted.length + clientHabits.length === 0 ? (
+              <p className="muted">Nothing scheduled yet.</p>
+            ) : (
+              <ul className="flags sched-list">
+                {sorted.map((s) => (
+                  <li key={s.id} className="row-between">
+                    <span>
+                      <b>{scheduleName(s)}</b>
+                      <span className="muted small"> · {scheduleLabel(s)}</span>
+                    </span>
+                    <form action={endScheduleAction.bind(null, client.id, s.id, "calendar")}>
+                      <SubmitButton className="btn-link small" label="Remove" pendingLabel="…" />
+                    </form>
+                  </li>
+                ))}
+                {clientHabits.map((h) => (
+                  <li key={h.id} className="row-between">
+                    <span>
+                      <b>
+                        {h.habit?.icon ?? "✅"} {habitTitle(h)}
+                      </b>
+                      <span className="muted small"> · {daysLabel(h.days)}</span>
+                    </span>
+                    <form action={removeHabitAction.bind(null, client.id, h.id)}>
+                      <SubmitButton className="btn-link small" label="Remove" pendingLabel="…" />
+                    </form>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <form action={applyDefaultsAction.bind(null, client.id, "calendar")} style={{ marginTop: 10 }}>
+              <SubmitButton className="btn-link small" label="Add anything missing from the starting setup" pendingLabel="Adding…" />
+            </form>
           </section>
         </div>
       </div>

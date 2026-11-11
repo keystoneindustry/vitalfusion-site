@@ -11,7 +11,8 @@ export default function CoachLayout({ children }: { children: React.ReactNode })
           <span className="brand">Coach</span>
         </Link>
         <nav aria-label="Coach menu" className="coach-desktop-nav">
-          <Link href="/coach">Clients</Link>
+          <Link href="/coach">Home</Link>
+          <Link href="/coach/clients">Clients</Link>
           <Link href="/coach/check-ins">Check-ins</Link>
           <Link href="/coach/habits">Habits</Link>
           <Link href="/coach/forms">Forms</Link>

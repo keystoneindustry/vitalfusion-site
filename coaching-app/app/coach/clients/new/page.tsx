@@ -11,7 +11,7 @@ export default async function NewClientPage() {
   return (
     <div style={{ maxWidth: 560 }}>
       <p className="small">
-        <Link href="/coach">← Clients</Link>
+        <Link href="/coach/clients">← Clients</Link>
       </p>
       <h1 className="h1">Add a client</h1>
       <p className="lead">

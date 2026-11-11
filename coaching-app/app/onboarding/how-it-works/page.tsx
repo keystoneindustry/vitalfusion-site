@@ -37,9 +37,9 @@ export default async function HowItWorksPage() {
           <li>
             <h3>Every week after that</h3>
             <p>
-              Follow your targets and daily habits, do your workouts, weigh in on your scheduled days, and fill out your
-              Sunday check-in. Tyler reviews it and adjusts your plan. Progress pictures come on a set schedule, and you can
-              book a check-in call whenever you need one.
+              Do the workouts on your calendar, tick off your daily habits, and weigh in on your scheduled days. On your
+              check-in day, take your progress photos and fill out your weekly check-in. Tyler reads it, replies in the app
+              and adjusts your plan, and you can book an optional 1-on-1 call that week.
             </p>
           </li>
         </ol>

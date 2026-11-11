@@ -31,7 +31,7 @@ export default async function ClientLayout({ children, params }: { children: Rea
   return (
     <>
       <p className="small" style={{ margin: "0 0 8px" }}>
-        <Link href="/coach">← Clients</Link>
+        <Link href="/coach/clients">← Clients</Link>
       </p>
       <div className="client-head">
         <div>

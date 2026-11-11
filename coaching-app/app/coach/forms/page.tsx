@@ -29,7 +29,7 @@ export default async function FormsPage({ searchParams }: { searchParams: Promis
             <b>{f.title}</b>
             <span className="muted small">
               {f.questions.length} question{f.questions.length === 1 ? "" : "s"}
-              {f.kind === "checkin" ? " · goes on every client's check-in day" : " · schedule it from a client's Progress tab"}
+              {f.kind === "checkin" ? " · goes on every client's check-in day" : " · schedule it from a client's Calendar tab"}
             </span>
           </span>
           <span className="chev" aria-hidden="true">

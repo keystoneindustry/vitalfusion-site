@@ -36,6 +36,9 @@ export default function TrainingBuilder({
   const [dirty, setDirty] = useState(false);
   const [status, setStatus] = useState<Result | null>(null);
   const [pending, start] = useTransition();
+  // One workout open at a time, so the page stays short.
+  const [openDay, setOpenDay] = useState<number | null>(null);
+  const [notesOpen, setNotesOpen] = useState(false);
 
   // Warn before leaving with unsaved changes.
   useEffect(() => {
@@ -88,18 +91,40 @@ export default function TrainingBuilder({
 
       {t.days.length === 0 && <p className="muted">No training days yet. Add the first one below.</p>}
 
+      <p className="small muted" style={{ marginTop: 0 }}>Tap a workout to edit it.</p>
       {t.days.map((d, i) => (
-        <div key={i} className="builder-card">
-          <div className="builder-head">
+        <div key={i} className={`builder-card day-card${openDay === i ? " open" : ""}`}>
+          <button type="button" className="day-toggle" aria-expanded={openDay === i} onClick={() => setOpenDay(openDay === i ? null : i)}>
             <span className="builder-num">{i + 1}</span>
-            <input aria-label="Day name" className="builder-title" value={d.name} placeholder={`Day ${i + 1} – Upper`} onChange={(e: Ev) => setDay(i, { ...d, name: e.target.value })} />
+            <span className="day-toggle-text">
+              <b>{d.name || `Day ${i + 1}`}</b>
+              <span className="muted small">
+                {d.focus ? `${d.focus} · ` : ""}
+                {d.exercises.filter((e) => e.name.trim()).length} exercises · ≈ {estimateMinutes(d)} min
+              </span>
+            </span>
+            <span className="chev" aria-hidden="true">
+              ›
+            </span>
+          </button>
+          {openDay === i && (
+          <div className="day-body">
+          <div className="grid-2">
+            <label className="mini-field">
+              Name
+              <input value={d.name} placeholder={`Day ${i + 1} – Upper`} onChange={(e: Ev) => setDay(i, { ...d, name: e.target.value })} />
+            </label>
+            <label className="mini-field">
+              Focus
+              <input value={d.focus} placeholder="e.g. Upper body" onChange={(e: Ev) => setDay(i, { ...d, focus: e.target.value })} />
+            </label>
           </div>
-          <input aria-label="Focus" className="input-sm" value={d.focus} placeholder="Focus, e.g. Upper body strength" onChange={(e: Ev) => setDay(i, { ...d, focus: e.target.value })} />
 
           <ol className="ex-rows">
             {d.exercises.map((e, j) => (
               <li key={j} className="ex-row">
                 <div className="ex-top">
+                  <span className="ex-n">{j + 1}</span>
                   <input
                     aria-label="Exercise"
                     list="exercise-names"
@@ -165,19 +190,36 @@ export default function TrainingBuilder({
               </button>
             </div>
           </div>
+          </div>
+          )}
         </div>
       ))}
 
       <button
         type="button"
         className="btn btn-ghost btn-wide"
-        onClick={() => setDays([...t.days, { name: `Day ${t.days.length + 1}`, focus: "", exercises: [{ ...BLANK_EXERCISE }] }])}
+        onClick={() => {
+          setDays([...t.days, { name: `Day ${t.days.length + 1}`, focus: "", exercises: [{ ...BLANK_EXERCISE }] }]);
+          setOpenDay(t.days.length);
+        }}
         disabled={t.days.length >= 7}
       >
         + Add training day
       </button>
 
-      <div className="spacer" />
+      <div className={`builder-card day-card${notesOpen ? " open" : ""}`} style={{ marginTop: 14 }}>
+        <button type="button" className="day-toggle" aria-expanded={notesOpen} onClick={() => setNotesOpen(!notesOpen)}>
+          <span className="builder-num">💡</span>
+          <span className="day-toggle-text">
+            <b>Program notes</b>
+            <span className="muted small">Intro, warm-up, cardio & steps, how to progress, recovery</span>
+          </span>
+          <span className="chev" aria-hidden="true">
+            ›
+          </span>
+        </button>
+        {notesOpen && (
+        <div className="day-body">
       <p className="small muted">What they read under the workouts. Keep it short: one tip per line, shown as bullets.</p>
       <div className="field">
         <label htmlFor="tb-overview">Intro (1–2 short sentences)</label>
@@ -198,6 +240,9 @@ export default function TrainingBuilder({
       <div className="field">
         <label htmlFor="tb-notes">😴 Recovery tips (no cardio here)</label>
         <textarea id="tb-notes" rows={2} value={t.notes} onChange={(e: Ev) => change({ ...t, notes: e.target.value })} />
+      </div>
+        </div>
+        )}
       </div>
 
       {warnings.length > 0 ? (

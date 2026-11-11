@@ -5,11 +5,12 @@ import { finishStep } from "../actions";
 import SubmitButton from "@/app/components/SubmitButton";
 
 const SLIDES = [
-  { icon: "🏠", title: "Today", text: "Your daily targets, habits, today's workout and anything that's due. Open the app and you'll know exactly what to do." },
-  { icon: "📅", title: "Calendar", text: "Everything Tyler schedules for you: weekly check-ins, weigh-ins, progress pictures, habits and calls." },
-  { icon: "🏋️", title: "Training", text: "Your workouts with sets, reps, rest and a demo video for every exercise. Log your weights as you go." },
+  { icon: "🏠", title: "Today", text: "Today's workout, your habits to tick off, and anything due, like a weigh-in or your check-in. Open the app and you'll know exactly what to do." },
+  { icon: "📅", title: "Calendar", text: "Your week at a glance: workout days, weigh-ins, progress photos, check-ins, habits and calls with Tyler." },
+  { icon: "🏋️", title: "Training", text: "Your program, one workout per day, with sets, reps and rest for every exercise. Tap a workout on Today to open it." },
   { icon: "🍽️", title: "Nutrition", text: "Your daily targets, your perfect day and a meal library built around foods you like. Your food log lives here until your plan is ready." },
-  { icon: "☰", title: "More", text: "Your progress (weight trend, progress pictures, habit streaks), your food log, videos and documents from Tyler, and settings." },
+  { icon: "📝", title: "Weekly check-in", text: "Once a week, on the day you pick, take your progress photos and answer a short check-in. Tyler replies in the app, and you can book an optional 1-on-1 call." },
+  { icon: "☰", title: "More", text: "Your progress (weight graph and photos), past check-ins and Tyler's replies, your food log, videos and guides from Tyler, and settings." },
 ];
 
 /** A short swipe-through tour of the tabs. */
