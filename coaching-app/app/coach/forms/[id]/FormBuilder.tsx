@@ -81,12 +81,12 @@ export default function FormBuilder({
             className="input-sm builder-section-input"
             aria-label="Section heading"
             value={q.section ?? ""}
-            placeholder="Section heading above this question (optional)"
+            placeholder="Section heading (optional)"
             onChange={(e: Ev) => setQ(i, { section: e.target.value })}
           />
           <div className="builder-head">
             <span className="builder-num">{i + 1}</span>
-            <input aria-label="Question" className="builder-title" value={q.prompt} placeholder="Question" onChange={(e: Ev) => setQ(i, { prompt: e.target.value })} />
+            <textarea aria-label="Question" className="builder-title" rows={2} value={q.prompt} placeholder="Question" onChange={(e: Ev) => setQ(i, { prompt: e.target.value })} />
           </div>
           <div className="grid-2" style={{ marginTop: 8 }}>
             <select aria-label="Answer type" value={q.type} onChange={(e: Ev) => setQ(i, { type: e.target.value as QuestionType })}>

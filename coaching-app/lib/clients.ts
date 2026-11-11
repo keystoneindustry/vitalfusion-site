@@ -1,5 +1,6 @@
 import { db, q } from "./supabase";
 import type { ClientInput, Stage } from "./client-input";
+import { formatDate, isIsoDate } from "./dates";
 
 export type ClientRow = {
   id: string;
@@ -146,7 +147,7 @@ export function describeEvent(e: ClientEvent): string {
     case "photos_uploaded":
       return "Uploaded progress photos";
     case "checkin_submitted":
-      return `Sent their check-in (${String(d.date ?? "")})`;
+      return typeof d.date === "string" && isIsoDate(d.date) ? `Sent their check-in for ${formatDate(d.date, false)}` : "Sent their check-in";
     case "form_submitted":
       return `Filled in “${String(d.form ?? "a form")}”`;
     case "checkin_replied":

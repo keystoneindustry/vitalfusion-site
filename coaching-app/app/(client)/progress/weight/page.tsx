@@ -17,7 +17,6 @@ export default async function WeightPage() {
 
   return (
     <>
-      <p className="eyebrow">Progress</p>
       <h1 className="h1">Your progress</h1>
       <ProgressTabs active="weight" />
 

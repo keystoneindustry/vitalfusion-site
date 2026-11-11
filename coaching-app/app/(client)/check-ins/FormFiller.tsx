@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { splitMulti, type FormQuestion } from "@/lib/form-schema";
 import { submitFormAction } from "./actions";
@@ -17,6 +17,24 @@ export default function FormFiller({ formId, date, questions, initial }: { formI
     return out;
   });
   const [error, setError] = useState<{ text: string; id?: string } | null>(null);
+  // Unsent answers are kept on this device, so leaving halfway through doesn't lose them.
+  const draftKey = `vf-form-${formId}-${date}`;
+  const loaded = useRef(false);
+  useEffect(() => {
+    if (Object.keys(initial).length === 0) {
+      try {
+        const saved = JSON.parse(localStorage.getItem(draftKey) || "null") as Record<string, string> | null;
+        if (saved && typeof saved === "object") setAnswers((a) => ({ ...saved, ...a }));
+      } catch {}
+    }
+    loaded.current = true;
+  }, [draftKey, initial]);
+  useEffect(() => {
+    if (!loaded.current) return;
+    try {
+      localStorage.setItem(draftKey, JSON.stringify(answers));
+    } catch {}
+  }, [answers, draftKey]);
   const [pending, start] = useTransition();
   const set = (id: string, v: string) => setAnswers((a) => ({ ...a, [id]: v }));
   const toggle = (q: FormQuestion, o: string) =>
@@ -32,6 +50,9 @@ export default function FormFiller({ formId, date, questions, initial }: { formI
     start(async () => {
       const res = await submitFormAction(formId, date, JSON.stringify(answers));
       if (res.ok) {
+        try {
+          localStorage.removeItem(draftKey);
+        } catch {}
         router.push(`/check-ins/${res.id}?sent=1`);
         router.refresh();
       } else {
@@ -41,6 +62,10 @@ export default function FormFiller({ formId, date, questions, initial }: { formI
     });
   }
 
+  const isAnswered = (q: FormQuestion) => (answers[q.id] ?? "").trim() !== "";
+  const answered = questions.filter(isAnswered).length;
+  const missing = questions.filter((q) => q.required && !isAnswered(q)).length;
+
   return (
     <form onSubmit={onSubmit} noValidate>
       {questions.map((q, i) => (
@@ -49,8 +74,10 @@ export default function FormFiller({ formId, date, questions, initial }: { formI
         <section id={`q-${q.id}`} className={`card fq ${error?.id === q.id ? "fq-error" : ""}`}>
           <label className="fq-label" htmlFor={`in-${q.id}`}>
             <span className="fq-num">{i + 1}</span>
-            {q.prompt}
-            {!q.required && <span className="muted small"> (optional)</span>}
+            <span>
+              {q.prompt}
+              {!q.required && <span className="fq-optional">Optional</span>}
+            </span>
           </label>
           {q.help && <p className="hint" style={{ margin: "0 0 10px" }}>{q.help}</p>}
           {q.type === "scale" && (
@@ -101,6 +128,10 @@ export default function FormFiller({ formId, date, questions, initial }: { formI
         </div>
       ))}
       {error && <p className="notice notice-error">{error.text}</p>}
+      <p className="small muted center" style={{ margin: "0 0 10px" }}>
+        {answered} of {questions.length} answered
+        {missing > 0 ? ` · ${missing} required still to go` : " ✓"}
+      </p>
       <button className="btn btn-wide" type="submit" disabled={pending}>
         {pending ? "Sending…" : "Send to Tyler"}
       </button>

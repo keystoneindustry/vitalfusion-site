@@ -47,7 +47,12 @@ export default async function ResourcePage({ params }: { params: Promise<{ id: s
           <p className="small muted" style={{ marginBottom: 0 }}>Opens in a new window, where you can save or share it.</p>
         </section>
       )}
-      {!embed && !fileUrl && <div className="notice notice-error">This file isn't available right now. Try again later.</div>}
+      {r.kind === "video_link" && !embed && r.url && (
+        <a className="btn btn-wide" href={r.url} target="_blank" rel="noopener noreferrer">
+          ▶️ Watch the video
+        </a>
+      )}
+      {!embed && !fileUrl && !(r.kind === "video_link" && r.url) && <div className="notice notice-error">This file isn't available right now. Try again later.</div>}
     </>
   );
 }

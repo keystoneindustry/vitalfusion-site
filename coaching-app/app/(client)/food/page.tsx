@@ -18,15 +18,17 @@ export default async function FoodLogPage({ searchParams }: { searchParams: Prom
     meals.map((m) => m.photo_path || ""),
   ).catch(() => ({}) as Record<string, string>);
   const stats = logStats(meals, client.timezone, todayIn(client.timezone));
+  const kickoffPassed = !!client.kickoff_at && Date.parse(client.kickoff_at) < Date.now();
 
   return (
     <>
-      <p className="eyebrow">Food log</p>
-      <h1 className="h1">What you're eating</h1>
+      <h1 className="h1">Food log</h1>
       <p className="lead">
-        Photograph everything you eat and drink (besides water) until your kickoff call
-        {client.kickoff_at ? ` on ${formatCallTime(client.kickoff_at, client.timezone)}` : ""}. Eat like you normally
-        do: Tyler builds your plan around your real life.
+        {kickoffPassed
+          ? "The meal photos you took before your kickoff call."
+          : `Photograph everything you eat and drink (besides water) until your kickoff call${
+              client.kickoff_at ? ` on ${formatCallTime(client.kickoff_at, client.timezone)}` : ""
+            }. Eat like you normally do: Tyler builds your plan around your real life.`}
       </p>
 
       {logged && <div className="notice notice-good">Saved ✓ Keep them coming.</div>}

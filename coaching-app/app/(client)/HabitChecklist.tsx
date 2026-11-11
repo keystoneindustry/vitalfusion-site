@@ -6,7 +6,7 @@ import { toggleHabitAction } from "./daily-actions";
 export type HabitItem = { id: string; title: string; icon: string; description: string | null; done: boolean };
 
 /** Tap-to-tick habits for one day. Updates instantly and saves in the background. */
-export default function HabitChecklist({ date, items, editable = true }: { date: string; items: HabitItem[]; editable?: boolean }) {
+export default function HabitChecklist({ date, items, editable = true, showDescriptions = false }: { date: string; items: HabitItem[]; editable?: boolean; showDescriptions?: boolean }) {
   const [done, setDone] = useState<Record<string, boolean>>(() => Object.fromEntries(items.map((i) => [i.id, i.done])));
   const [, start] = useTransition();
   const [error, setError] = useState("");
@@ -38,7 +38,7 @@ export default function HabitChecklist({ date, items, editable = true }: { date:
                 <b>
                   {h.icon} {h.title}
                 </b>
-                {h.description && <span className="muted small">{h.description}</span>}
+                {showDescriptions && h.description && <span className="muted small">{h.description}</span>}
               </span>
             </button>
           </li>

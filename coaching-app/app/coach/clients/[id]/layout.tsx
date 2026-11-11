@@ -38,7 +38,7 @@ export default async function ClientLayout({ children, params }: { children: Rea
           <h1 className="h1" style={{ margin: 0 }}>{client.full_name}</h1>
           <p className="muted small" style={{ margin: "4px 0 0" }}>
             {packageLabel(client.start_date, client.end_date, todayIn())}
-            {client.kickoff_at ? ` · Kickoff ${formatCallTime(client.kickoff_at, client.timezone)}` : ""}
+            {client.kickoff_at && Date.parse(client.kickoff_at) > Date.now() ? ` · Kickoff ${formatCallTime(client.kickoff_at, client.timezone)}` : ""}
           </p>
         </div>
         <span className={`pill pill-${client.stage}`}>{stageLabel(client.stage)}</span>

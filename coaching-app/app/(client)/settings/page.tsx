@@ -11,7 +11,6 @@ export default async function SettingsPage() {
   const signed = stepIndex(client.onboarding_step) > stepIndex("agreement");
   return (
     <>
-      <p className="eyebrow">Settings</p>
       <h1 className="h1">Settings</h1>
 
       <section className="card">

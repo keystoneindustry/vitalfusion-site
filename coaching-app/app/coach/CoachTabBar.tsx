@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import SignOutButton from "@/app/components/SignOutButton";
+import { useTyping } from "@/app/components/useTyping";
 
 const TABS = [
   {
@@ -11,13 +12,14 @@ const TABS = [
     label: "Clients",
     icon: "M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 18.5V20M10 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM20 20v-1.5a3.5 3.5 0 0 0-2.5-3.35M15.5 4.15a3.5 3.5 0 0 1 0 6.7",
   },
+  { href: "/coach/check-ins", label: "Check-ins", icon: "M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-9l-5 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zM8 10h8M8 13h5" },
   { href: "/coach/habits", label: "Habits", icon: "M5 12.5l4 4L19 7" },
   { href: "/coach/forms", label: "Forms", icon: "M8 4h8M9 2.5h6v3H9zM6 4H5a1 1 0 0 0-1 1v15a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1h-1M8 11h8M8 15h5" },
-  { href: "/coach/resources", label: "Resources", icon: "M4 5a1 1 0 0 1 1-1h5a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zM20 5a1 1 0 0 0-1-1h-5a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6z" },
 ];
 
 /** Extra screens behind the ☰ tab. */
 const MORE = [
+  { href: "/coach/resources", label: "Resources", emoji: "📚" },
   { href: "/coach/clients/new", label: "Add a client", emoji: "➕" },
   { href: "/coach/settings", label: "Settings", emoji: "⚙️" },
 ];
@@ -26,6 +28,8 @@ const MORE = [
 export default function CoachTabBar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  // Hide the bar while typing so it doesn't float above the phone keyboard.
+  const typing = useTyping();
   const inMore = MORE.some((m) => pathname.startsWith(m.href));
 
   useEffect(() => setOpen(false), [pathname]);
@@ -63,7 +67,7 @@ export default function CoachTabBar() {
           </div>
         </div>
       )}
-      <nav className="tabbar coach-tabbar" aria-label="Coach">
+      <nav className={`tabbar coach-tabbar${typing ? " tabbar-hidden" : ""}`} aria-label="Coach">
         <ul>
           {TABS.map((tab) => (
             <li key={tab.href}>

@@ -19,8 +19,8 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   lasts 60 days and renews on use. Expired access tokens are refreshed through `/auth/refresh?next=…`.
 - Roles: emails in `COACH_EMAILS` are the coach (→ `/coach`); everyone else must have a row in
   `clients` (→ the client app at `/`). Unknown emails get the same "check your email" screen but no email.
-- Coach CRM: `/coach` (client list, flags), `/coach/clients/new` (add + invite). On phones the coach side uses a bottom tab bar (`app/coach/CoachTabBar.tsx`: Clients, Habits, Forms,
-  Resources, ☰ with Add a client / Settings / Sign out); the top menu only shows on desktop. Client tabs are a 4 × 2 button grid on phones. Each client has tabs
+- Coach CRM: `/coach` (client list, flags), `/coach/clients/new` (add + invite). On phones the coach side uses a bottom tab bar (`app/coach/CoachTabBar.tsx`: Clients, Check-ins, Habits,
+  Forms, ☰ with Resources / Add a client / Settings / Sign out). `/coach/check-ins` lists every client's check-ins (needs reply first); the top menu only shows on desktop. Client tabs are a 4 × 2 button grid on phones. Each client has tabs
   (`app/coach/clients/[id]/layout.tsx` + `ClientTabs.tsx`): Overview (onboarding, meals/training status, timeline),
   Food log, Meals, Training, Details (edit package/stage/notes, resend invite). Server actions in `app/coach/actions.ts`
   (CRM) and `app/coach/clients/[id]/plan-actions.ts` (plans).
@@ -65,7 +65,8 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   Habits (assign, 14-day tick grid) and Progress (schedule, weight chart, photo compare). `applyDefaultSchedule()` runs on
   the first publish of a plan (step-goal habit sized from the onboarding steps answer, weigh-ins on Settings' default
   days, photos on the client's `photoDay` answer every N weeks from Settings) and from "Add the starting setup". Client:
-  Today shows weigh-in / photos due, habit ticks and water (`daily-actions.ts`); Calendar is a week list; Progress has two
+  Today shows weigh-in / photos / check-in due and habit ticks (`daily-actions.ts`); no water tracker: water is the built-in
+  `kind = water` habit ("Drink N oz of water", added by the starting setup from the plan's water target); Calendar is a week list; Progress has two
   sections (`ProgressTabs`): `/progress/weight` (graph of every weigh-in + weekly average, history; logging at
   `/progress/weigh-in`) and `/progress/photos` (compare + gallery; taking them at `/progress/photos/new`, front/side/back,
   posted to `app/api/progress-photos`, private `progress-photos` bucket). `/progress` redirects to Weight. Tables `weigh_ins`, `progress_photos`, `water_logs`.
@@ -94,3 +95,6 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   plain `YYYY-MM-DD` and handled as UTC so they never shift a day.
 - Run `npm test` after touching `lib/`. Design matches the site: dark theme, accent #6a9fc6, gold #ffe7ab,
   phone-first CSS with `@media (min-width: 860px)` for desktop.
+- Phones: bottom tab bars hide while a text box has focus (`app/components/useTyping.ts`) so they don't float over the
+  keyboard; `body::before` paints a strip behind the iPhone status bar. Check-in answers autosave on the device
+  (localStorage `vf-form-<formId>-<date>`) until sent.

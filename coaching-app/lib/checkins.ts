@@ -121,7 +121,7 @@ async function aiReview(client: ClientRow, form: Form, sub: Submission, numbers:
     content: [
       { type: "text", text: `Client: ${client.full_name}${client.coaching_weeks ? `, ${client.coaching_weeks}-week package` : ""}. Check-in date: ${sub.due_date}.` },
       { type: "text", text: `THIS WEEK'S NUMBERS\n${numberLines(numbers).join("\n")}` },
-      { type: "text", text: `THEIR ANSWERS\n${lines.map((l) => `- ${l.prompt}: ${l.answer}`).join("\n")}` },
+      { type: "text", text: `THEIR ANSWERS\n${lines.map((l) => `${l.section ? `[${l.section}]\n` : ""}- ${l.prompt}: ${l.answer}`).join("\n")}` },
       previous
         ? {
             type: "text",

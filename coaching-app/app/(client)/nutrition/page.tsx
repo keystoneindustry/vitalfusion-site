@@ -18,7 +18,6 @@ export default async function NutritionPage() {
     const stats = onboarding ? null : logStats(await listMeals(client.id), client.timezone, todayIn(client.timezone));
     return (
       <>
-        <p className="eyebrow">Nutrition</p>
         <h1 className="h1">Your nutrition plan</h1>
         <p className="lead">
           Your daily targets, your perfect day and a meal library built around foods you like arrive right after your kickoff
@@ -54,7 +53,6 @@ export default async function NutritionPage() {
   const { content, targets } = published;
   return (
     <>
-      <p className="eyebrow">Nutrition</p>
       <h1 className="h1">Your nutrition</h1>
       {content.welcome && <p className="program-intro">{toLines(content.welcome).slice(0, 2).join(" ")}</p>}
       <TargetsCard targets={targets} />

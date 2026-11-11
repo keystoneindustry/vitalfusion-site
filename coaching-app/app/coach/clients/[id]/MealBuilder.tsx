@@ -148,7 +148,7 @@ export default function MealBuilder({
       {items.map((it, i) => (
         <div key={i} className="pd-row">
           <input aria-label="Time" value={it.time} placeholder="7:00 AM" onChange={(e: Ev) => setItems(items.map((x, k) => (k === i ? { ...x, time: e.target.value } : x)))} />
-          <select aria-label="Meal" value={it.mealId} onChange={(e: Ev) => setItems(items.map((x, k) => (k === i ? { ...x, mealId: e.target.value } : x)))}>
+          <select aria-label="Meal" className="pd-meal" value={it.mealId} onChange={(e: Ev) => setItems(items.map((x, k) => (k === i ? { ...x, mealId: e.target.value } : x)))}>
             {MEAL_CATEGORIES.map((c) => (
               <optgroup key={c.value} label={c.label}>
                 {meals
@@ -323,7 +323,7 @@ export default function MealBuilder({
               );
             })}
             <button type="button" className="btn btn-ghost btn-sm" onClick={() => addMeal(c.value)}>
-              + Add {c.label.toLowerCase().replace(/s$/, "")}
+              + Add {({ breakfast: "breakfast", lunch: "lunch", dinner: "dinner", snack: "snack" } as Record<string, string>)[c.value] ?? "meal"}
             </button>
           </div>
         );

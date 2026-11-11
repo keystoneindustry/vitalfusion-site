@@ -66,3 +66,8 @@ export async function updateSubmission(id: string, patch: Partial<Submission>): 
 export async function awaitingReply(): Promise<Pick<Submission, "id" | "client_id" | "due_date" | "submitted_at">[]> {
   return db(`form_submissions?select=id,client_id,due_date,submitted_at&replied_at=is.null&order=submitted_at.asc`);
 }
+
+/** The latest submissions across every client (coach's Check-ins page). */
+export async function recentSubmissions(limit = 60): Promise<Submission[]> {
+  return db<Submission[]>(`form_submissions?select=*&order=submitted_at.desc&limit=${limit}`);
+}

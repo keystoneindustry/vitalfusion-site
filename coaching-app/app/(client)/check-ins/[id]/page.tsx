@@ -47,14 +47,15 @@ export default async function SubmissionPage({ params, searchParams }: { params:
         <summary>
           <span aria-hidden="true">📝</span> Your answers
         </summary>
-        <ul className="tips weigh-list">
-          {answerLines(sub.questions, sub.answers).map((a) => (
-            <li key={a.prompt} style={{ display: "block" }}>
-              <span className="muted small" style={{ display: "block" }}>{a.prompt}</span>
-              <b>{a.answer}</b>
-            </li>
+        <dl className="answers-dl">
+          {answerLines(sub.questions, sub.answers).map((a, i) => (
+            <div key={i}>
+              {a.section && <h3 className="answers-section">{a.section}</h3>}
+              <dt>{a.prompt}</dt>
+              <dd>{a.answer}</dd>
+            </div>
           ))}
-        </ul>
+        </dl>
       </details>
     </>
   );

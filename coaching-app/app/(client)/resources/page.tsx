@@ -16,7 +16,6 @@ export default async function ResourcesPage() {
 
   return (
     <>
-      <p className="eyebrow">Resources</p>
       <h1 className="h1">Resources</h1>
       <p className="program-intro">Videos and guides from Tyler. New ones unlock as your coaching goes on.</p>
       {groups.length === 0 && (

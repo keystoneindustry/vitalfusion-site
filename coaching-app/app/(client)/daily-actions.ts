@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireClient } from "@/lib/auth";
 import { addDays, isIsoDate, todayIn } from "@/lib/dates";
 import { getClientHabit, setCheck } from "@/lib/habits";
-import { getWater, parseWeight, saveWeighIn, setWater } from "@/lib/progress";
+import { parseWeight, saveWeighIn } from "@/lib/progress";
 
 /** Dates a client may log for: today and the past week. */
 function allowedDate(date: string, today: string): boolean {
@@ -18,15 +18,6 @@ export async function toggleHabitAction(assignmentId: string, date: string, done
   await setCheck(a.id, client.id, date, done);
   revalidatePath("/calendar");
   return { ok: true };
-}
-
-export async function addWaterAction(date: string, deltaOz: number): Promise<{ ok: boolean; oz: number }> {
-  const { client } = await requireClient("/");
-  if (!allowedDate(date, todayIn(client.timezone))) return { ok: false, oz: 0 };
-  const now = await getWater(client.id, date);
-  const oz = Math.max(0, Math.min(400, now + Math.round(deltaOz)));
-  await setWater(client.id, date, oz);
-  return { ok: true, oz };
 }
 
 export type WeighInState = { ok?: boolean; error?: string };

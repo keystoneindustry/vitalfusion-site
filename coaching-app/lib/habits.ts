@@ -8,7 +8,7 @@ export type Habit = {
   title: string;
   description: string | null;
   icon: string;
-  kind: "custom" | "steps";
+  kind: "custom" | "steps" | "water";
   archived: boolean;
   created_at: string;
 };
@@ -35,6 +35,12 @@ export async function getHabit(id: string): Promise<Habit | null> {
 
 export async function stepsHabit(): Promise<Habit | null> {
   const rows = await db<Habit[]>(`habits?select=*&kind=eq.steps&order=created_at.asc&limit=1`);
+  return rows[0] ?? null;
+}
+
+/** The built-in "Drink your water" habit (skipped if Tyler archived it). */
+export async function waterHabit(): Promise<Habit | null> {
+  const rows = await db<Habit[]>(`habits?select=*&kind=eq.water&archived=eq.false&order=created_at.asc&limit=1`);
   return rows[0] ?? null;
 }
 

@@ -1,7 +1,7 @@
 import { requireClient } from "@/lib/auth";
 import { getPublishedPlan, hasContent } from "@/lib/plans";
 import { TrainingProgram } from "@/app/components/PlanViews";
-import ComingSoon from "../ComingSoon";
+import { formatCallTime } from "@/lib/booking";
 import { estimateMinutes } from "@/lib/training-brief";
 
 const GOAL_LABEL: Record<string, string> = { lose: "Fat loss", muscle: "Build muscle", maintain: "Get fitter" };
@@ -13,17 +13,20 @@ export default async function TrainPage() {
   const published = await getPublishedPlan(client.id);
   if (!hasContent(published) || published.content.training.days.length === 0) {
     return (
-      <ComingSoon
-        eyebrow="Training"
-        title="Your training"
-        intro="Your program arrives right after your kickoff call."
-        items={["Your workouts with sets, reps and rest", "A demo video for every exercise", "Logging your weights and reps"]}
-      />
+      <>
+        <h1 className="h1">Your training</h1>
+        <div className="card empty">
+          <p style={{ margin: 0 }}>
+            {client.onboarding_step !== "done"
+              ? "Finish setting up first. Your checklist is on the Today tab."
+              : `Your program arrives right after your kickoff call${client.kickoff_at ? ` (${formatCallTime(client.kickoff_at, client.timezone)})` : ""}.`}
+          </p>
+        </div>
+      </>
     );
   }
   return (
     <>
-      <p className="eyebrow">Training</p>
       <h1 className="h1">Your training</h1>
       <div className="chips-row">
         <span className="info-chip">🗓 {published.content.training.days.length}× a week</span>
@@ -34,7 +37,6 @@ export default async function TrainPage() {
       </div>
       <TrainingProgram training={published.content.training} />
       <p className="small muted" style={{ marginTop: 14 }}>Do the workouts in order. Rest a day between them when you can.</p>
-      <p className="center small muted">Exercise demo videos and weight logging are coming soon.</p>
     </>
   );
 }

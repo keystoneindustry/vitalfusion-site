@@ -45,14 +45,20 @@ export default async function CoachSubmissionPage({
       {msg === "updated" && <div className="notice notice-good">Reply updated ✓</div>}
       {error && <div className="notice notice-error">{error}</div>}
 
-      <div className="detail-grid">
-        <div>
+      <div className="review-grid">
+        <div className="review-main">
           <section className="card">
             <h2 className="h2">📊 This week's numbers</h2>
             <ul className="tips" style={{ padding: "0 0 0 18px" }}>
-              {numberLines(numbers).map((l) => (
-                <li key={l}>{l}</li>
-              ))}
+              {numberLines(numbers).map((l) =>
+                l.trimStart().startsWith("- ") ? (
+                  <li key={l} className="sub-line">
+                    {l.trim().slice(2)}
+                  </li>
+                ) : (
+                  <li key={l}>{l}</li>
+                ),
+              )}
             </ul>
             <p className="small" style={{ margin: 0 }}>
               <Link href={`/coach/clients/${client.id}/progress`}>Weight & photos →</Link> · <Link href={`/coach/clients/${client.id}/habits`}>Habits →</Link>
@@ -117,20 +123,9 @@ export default async function CoachSubmissionPage({
             </form>
           )}
 
-          <section className="card">
-            <h2 className="h2">📝 {name}'s answers</h2>
-            <dl className="answers-dl">
-              {answerLines(sub.questions, sub.answers).map((a) => (
-                <div key={a.prompt}>
-                  <dt>{a.prompt}</dt>
-                  <dd>{a.answer}</dd>
-                </div>
-              ))}
-            </dl>
-          </section>
         </div>
 
-        <div>
+        <div className="review-side">
           <section className="card card-accent" id="reply">
             <h2 className="h2">💬 {sub.replied_at ? "Your reply" : `Reply to ${name}`}</h2>
             {!sub.replied_at && s?.draftReply && <p className="small muted" style={{ marginTop: -6 }}>Drafted by the AI from their answers and numbers. Edit it, then send.</p>}
@@ -142,6 +137,21 @@ export default async function CoachSubmissionPage({
                 {name} gets an email and sees it in the app.
               </p>
             </form>
+          </section>
+        </div>
+
+        <div className="review-answers">
+          <section className="card">
+            <h2 className="h2">📝 {name}'s answers</h2>
+            <dl className="answers-dl">
+              {answerLines(sub.questions, sub.answers).map((a, i) => (
+                <div key={i}>
+                  {a.section && <h3 className="answers-section">{a.section}</h3>}
+                  <dt>{a.prompt}</dt>
+                  <dd>{a.answer}</dd>
+                </div>
+              ))}
+            </dl>
           </section>
         </div>
       </div>

@@ -11,8 +11,19 @@ export default function InstallCard() {
     const standalone =
       window.matchMedia("(display-mode: standalone)").matches ||
       (navigator as Navigator & { standalone?: boolean }).standalone === true;
-    setShow(!standalone);
+    let dismissed = false;
+    try {
+      dismissed = localStorage.getItem("vf-install-dismissed") === "1";
+    } catch {}
+    setShow(!standalone && !dismissed);
   }, []);
+
+  function dismiss() {
+    try {
+      localStorage.setItem("vf-install-dismissed", "1");
+    } catch {}
+    setShow(false);
+  }
 
   if (!show) return null;
   return (
@@ -24,6 +35,9 @@ export default function InstallCard() {
       <Link className="btn btn-wide" href="/install">
         Show me how
       </Link>
+      <button type="button" className="btn-link small" style={{ display: "block", margin: "10px auto 0" }} onClick={dismiss}>
+        Not now
+      </button>
     </section>
   );
 }

@@ -3,7 +3,8 @@
 import { db, q } from "./supabase";
 import { addDays, isIsoDate, todayIn } from "./dates";
 import { parseDays, stepGoalFor, weekdayFromName, type Schedule } from "./calendar";
-import { assignHabit, listClientHabits, stepsHabit } from "./habits";
+import { assignHabit, listClientHabits, stepsHabit, waterHabit } from "./habits";
+import { getPublishedPlan } from "./plans";
 import { getSettings } from "./settings";
 import { getResponse } from "./onboarding-data";
 import { addEvent, type ClientRow } from "./clients";
@@ -142,6 +143,12 @@ export async function applyDefaultSchedule(client: ClientRow): Promise<string[]>
     const goal = stepGoalFor(typeof answers.steps === "string" ? answers.steps : "");
     await assignHabit({ client_id: client.id, habit_id: steps.id, title: `Walk ${goal.toLocaleString("en-US")} steps`, days: [0, 1, 2, 3, 4, 5, 6], start_date: start });
     added.push(`step goal (${goal.toLocaleString("en-US")} a day)`);
+  }
+  const water = await waterHabit();
+  if (water && !habits.some((h) => h.habit_id === water.id)) {
+    const oz = (await getPublishedPlan(client.id))?.targets?.waterOz ?? 0;
+    await assignHabit({ client_id: client.id, habit_id: water.id, title: oz > 0 ? `Drink ${oz} oz of water` : null, days: [0, 1, 2, 3, 4, 5, 6], start_date: start });
+    added.push(oz > 0 ? `water habit (${oz} oz a day)` : "water habit");
   }
   if (!schedules.some((s) => s.kind === "weigh_in")) {
     const days = parseDays(settings.default_weighin_days || "1,3,5");

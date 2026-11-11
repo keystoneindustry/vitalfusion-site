@@ -152,10 +152,12 @@ export function splitMulti(q: Pick<FormQuestion, "options">, value: string): str
 }
 
 /** "Energy this week: 7/10" lines for emails and the AI. */
-export function answerLines(questions: FormQuestion[], answers: Record<string, string>): { prompt: string; answer: string }[] {
+export function answerLines(questions: FormQuestion[], answers: Record<string, string>): { prompt: string; answer: string; section?: string }[] {
   return questions.map((q) => {
     const a = answers[q.id];
-    return { prompt: q.prompt, answer: !a ? "—" : q.type === "scale" ? `${a}/10` : a };
+    const line: { prompt: string; answer: string; section?: string } = { prompt: q.prompt, answer: !a ? "—" : q.type === "scale" ? `${a}/10` : a };
+    if (q.section) line.section = q.section;
+    return line;
   });
 }
 

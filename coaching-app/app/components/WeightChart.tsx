@@ -14,9 +14,10 @@ function short(iso: string): string {
  */
 export default function WeightChart({ daily, weekly }: { daily: Point[]; weekly: Point[] }) {
   if (daily.length === 0) return null;
-  const W = 600;
-  const H = 220;
-  const pad = { l: 42, r: 14, t: 14, b: 30 };
+  // A small drawing size keeps the labels readable on a phone (the SVG is scaled to fit the card).
+  const W = 380;
+  const H = 200;
+  const pad = { l: 36, r: 10, t: 12, b: 26 };
   const ys = [...daily.map((p) => p.y), ...weekly.map((p) => p.y)];
   let min = Math.floor(Math.min(...ys) - 1);
   let max = Math.ceil(Math.max(...ys) + 1);
@@ -48,9 +49,7 @@ export default function WeightChart({ daily, weekly }: { daily: Point[]; weekly:
         {wk.length > 1 && <path d={line(wk)} className="chart-line" />}
         {daily.map((p) => (
           <circle key={p.date} cx={x(p.date)} cy={y(p.y)} r={4} className="chart-dot">
-            <title>
-              {short(p.date)}: {p.y} lb
-            </title>
+            <title>{`${short(p.date)}: ${p.y} lb`}</title>
           </circle>
         ))}
         <text x={daily.length === 1 ? x(first) : pad.l} y={H - 8} textAnchor={daily.length === 1 ? "middle" : "start"} className="chart-label">

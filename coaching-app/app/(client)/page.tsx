@@ -9,11 +9,9 @@ import { listMeals, logStats } from "@/lib/meals";
 import { getPublishedPlan, hasContent } from "@/lib/plans";
 import TargetsCard from "@/app/components/TargetsCard";
 import { loadDays } from "@/lib/client-days";
-import { getWater } from "@/lib/progress";
 import { listSubmissions } from "@/lib/forms";
 import { addDays } from "@/lib/dates";
 import HabitChecklist from "./HabitChecklist";
-import WaterTracker from "./WaterTracker";
 
 export const metadata = { title: "Today · Vital Fusion" };
 
@@ -25,18 +23,16 @@ export default async function TodayPage() {
   const published = onboarding ? null : await getPublishedPlan(client.id);
   const live = hasContent(published) ? published : null;
   const plan = live && live.content.meals.length > 0 ? live : null;
-  const trainingLive = !!live && live.content.training.days.length > 0;
   const foodLog = !onboarding && !plan ? logStats(await listMeals(client.id), client.timezone, today) : null;
   const recent = [addDays(today, -3), addDays(today, -2), addDays(today, -1), today];
-  const [{ days }, water, subs] = onboarding
-    ? [{ days: [] }, 0, []]
-    : await Promise.all([loadDays(client.id, recent), getWater(client.id, today), listSubmissions(client.id, 5)]);
+  const [{ days }, subs] = onboarding
+    ? [{ days: [] }, []]
+    : await Promise.all([loadDays(client.id, recent), listSubmissions(client.id, 5)]);
   const day = days[days.length - 1];
   // Forms due today, plus check-ins from the last 3 days that weren't sent yet.
   const formsDue = days.flatMap((d) => d.forms.filter((f) => d.date === today || !f.submitted).map((f) => ({ ...f, date: d.date })));
   const newReply = subs.find((x) => x.coach_reply && !x.reply_seen_at);
   const hasTasks = !!day && (day.habits.length > 0 || day.weighIn.due || day.photos.due || formsDue.length > 0);
-  const waterGoal = plan?.targets.waterOz ?? 0;
 
   let packageLine = "Your coaching dates will show here.";
   if (status.kind === "not_started")
@@ -49,7 +45,6 @@ export default async function TodayPage() {
 
   return (
     <>
-      <p className="eyebrow">Today</p>
       <h1 className="h1">Hi {firstName(client.full_name)} 👋</h1>
       <p className="lead">{packageLine}</p>
 
@@ -64,9 +59,9 @@ export default async function TodayPage() {
         </Link>
       )}
 
-      {!onboarding && (hasTasks || waterGoal > 0) && day && (
+      {!onboarding && hasTasks && day && (
         <section className="card card-accent">
-          <h2 className="h2">Today</h2>
+          <h2 className="h2">To do today</h2>
           {formsDue.map((f) => (
             <Link
               key={`${f.formId}-${f.date}`}
@@ -76,7 +71,7 @@ export default async function TodayPage() {
               <span className="task-icon">📝</span>
               <span className="task-text">
                 <b>{f.title}</b>
-                <span className="small">{f.submitted ? "Sent ✓" : f.date === today ? "Due today · tap to fill it in" : "Overdue · tap to fill it in"}</span>
+                <span className="small">{f.submitted ? "Sent ✓" : f.date === today ? "Due today" : "Not sent yet · you can still send it"}</span>
               </span>
               <span className="chev" aria-hidden="true">›</span>
             </Link>
@@ -86,7 +81,7 @@ export default async function TodayPage() {
               <span className="task-icon">⚖️</span>
               <span className="task-text">
                 <b>Weigh-in</b>
-                <span className="small">{day.weighIn.weight !== null ? `Done ✓ ${day.weighIn.weight} lb` : "Due today · tap to log your weight"}</span>
+                <span className="small">{day.weighIn.weight !== null ? `Done ✓ ${day.weighIn.weight} lb` : "Due today"}</span>
               </span>
               <span className="chev" aria-hidden="true">›</span>
             </Link>
@@ -96,13 +91,12 @@ export default async function TodayPage() {
               <span className="task-icon">📸</span>
               <span className="task-text">
                 <b>Progress photos</b>
-                <span className="small">{day.photos.count >= 3 ? "Done ✓" : `Due today · ${day.photos.count}/3 taken · tap to take them`}</span>
+                <span className="small">{day.photos.count >= 3 ? "Done ✓" : day.photos.count > 0 ? `${day.photos.count} of 3 taken` : "Due today"}</span>
               </span>
               <span className="chev" aria-hidden="true">›</span>
             </Link>
           )}
           {day.habits.length > 0 && <HabitChecklist key={today} date={today} items={day.habits} />}
-          {waterGoal > 0 && <WaterTracker date={today} initialOz={water} goalOz={waterGoal} />}
         </section>
       )}
 
@@ -126,13 +120,6 @@ export default async function TodayPage() {
       ) : plan ? (
         <>
           <TargetsCard targets={plan.targets} />
-          <section className="card">
-            <h2 className="h2">Your plan</h2>
-            <div className="link-list">
-              <Link href="/nutrition">🍽️ Your meals and perfect day →</Link>
-              {trainingLive ? <Link href="/train">🏋️ Your training program →</Link> : <span className="muted small">Your training program is on its way.</span>}
-            </div>
-          </section>
           <InstallCard />
         </>
       ) : (
@@ -180,21 +167,6 @@ export default async function TodayPage() {
         </>
       )}
 
-      <section className="card">
-        <h2 className="h2">Your coaching</h2>
-        <dl className="kv">
-          <dt>Start</dt>
-          <dd>{formatDate(client.start_date)}</dd>
-          <dt>End</dt>
-          <dd>{formatDate(client.end_date)}</dd>
-          <dt>Length</dt>
-          <dd>{client.coaching_weeks ? `${client.coaching_weeks} weeks` : "—"}</dd>
-        </dl>
-      </section>
-
-      <p className="center small muted">
-        <Link href="/settings">Settings &amp; sign out</Link>
-      </p>
     </>
   );
 }

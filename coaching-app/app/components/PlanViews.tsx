@@ -199,7 +199,7 @@ export function TrainingProgram({ training }: { training: Training }) {
                     <b className="ex-name">{e.name}</b>
                     <div className="ex-tags">
                       {e.sets && <span>{/^\d+$/.test(e.sets) ? `${e.sets} sets` : e.sets}</span>}
-                      {e.reps && <span>{/reps?|sec|min|s$/i.test(e.reps) ? e.reps : `${e.reps} reps`}</span>}
+                      {e.reps && <span>{/^[\d\s–—\-+/]+$/.test(e.reps) ? `${e.reps} reps` : e.reps}</span>}
                       {e.rest && <span className="ex-rest">⏱ {e.rest.replace(/^rest\s*/i, "")}</span>}
                     </div>
                     {e.notes && <p className="ex-cue">{e.notes}</p>}

@@ -11,9 +11,8 @@ export default async function CheckinsPage() {
   const title = new Map(forms.map((f) => [f.id, f.title]));
   return (
     <>
-      <p className="eyebrow">Check-ins</p>
       <h1 className="h1">Your check-ins</h1>
-      <p className="program-intro">Your weekly check-ins and Tyler's replies. New ones show up on Today on your check-in day.</p>
+      <p className="program-intro">Your check-ins and Tyler's replies.</p>
       {subs.length === 0 ? (
         <div className="card empty">
           <p style={{ margin: 0 }}>No check-ins yet.</p>
