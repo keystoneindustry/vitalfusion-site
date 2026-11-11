@@ -15,6 +15,7 @@ export default function CoachLayout({ children }: { children: React.ReactNode })
           <Link href="/coach/clients">Clients</Link>
           <Link href="/coach/check-ins">Check-ins</Link>
           <Link href="/coach/habits">Habits</Link>
+          <Link href="/coach/exercises">Exercises</Link>
           <Link href="/coach/forms">Forms</Link>
           <Link href="/coach/resources">Resources</Link>
           <Link href="/coach/settings">Settings</Link>

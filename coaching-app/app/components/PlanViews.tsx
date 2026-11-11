@@ -13,6 +13,7 @@ import {
 } from "@/lib/plan";
 import { estimateMinutes } from "@/lib/training-brief";
 import type { Targets } from "@/lib/targets";
+import type { Demo } from "@/lib/exercises";
 
 /** Read-only pieces of a plan, shared by the client screens and the coach's review screen. */
 
@@ -161,6 +162,30 @@ function Bullets({ text }: { text: string }) {
 }
 
 
+/** "▶ Watch demo": opens the video in place (nothing loads until it's tapped). */
+function DemoVideo({ demo }: { demo: Demo }) {
+  if (demo.link) {
+    return (
+      <a className="demo-btn" href={demo.link} target="_blank" rel="noopener noreferrer">
+        ▶ Watch demo
+      </a>
+    );
+  }
+  return (
+    <details className="demo">
+      <summary className="demo-btn">▶ Watch demo</summary>
+      <div className="demo-frame">
+        {demo.embed ? (
+          <iframe src={demo.embed} title={`${demo.name} demo`} loading="lazy" allow="autoplay; fullscreen; picture-in-picture" allowFullScreen />
+        ) : (
+          <video src={demo.file} controls playsInline preload="none" />
+        )}
+      </div>
+      {demo.cue && <p className="demo-cue">{demo.cue}</p>}
+    </details>
+  );
+}
+
 /** "Full body A" from "Day 1 – Full body A"; "Day 1" stays when that's all there is. */
 export function workoutTitle(name: string, index: number): string {
   return name.replace(/^Day\s*\d+\s*[–—:-]\s*/i, "").trim() || `Workout ${index + 1}`;
@@ -176,7 +201,7 @@ function setsReps(e: { sets: string; reps: string }): string {
 }
 
 /** A training program, laid out to scan on a phone: workouts first, then one card of program notes. */
-export function TrainingProgram({ training, openDay = 0 }: { training: Training; openDay?: number }) {
+export function TrainingProgram({ training, openDay = 0, demos = {} }: { training: Training; openDay?: number; demos?: Record<string, Demo> }) {
   const warmup = toLines(training.warmup);
   const notes: { icon: string; title: string; text: string }[] = [
     { icon: "🔥", title: "Warm-up", text: training.warmup },
@@ -217,6 +242,7 @@ export function TrainingProgram({ training, openDay = 0 }: { training: Training;
                       {e.rest && <span className="ex-rest">⏱ {e.rest.replace(/^rest\s*/i, "")} rest</span>}
                     </span>
                     {e.notes && <p className="ex-cue">💡 {e.notes}</p>}
+                    {demos[e.name] && <DemoVideo demo={demos[e.name]} />}
                   </div>
                 </li>
               ))}

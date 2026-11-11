@@ -7,6 +7,7 @@
  * Tyler always reviews and publishes; nothing reaches the client from here.
  */
 
+import { hasVideo, listExercises } from "./exercises";
 import { askForJson, aiConfigured, type AiUsage, type ContentBlock, type JsonSpec } from "./ai";
 import { addEvent, getClient, type ClientRow } from "./clients";
 import { firstName } from "./client-input";
@@ -505,6 +506,13 @@ async function draftTraining(ctx: ClientContext, t: Targets, revise: { current: 
     { type: "text", text: trainingBrief(ctx.answers) },
     { type: "text", text: `Their nutrition targets for context: ${targetLine(t)} (goal: ${t.inputs.goal}).` },
   ];
+  // Exercises Tyler has demo videos for: using these exact names gives the client a "Watch demo" button.
+  const demoNames = (await listExercises().catch(() => [])).filter(hasVideo).map((x) => x.name);
+  if (demoNames.length)
+    base.push({
+      type: "text",
+      text: `EXERCISES WITH DEMO VIDEOS\nWhen one of these fits the plan and their equipment, use it with exactly this name (clients get a demo video): ${demoNames.join(", ")}.`,
+    });
   const content = [
     ...base,
     {

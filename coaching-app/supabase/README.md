@@ -32,3 +32,4 @@ The app itself uses the secret key on the server, and checks who is signed in in
   `clients.next_call_uid` (booked 1-on-1 check-in call).
 - `phase5b_reminders` (Nov 11, 2026): `push_subscriptions` (one row per device), `reminder_log` (client, date, morning/evening,
   channel), `clients.reminders_enabled`.
+- `exercise_library` (Nov 11, 2026): `exercises` (unique lower(name)), seeded with ~98 names in 6 groups, no videos yet.

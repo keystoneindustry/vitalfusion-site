@@ -130,3 +130,9 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
 - The hourly trigger is a Supabase pg_cron job `vf-hourly-reminders` ('0 * * * *') that calls
   https://vitalfusion-app.vercel.app/api/cron/reminders through pg_net with the REMINDERS_SECRET bearer token.
   **When the app moves to app.vitalfusioncoaching.com, update that URL** (cron.alter_job / reschedule).
+- Exercise library (Nov 11): table `exercises` (name unique, category, cue, video_url or uploaded video_path in the private
+  `resources` bucket under `exercises/`), coach page `/coach/exercises` (☰ / top menu). Seeded with the builder's
+  suggestion names, no videos. `matchExercise()` (`lib/exercise-match.ts`) links a program's exercise to the library
+  (exact name, else all library words present, most specific wins); `demosFor()` gives the client Training tab a
+  "▶ Watch demo" per exercise. The builder shows "🎬 Demo: …" per exercise; AI drafts are told which names have videos.
+  No client workout logging (Tyler's call).

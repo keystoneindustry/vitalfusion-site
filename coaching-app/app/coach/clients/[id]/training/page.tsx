@@ -11,6 +11,7 @@ import TrainingBuilder from "../TrainingBuilder";
 import PartBar from "../PartBar";
 import AiCard from "../AiCard";
 import { saveTrainingAction } from "../plan-actions";
+import { hasVideo, listExercises } from "@/lib/exercises";
 
 export const metadata = { title: "Training · Vital Fusion Coach" };
 // The AI keeps working after the page answers; give it up to 5 minutes.
@@ -29,7 +30,8 @@ export default async function TrainingPage({
   const client = await getClient(id);
   if (!client) notFound();
 
-  const [open, pub, response] = await Promise.all([getOpenPlan(client.id), getPublishedPlan(client.id), getResponse(client.id)]);
+  const [open, pub, response, exercises] = await Promise.all([getOpenPlan(client.id), getPublishedPlan(client.id), getResponse(client.id), listExercises().catch(() => [])]);
+  const library = exercises.map((x) => ({ name: x.name, video: hasVideo(x) }));
   const work = hasContent(open) ? open : null;
   const live = hasContent(pub) ? pub : null;
   const shown = work ?? live;
@@ -69,6 +71,7 @@ export default async function TrainingPage({
                 key={`t-${shown?.id ?? "new"}-${shown?.usage?.runs ?? 0}-${shown?.status ?? ""}`}
                 initial={training}
                 answers={answers}
+                library={library}
                 save={saveTrainingAction.bind(null, client.id)}
               />
             )}

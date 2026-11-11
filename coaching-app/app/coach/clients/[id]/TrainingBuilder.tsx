@@ -6,6 +6,7 @@ import type { Exercise, Training, TrainingDay } from "@/lib/plan";
 import type { Answers } from "@/lib/onboarding-questions";
 import { estimateMinutes, trainingWarnings } from "@/lib/training-brief";
 import { EXERCISES } from "@/lib/suggestions";
+import { matchExercise } from "@/lib/exercise-match";
 
 type Result = { ok: true; message: string } | { ok: false; error: string };
 
@@ -25,10 +26,12 @@ type Ev = { target: { value: string } };
 export default function TrainingBuilder({
   initial,
   answers,
+  library = [],
   save,
 }: {
   initial: Training;
   answers: Answers;
+  library?: { name: string; video: boolean }[];
   save: (payload: string) => Promise<Result>;
 }) {
   const router = useRouter();
@@ -80,11 +83,12 @@ export default function TrainingBuilder({
   }
 
   const warnings = trainingWarnings(t, answers);
+  const withVideo = library.filter((x) => x.video);
 
   return (
     <div className="builder">
       <datalist id="exercise-names">
-        {EXERCISES.map((e) => (
+        {[...new Set([...library.map((x) => x.name), ...EXERCISES])].map((e) => (
           <option key={e} value={e} />
         ))}
       </datalist>
@@ -144,6 +148,11 @@ export default function TrainingBuilder({
                     </button>
                   </div>
                 </div>
+                {e.name.trim() && (
+                  <p className="small" style={{ margin: "4px 0 0", color: matchExercise(e.name, withVideo) ? "var(--good)" : "var(--muted)" }}>
+                    {matchExercise(e.name, withVideo) ? `🎬 Demo: ${matchExercise(e.name, withVideo)!.name}` : "No demo video yet"}
+                  </p>
+                )}
                 <div className="ex-grid">
                   <label>
                     Sets

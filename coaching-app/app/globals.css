@@ -433,6 +433,14 @@ textarea.builder-title { resize: vertical; min-height: 0; line-height: 1.35; }
 .ex-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
 .ex-tags span { padding: 3px 9px; border-radius: 8px; background: #1c2a3d; color: #cfe0f0; font-size: 13.5px; font-weight: 600; }
 .ex-tags .ex-rest { background: var(--card-2); color: var(--text-3); }
+.demo { margin-top: 8px; }
+.demo-btn { display: inline-flex; align-items: center; gap: 4px; margin-top: 8px; padding: 6px 12px; border-radius: 999px; border: 1px solid #2c4566; background: #13202f; color: var(--accent); font-size: 14px; font-weight: 700; text-decoration: none; cursor: pointer; list-style: none; }
+.demo > .demo-btn { margin-top: 0; }
+.demo > summary::-webkit-details-marker { display: none; }
+.demo[open] > .demo-btn { background: var(--accent); color: #0b0d12; }
+.demo-frame { margin-top: 8px; position: relative; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; background: #000; }
+.demo-frame iframe, .demo-frame video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.demo-cue { margin: 8px 0 0; color: var(--text-2); font-size: 14px; line-height: 1.45; }
 .ex-cue { margin: 8px 0 0; padding-top: 8px; border-top: 1px dashed #2f3540; color: var(--text-3); font-size: 14px; line-height: 1.45; }
 .t-section { background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; margin-bottom: 10px; }
 .t-section > summary { list-style: none; cursor: pointer; padding: 14px; font-weight: 700; font-size: 16px; }
@@ -608,6 +616,18 @@ p .cg { padding: 0 6px; margin: 0 2px 0 8px; }
 .ex-row { background: var(--card); border: 1px solid var(--card-border) !important; border-radius: 12px; padding: 10px !important; margin-bottom: 8px; }
 .app-links { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .app-links .btn { padding-left: 6px; padding-right: 6px; white-space: nowrap; font-size: 15px; }
+/* Coach exercise library */
+.ex-search { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; margin: 0 0 14px; }
+.ex-search input { grid-column: 1 / -1; }
+.ex-del > summary { list-style: none; cursor: pointer; color: #ff9b9b; font-weight: 600; font-size: 14px; }
+.ex-del > summary::-webkit-details-marker { display: none; }
+.ex-del[open] > summary { color: var(--muted); }
+.ex-lib { list-style: none; margin: 0; padding: 0; }
+.ex-lib li { padding: 10px 0; border-bottom: 1px solid var(--card-border); }
+.ex-lib li:last-child { border-bottom: 0; }
+.ex-has { font-size: 12.5px; font-weight: 700; color: var(--good); margin-left: 4px; }
+.ex-edit { margin-top: 10px; padding: 12px; border-radius: 12px; background: var(--card-2); }
+.ex-form .seg { margin-bottom: 10px; }
 /* Coach Home */
 .stat-link { text-decoration: none; color: var(--text); }
 .stat-warn b { color: var(--gold); }
@@ -653,6 +673,8 @@ p .cg { padding: 0 6px; margin: 0 2px 0 8px; }
   .coach-desktop-nav { display: flex !important; }
   .coach-tabbar { display: none; }
   .month-cell { min-height: 78px; padding: 5px; }
+  .ex-search { grid-template-columns: minmax(0, 1fr) 180px auto; }
+  .ex-search input { grid-column: auto; }
   .month-marks { font-size: 14px; }
   .client-tabs { display: flex; gap: 4px; overflow-x: auto; margin: 16px 0 18px; border-bottom: 1px solid var(--card-border); scrollbar-width: none; }
   .client-tabs::-webkit-scrollbar { display: none; }

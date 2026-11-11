@@ -6,6 +6,7 @@ import { estimateMinutes } from "@/lib/training-brief";
 import { todayIn } from "@/lib/dates";
 import { weekDates } from "@/lib/calendar";
 import { loadDays } from "@/lib/client-days";
+import { demosFor } from "@/lib/exercises";
 
 const GOAL_LABEL: Record<string, string> = { lose: "Fat loss", muscle: "Build muscle", maintain: "Get fitter" };
 
@@ -31,7 +32,10 @@ export default async function TrainPage({ searchParams }: { searchParams: Promis
   }
   const training = published.content.training;
   const today = todayIn(client.timezone);
-  const { days: week } = await loadDays(client.id, weekDates(today));
+  const [{ days: week }, demos] = await Promise.all([
+    loadDays(client.id, weekDates(today)),
+    demosFor(training.days.flatMap((d) => d.exercises.map((e) => e.name))).catch(() => ({})),
+  ]);
   const todays = week.find((d) => d.date === today)?.workouts[0] ?? null;
   const scheduled = week.some((d) => d.workouts.length > 0);
   const openDay = day !== undefined ? Math.max(0, parseInt(day, 10) || 0) : (todays?.day ?? 0);
@@ -52,7 +56,7 @@ export default async function TrainPage({ searchParams }: { searchParams: Promis
       )}
 
       {training.overview && <p className="program-intro">{training.overview.split(/(?<=\.)\s+/).slice(0, 2).join(" ")}</p>}
-      <TrainingProgram training={training} openDay={openDay} />
+      <TrainingProgram training={training} openDay={openDay} demos={demos} />
       {!scheduled && <p className="small muted" style={{ marginTop: 14 }}>Do the workouts in order. Rest a day between them when you can.</p>}
     </>
   );
