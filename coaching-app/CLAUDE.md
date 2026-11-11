@@ -127,3 +127,6 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   Coach reply also pushes. Tables `push_subscriptions`, `reminder_log`; `clients.reminders_enabled`.
 - Client Training tab: meta line, this-week strip (from workout schedules), today's workout opens by default,
   exercises as "3 × 8–12 reps · rest 90 s", one "Program notes" card.
+- The hourly trigger is a Supabase pg_cron job `vf-hourly-reminders` ('0 * * * *') that calls
+  https://vitalfusion-app.vercel.app/api/cron/reminders through pg_net with the REMINDERS_SECRET bearer token.
+  **When the app moves to app.vitalfusioncoaching.com, update that URL** (cron.alter_job / reschedule).
