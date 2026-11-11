@@ -42,7 +42,7 @@ export async function addScheduleAction(clientId: string, form: FormData): Promi
   back(client.id, "progress", { msg: "scheduled" });
 }
 
-export async function endScheduleAction(clientId: string, scheduleId: string, tab = "progress"): Promise<void> {
+export async function endScheduleAction(clientId: string, scheduleId: string, tab: string): Promise<void> {
   const client = await loadClient(clientId);
   await endSchedule(scheduleId, client.id);
   back(client.id, tab === "calendar" ? "calendar" : "progress", { msg: "removed" });

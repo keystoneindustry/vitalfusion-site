@@ -84,7 +84,7 @@ export default async function ClientProgressPage({ params, searchParams }: { par
                     <span>
                       {s.kind === "weigh_in" ? "⚖️ Weigh-in" : s.kind === "photos" ? "📸 Progress photos" : `📝 ${formTitle.get(s.form_id ?? "") ?? "Form"}`} · {scheduleLabel(s)}
                     </span>
-                    <form action={endScheduleAction.bind(null, client.id, s.id)}>
+                    <form action={endScheduleAction.bind(null, client.id, s.id, "progress")}>
                       <SubmitButton className="btn-link small" label="Remove" pendingLabel="…" />
                     </form>
                   </li>
