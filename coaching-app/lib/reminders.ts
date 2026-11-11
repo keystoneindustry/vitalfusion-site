@@ -156,3 +156,16 @@ export async function runReminders(origin: string, now = new Date()): Promise<{ 
   }
   return { checked: clients.length, sent };
 }
+
+/** Sends one client's reminder right now (for testing), whatever the time. Not logged, so the real one still goes out. */
+export async function sendReminderNow(clientId: string, kind: "morning" | "evening", origin: string): Promise<string> {
+  const c = (await listClients()).find((x) => x.id === clientId);
+  if (!c) return "no such client";
+  const date = todayIn(c.timezone);
+  const { days } = await loadDays(c.id, [date]);
+  const call = c.next_call_at && todayIn(c.timezone, new Date(c.next_call_at)) === date ? (formatCallTime(c.next_call_at, c.timezone).split(" at ")[1] ?? null) : null;
+  const r = days[0] ? (kind === "morning" ? morningReminder(days[0], call) : eveningReminder(days[0])) : null;
+  if (!r) return "nothing due today";
+  const ok = await pushToClient(c.id, { ...r.push, url: `${origin}${r.push.url ?? "/"}` });
+  return ok ? `sent: ${r.push.title} — ${r.push.body}` : "no phone with notifications on";
+}
