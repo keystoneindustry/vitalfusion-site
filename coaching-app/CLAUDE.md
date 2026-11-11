@@ -19,7 +19,8 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   lasts 60 days and renews on use. Expired access tokens are refreshed through `/auth/refresh?next=…`.
 - Roles: emails in `COACH_EMAILS` are the coach (→ `/coach`); everyone else must have a row in
   `clients` (→ the client app at `/`). Unknown emails get the same "check your email" screen but no email.
-- Coach CRM: `/coach` (client list, flags), `/coach/clients/new` (add + invite). Each client has tabs
+- Coach CRM: `/coach` (client list, flags), `/coach/clients/new` (add + invite). On phones the coach side uses a bottom tab bar (`app/coach/CoachTabBar.tsx`: Clients, Habits, Forms,
+  Resources, ☰ with Add a client / Settings / Sign out); the top menu only shows on desktop. Client tabs are a 4 × 2 button grid on phones. Each client has tabs
   (`app/coach/clients/[id]/layout.tsx` + `ClientTabs.tsx`): Overview (onboarding, meals/training status, timeline),
   Food log, Meals, Training, Details (edit package/stage/notes, resend invite). Server actions in `app/coach/actions.ts`
   (CRM) and `app/coach/clients/[id]/plan-actions.ts` (plans).

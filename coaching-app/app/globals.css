@@ -35,7 +35,7 @@ html, body {
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
 }
-body { min-height: 100dvh; }
+body { min-height: 100dvh; overflow-x: clip; }
 a { color: var(--accent); }
 img { max-width: 100%; }
 h1, h2, h3 { letter-spacing: -0.01em; }
@@ -168,6 +168,11 @@ input:focus, textarea:focus, select:focus { border-color: var(--accent); box-sha
 .coach-nav img { width: 32px; height: 32px; border-radius: 8px; }
 .coach-nav .brand { font-weight: 800; }
 .coach-nav nav { margin-left: auto; display: flex; gap: 14px; align-items: center; }
+.coach-brand { display: flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; }
+/* Phones: slim header + bottom tab bar; the top menu only shows on desktop (see media query). */
+.coach-desktop-nav { display: none !important; }
+.coach-shell { min-height: 100dvh; padding-bottom: calc(var(--tabbar-h) + var(--safe-bottom) + 8px); }
+.coach-shell .page { padding-top: 14px; }
 .coach-nav nav a { color: var(--text-2); text-decoration: none; font-weight: 600; font-size: 15px; }
 .filters { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin: 0 0 14px; scrollbar-width: none; }
 .filters::-webkit-scrollbar { display: none; }
@@ -348,15 +353,20 @@ textarea.mono { font-family: SFMono-Regular, Menlo, Consolas, monospace; font-si
 /* ───────── Coach: one client's pages ───────── */
 .client-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .health-chip { display: inline-block; margin: 10px 0 0; padding: 5px 10px; border-radius: 999px; background: #211b0e; border: 1px solid #5a4a26; color: #ffe2a8; font-size: 13.5px; font-weight: 600; }
-.client-tabs { display: flex; gap: 4px; overflow-x: auto; margin: 16px 0 18px; border-bottom: 1px solid var(--card-border); scrollbar-width: none; }
-.client-tabs::-webkit-scrollbar { display: none; }
-.client-tabs a { flex: 0 0 auto; padding: 11px 14px; color: var(--muted); text-decoration: none; font-weight: 700; font-size: 15px; border-bottom: 3px solid transparent; margin-bottom: -1px; display: inline-flex; align-items: center; gap: 6px; }
-.client-tabs a[aria-current="page"] { color: var(--text); border-bottom-color: var(--accent); }
+/* Phones: all 8 sections visible as a 4 × 2 grid of buttons (no hidden sideways scrolling). */
+.client-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin: 14px 0 16px; }
+.client-tabs a { display: flex; align-items: center; justify-content: center; gap: 3px; min-height: 40px; padding: 6px 4px; border-radius: 10px; background: var(--card); border: 1px solid var(--card-border); color: var(--muted); text-decoration: none; font-weight: 700; font-size: 12.5px; text-align: center; line-height: 1.15; white-space: nowrap; }
+.client-tabs .tab-badge { font-size: 11px; }
+.client-tabs a[aria-current="page"] { color: #fff; background: #1c2a3d; border-color: var(--accent); }
+.client-head h1 { font-size: 24px; line-height: 1.15; overflow-wrap: anywhere; }
+.client-head .pill { margin-top: 3px; }
 .tab-badge { font-size: 12px; color: var(--gold); }
-.overview-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin: 0 0 14px; }
-.overview-card { display: flex; flex-direction: column; gap: 3px; padding: 14px 16px; border-radius: 16px; background: var(--card); border: 1px solid var(--card-border); color: var(--text); text-decoration: none; }
-.overview-card .ov-icon { font-size: 22px; }
-.overview-card b { font-size: 17px; }
+.overview-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin: 0 0 14px; }
+/* Phones: one compact row per card, icon on the left. */
+.overview-card { display: grid; grid-template-columns: 30px minmax(0, 1fr); column-gap: 12px; row-gap: 1px; align-items: center; padding: 11px 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--card-border); color: var(--text); text-decoration: none; }
+.overview-card > * { grid-column: 2; }
+.overview-card .ov-icon { grid-column: 1; grid-row: 1 / span 3; font-size: 22px; text-align: center; }
+.overview-card b { font-size: 16px; }
 .state-live { border-color: #23503a; }
 .state-draft, .state-changed { border-color: #5a4a26; }
 .part-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; margin: 0 0 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--card-border); }
@@ -546,6 +556,18 @@ p .cg { padding: 0 6px; margin: 0 2px 0 8px; }
 
 @media (min-width: 860px) {
   .page { padding-top: 28px; }
+  .coach-shell .page { padding-top: 28px; }
+  .coach-shell { padding-bottom: 0; }
+  .coach-desktop-nav { display: flex !important; }
+  .coach-tabbar { display: none; }
+  .client-tabs { display: flex; gap: 4px; overflow-x: auto; margin: 16px 0 18px; border-bottom: 1px solid var(--card-border); scrollbar-width: none; }
+  .client-tabs::-webkit-scrollbar { display: none; }
+  .client-tabs a { flex: 0 0 auto; min-height: 0; padding: 11px 14px; border-radius: 0; background: none; border: 0; border-bottom: 3px solid transparent; margin-bottom: -1px; font-size: 15px; gap: 6px; }
+  .client-tabs a[aria-current="page"] { color: var(--text); background: none; border-bottom-color: var(--accent); }
+  .client-head h1 { font-size: 34px; }
+  .overview-card { display: flex; flex-direction: column; gap: 3px; padding: 14px 16px; border-radius: 16px; align-items: flex-start; }
+  .overview-card .ov-icon { text-align: left; }
+  .overview-card b { font-size: 17px; }
   .h1 { font-size: 34px; }
   .detail-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 18px; align-items: start; }
   .client-list { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }

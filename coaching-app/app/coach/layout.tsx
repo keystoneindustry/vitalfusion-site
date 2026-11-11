@@ -1,13 +1,16 @@
 import Link from "next/link";
+import CoachTabBar from "./CoachTabBar";
 
-/** Shell for the coach's side of the app. */
+/** Shell for the coach's side of the app: top menu on desktop, bottom tab bar on phones. */
 export default function CoachLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
+    <div className="coach-shell">
       <header className="coach-nav">
-        <img src="/icons/logo.png" alt="" />
-        <span className="brand">Coach</span>
-        <nav aria-label="Coach">
+        <Link href="/coach" className="coach-brand">
+          <img src="/icons/logo.png" alt="" />
+          <span className="brand">Coach</span>
+        </Link>
+        <nav aria-label="Coach menu" className="coach-desktop-nav">
           <Link href="/coach">Clients</Link>
           <Link href="/coach/habits">Habits</Link>
           <Link href="/coach/forms">Forms</Link>
@@ -22,6 +25,7 @@ export default function CoachLayout({ children }: { children: React.ReactNode })
         </nav>
       </header>
       <main className="page page-wide">{children}</main>
-    </>
+      <CoachTabBar />
+    </div>
   );
 }
