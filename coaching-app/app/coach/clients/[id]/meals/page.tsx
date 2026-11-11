@@ -47,6 +47,7 @@ export default async function MealsPage({
   const name = firstName(client.full_name);
   const has = content.meals.length > 0;
   const off = has && content.perfectDay.items.length ? dayOffBy(content, targets) : null;
+  const worst = off ? Math.max(...Object.values(off).map(Math.abs)) : 0;
   const notes = content.coachNotes.filter((n) => !n.startsWith("Training: "));
 
   return (
@@ -69,20 +70,20 @@ export default async function MealsPage({
             <AiCard clientId={client.id} part="nutrition" has={false} healthFlag={client.health_flag} callNotes={open?.call_notes ?? ""} disabled={false} />
           )}
           <section className="card" id="meals">
-            <div className="row-between" style={{ alignItems: "flex-start" }}>
-              <h2 className="h2">🍽️ Meal plan</h2>
-              {has && !drafting && (
-                <form action={fitMealsAction.bind(null, client.id)}>
-                  <SubmitButton className="btn btn-ghost btn-sm" label="⚖️ Fit portions to targets" pendingLabel="Fitting…" />
-                </form>
-              )}
-            </div>
-            {has && !drafting && (
-              <p className="small muted" style={{ marginTop: -4 }}>
-                {off && Math.max(...Object.values(off).map(Math.abs)) <= 5
-                  ? "✓ The perfect day is within 5% of the targets."
-                  : "“Fit portions” resizes the amounts (same foods) so the perfect day lands on the targets. Save your edits first."}
-              </p>
+            <h2 className="h2">🍽️ Meal plan</h2>
+            {has && !drafting && off && (
+              <div className={`fit-line ${worst <= 5 ? "ok" : ""}`}>
+                {worst <= 5 ? (
+                  <span>✓ Perfect day matches their targets</span>
+                ) : (
+                  <>
+                    <span>Perfect day is up to {Math.round(worst)}% off target.</span>
+                    <form action={fitMealsAction.bind(null, client.id)}>
+                      <SubmitButton className="btn-link" label="Fit portions" pendingLabel="Fitting…" />
+                    </form>
+                  </>
+                )}
+              </div>
             )}
             {drafting ? (
               has ? (
