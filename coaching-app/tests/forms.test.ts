@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { answerLines, checkAnswers, cleanSummary, sanitizeQuestions, type FormQuestion } from "../lib/form-schema";
+import { answerLines, checkAnswers, cleanSummary, sanitizeQuestions, splitMulti, type FormQuestion } from "../lib/form-schema";
 import { numberLines } from "../lib/checkins";
 
 const qs: FormQuestion[] = [
@@ -71,3 +71,14 @@ assert.ok(lines.some((l) => l.includes("5/7 done (71%)")));
 assert.equal(numberLines({ weighIns: [], thisWeekAvg: null, lastWeekAvg: null, changeLb: null, habits: [], habitTotal: { done: 0, due: 0 }, photosThisWeek: 0, targets: null })[0], "Weight: no weigh-ins in the last 7 days");
 
 console.log("forms tests passed");
+
+// "Pick any": sent one per line, saved as "A, B" in option order; unknown picks dropped.
+const mq: FormQuestion = { id: "macros", type: "multi", prompt: "Macros you struggled with", options: ["Protein", "Carbs", "Fat"], required: true };
+const multi = checkAnswers([mq], { macros: "Fat\nProtein\nPizza" });
+assert.ok(multi.ok && multi.answers.macros === "Protein, Fat");
+assert.deepEqual(splitMulti(mq, "Protein, Fat"), ["Protein", "Fat"]);
+assert.equal(checkAnswers([mq], { macros: "Pizza" }).ok, false);
+assert.equal(checkAnswers([{ ...mq, required: false }], { macros: "" }).ok, true);
+const sm = sanitizeQuestions([{ type: "multi", prompt: "Pick", options: ["A", "B"], section: "  Nutrition " }]);
+assert.ok(sm.ok && sm.questions[0].section === "Nutrition" && sm.questions[0].options?.length === 2);
+assert.equal(sanitizeQuestions([{ type: "multi", prompt: "Pick", options: ["A"] }]).ok, false);

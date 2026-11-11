@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import type { FormQuestion } from "@/lib/form-schema";
+import { splitMulti, type FormQuestion } from "@/lib/form-schema";
 import { submitFormAction } from "./actions";
 
 type Ev = { target: { value: string } };
@@ -10,10 +10,21 @@ type Ev = { target: { value: string } };
 /** Fills in a form: all questions on one scrolling page, big tap targets. */
 export default function FormFiller({ formId, date, questions, initial }: { formId: string; date: string; questions: FormQuestion[]; initial: Record<string, string> }) {
   const router = useRouter();
-  const [answers, setAnswers] = useState<Record<string, string>>(initial);
+  // "Pick any" answers are kept one option per line while filling in.
+  const [answers, setAnswers] = useState<Record<string, string>>(() => {
+    const out = { ...initial };
+    for (const q of questions) if (q.type === "multi" && out[q.id]) out[q.id] = splitMulti(q, out[q.id]).join("\n");
+    return out;
+  });
   const [error, setError] = useState<{ text: string; id?: string } | null>(null);
   const [pending, start] = useTransition();
   const set = (id: string, v: string) => setAnswers((a) => ({ ...a, [id]: v }));
+  const toggle = (q: FormQuestion, o: string) =>
+    setAnswers((a) => {
+      const now = (a[q.id] ?? "").split("\n").filter(Boolean);
+      const next = now.includes(o) ? now.filter((x) => x !== o) : [...now, o];
+      return { ...a, [q.id]: (q.options ?? []).filter((x) => next.includes(x)).join("\n") };
+    });
 
   function onSubmit(e: { preventDefault: () => void }) {
     e.preventDefault();
@@ -33,7 +44,9 @@ export default function FormFiller({ formId, date, questions, initial }: { formI
   return (
     <form onSubmit={onSubmit} noValidate>
       {questions.map((q, i) => (
-        <section key={q.id} id={`q-${q.id}`} className={`card fq ${error?.id === q.id ? "fq-error" : ""}`}>
+        <div key={q.id}>
+        {q.section && <h2 className="fq-section">{q.section}</h2>}
+        <section id={`q-${q.id}`} className={`card fq ${error?.id === q.id ? "fq-error" : ""}`}>
           <label className="fq-label" htmlFor={`in-${q.id}`}>
             <span className="fq-num">{i + 1}</span>
             {q.prompt}
@@ -58,6 +71,18 @@ export default function FormFiller({ formId, date, questions, initial }: { formI
               ))}
             </div>
           )}
+          {q.type === "multi" && (
+            <>
+              <p className="hint" style={{ margin: "0 0 8px" }}>Pick all that apply</p>
+              <div className="chips">
+                {(q.options ?? []).map((o) => (
+                  <button key={o} type="button" className="chip" aria-pressed={(answers[q.id] ?? "").split("\n").includes(o)} onClick={() => toggle(q, o)}>
+                    {o}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
           {q.type === "number" && (
             <input
               id={`in-${q.id}`}
@@ -73,6 +98,7 @@ export default function FormFiller({ formId, date, questions, initial }: { formI
           {q.type === "text" && <input id={`in-${q.id}`} value={answers[q.id] ?? ""} maxLength={300} onChange={(e: Ev) => set(q.id, e.target.value)} />}
           {q.type === "longtext" && <textarea id={`in-${q.id}`} rows={3} value={answers[q.id] ?? ""} maxLength={3000} onChange={(e: Ev) => set(q.id, e.target.value)} />}
         </section>
+        </div>
       ))}
       {error && <p className="notice notice-error">{error.text}</p>}
       <button className="btn btn-wide" type="submit" disabled={pending}>

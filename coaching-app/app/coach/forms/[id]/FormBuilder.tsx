@@ -77,6 +77,13 @@ export default function FormBuilder({
       <h3 className="builder-section">Questions</h3>
       {qs.map((q, i) => (
         <div key={i} className="builder-card">
+          <input
+            className="input-sm builder-section-input"
+            aria-label="Section heading"
+            value={q.section ?? ""}
+            placeholder="Section heading above this question (optional)"
+            onChange={(e: Ev) => setQ(i, { section: e.target.value })}
+          />
           <div className="builder-head">
             <span className="builder-num">{i + 1}</span>
             <input aria-label="Question" className="builder-title" value={q.prompt} placeholder="Question" onChange={(e: Ev) => setQ(i, { prompt: e.target.value })} />
@@ -99,7 +106,7 @@ export default function FormBuilder({
               Required
             </label>
           </div>
-          {q.type === "choice" && (
+          {(q.type === "choice" || q.type === "multi") && (
             <textarea
               className="input-sm"
               rows={3}
@@ -117,7 +124,7 @@ export default function FormBuilder({
           )}
           <input className="input-sm" aria-label="Hint" value={q.help ?? ""} placeholder="Hint under the question (optional)" onChange={(e: Ev) => setQ(i, { help: e.target.value })} />
           <div className="builder-foot">
-            <span className="muted small">{q.type === "scale" ? "They tap 1–10" : ""}</span>
+            <span className="muted small">{q.type === "scale" ? "They tap 1–10" : q.type === "multi" ? "They can pick more than one" : ""}</span>
             <div className="icon-btns">
               <button type="button" onClick={() => (setQs(move(qs, i, i - 1)), touch())} disabled={i === 0} aria-label="Move up">
                 ↑

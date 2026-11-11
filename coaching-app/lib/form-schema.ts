@@ -4,6 +4,7 @@ export const QUESTION_TYPES = [
   { value: "scale", label: "1–10 scale" },
   { value: "number", label: "Number" },
   { value: "choice", label: "Pick one" },
+  { value: "multi", label: "Pick any" },
   { value: "yesno", label: "Yes / No" },
   { value: "text", label: "Short answer" },
   { value: "longtext", label: "Long answer" },
@@ -14,6 +15,8 @@ export type FormQuestion = {
   id: string;
   type: QuestionType;
   prompt: string;
+  /** Optional heading shown above this question ("Training", "Nutrition"…). */
+  section?: string;
   help?: string;
   options?: string[];
   min?: number;
@@ -80,7 +83,9 @@ export function sanitizeQuestions(raw: unknown): { ok: true; questions: FormQues
     const q: FormQuestion = { id, type, prompt, required: o.required !== false };
     const help = typeof o.help === "string" ? o.help.trim().slice(0, 200) : "";
     if (help) q.help = help;
-    if (type === "choice") {
+    const section = typeof o.section === "string" ? o.section.trim().slice(0, 60) : "";
+    if (section) q.section = section;
+    if (type === "choice" || type === "multi") {
       const options = (Array.isArray(o.options) ? o.options : [])
         .map((x) => String(x).trim().slice(0, 60))
         .filter(Boolean)
@@ -121,10 +126,29 @@ export function checkAnswers(questions: FormQuestion[], raw: Record<string, unkn
       }
     }
     if (q.type === "choice" && !(q.options ?? []).includes(v)) return { ok: false, error: `Pick an option for: ${q.prompt}`, id: q.id };
+    if (q.type === "multi") {
+      const picked = splitMulti(q, v);
+      if (picked.length === 0) {
+        if (q.required) return { ok: false, error: `Pick at least one for: ${q.prompt}`, id: q.id };
+        continue;
+      }
+      answers[q.id] = picked.join(", ");
+      continue;
+    }
     if (q.type === "yesno" && v !== "Yes" && v !== "No") return { ok: false, error: `Pick Yes or No for: ${q.prompt}`, id: q.id };
     answers[q.id] = v.slice(0, q.type === "longtext" ? 3000 : 300);
   }
   return { ok: true, answers };
+}
+
+/**
+ * The options picked in a "Pick any" answer. The form sends them one per line; saved answers are
+ * "Protein, Carbs". Anything that isn't one of the options is dropped; order follows the options.
+ */
+export function splitMulti(q: Pick<FormQuestion, "options">, value: string): string[] {
+  const options = q.options ?? [];
+  const parts = value.includes("\n") ? value.split("\n").map((x) => x.trim()) : null;
+  return options.filter((o) => (parts ? parts.includes(o) : value === o || value.split(", ").includes(o)));
 }
 
 /** "Energy this week: 7/10" lines for emails and the AI. */
