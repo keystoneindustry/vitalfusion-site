@@ -12,6 +12,7 @@ import { loadDays } from "@/lib/client-days";
 import { listSubmissions } from "@/lib/forms";
 import { addDays } from "@/lib/dates";
 import HabitChecklist from "./HabitChecklist";
+import { listResources, startHere } from "@/lib/resources";
 
 export const metadata = { title: "Today · Vital Fusion" };
 
@@ -32,6 +33,9 @@ export default async function TodayPage() {
   // Forms due today, plus check-ins from the last 3 days that weren't sent yet.
   const formsDue = days.flatMap((d) => d.forms.filter((f) => d.date === today || !f.submitted).map((f) => ({ ...f, date: d.date })));
   const newReply = subs.find((x) => x.coach_reply && !x.reply_seen_at);
+  // First two weeks: point them at the READ FIRST guide.
+  const earlyDays = status.kind === "not_started" || (status.kind === "in_progress" && status.week <= 2);
+  const guide = !onboarding && earlyDays ? startHere(await listResources(true).catch(() => [])) : null;
   const callToday = client.next_call_at && todayIn(client.timezone, new Date(client.next_call_at)) === today ? client.next_call_at : null;
   const hasTasks = !!day && (day.habits.length > 0 || day.weighIn.due || day.photos.due || formsDue.length > 0 || day.workouts.length > 0 || !!callToday);
 
@@ -118,6 +122,17 @@ export default async function TodayPage() {
           )}
           {day.habits.length > 0 && <HabitChecklist key={today} date={today} items={day.habits} />}
         </section>
+      )}
+
+      {guide && (
+        <Link href={`/resources/${guide.id}`} className="task-link start-link">
+          <span className="task-icon">📚</span>
+          <span className="task-text">
+            <b>Start here: {guide.title.replace(/^\(?read first\)?\s*[:\-–]?\s*/i, "")}</b>
+            <span className="small">How weigh-ins, photos and tracking work</span>
+          </span>
+          <span className="chev" aria-hidden="true">›</span>
+        </Link>
       )}
 
       {onboarding ? (

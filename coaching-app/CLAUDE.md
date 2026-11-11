@@ -113,3 +113,8 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
 - Nutrition tab (Nov 11): targets + perfect day + "Track your calories" (`TrackingApps.tsx`: Cronometer / MyFitnessPal via
   `/go/[app]`, which redirects to the App Store, Google Play or the website by device). The meal library moved to
   `/meals` (☰ More → Meal library), with "Easing in". The app tour and "How your coaching works" mention both.
+- READ FIRST guide (Nov 11): `startHere()` in `lib/resources.ts` picks the published resource with "read first"/"start here"
+  in its title (else the first "Getting started" item). It's linked from the onboarding "How your coaching works" step,
+  the app tour (Resources slide), Today (first 2 weeks), and the top of Resources. `findGuide()` links "How to Track
+  Calories" from the Nutrition tab. Client ☰ More is grouped: Your coaching (Check-ins, Progress, Resources, Meal
+  library, Food log) and Account (Settings, Add to home screen — hidden once installed), then Sign out.

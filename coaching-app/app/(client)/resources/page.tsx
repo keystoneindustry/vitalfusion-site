@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireClient } from "@/lib/auth";
 import { packageStatus, todayIn } from "@/lib/dates";
-import { byCategory, KIND_ICON, KIND_LABEL, listResources, unlocked } from "@/lib/resources";
+import { byCategory, KIND_ICON, KIND_LABEL, listResources, startHere, unlocked } from "@/lib/resources";
 
 export const metadata = { title: "Resources · Vital Fusion" };
 
@@ -11,6 +11,7 @@ export default async function ResourcesPage() {
   const status = packageStatus(client.start_date, client.end_date, today);
   const week = status.kind === "in_progress" ? status.week : status.kind === "ended" ? 999 : 1;
   const all = await listResources(true);
+  const guide = startHere(all);
   const groups = byCategory(all);
   const weekAgo = Date.now() - 7 * 24 * 3600 * 1000;
 
@@ -18,6 +19,16 @@ export default async function ResourcesPage() {
     <>
       <h1 className="h1">Resources</h1>
       <p className="program-intro">Videos and guides from Tyler. New ones unlock as your coaching goes on.</p>
+      {guide && (
+        <Link href={`/resources/${guide.id}`} className="task-link start-link" style={{ marginBottom: 18 }}>
+          <span className="task-icon">⭐</span>
+          <span className="task-text">
+            <b>Start here</b>
+            <span className="small">{guide.title}</span>
+          </span>
+          <span className="chev" aria-hidden="true">›</span>
+        </Link>
+      )}
       {groups.length === 0 && (
         <div className="card empty">
           <p style={{ margin: 0 }}>Tyler's videos and guides will show up here.</p>

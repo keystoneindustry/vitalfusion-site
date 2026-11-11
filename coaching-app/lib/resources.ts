@@ -97,6 +97,22 @@ export function byCategory<T extends Pick<Resource, "category" | "sort" | "creat
 
 // ───────── Database ─────────
 
+/**
+ * The guide every client should read first: one with "read first" in its title, else the first item in
+ * "Getting started". Null when there's nothing published yet.
+ */
+export function startHere<T extends Pick<Resource, "title" | "category" | "sort" | "created_at" | "published" | "unlock_week">>(list: T[]): T | null {
+  const open = list.filter((r) => r.published && !r.unlock_week);
+  const marked = open.find((r) => /read\s*first|start\s*here/i.test(r.title));
+  if (marked) return marked;
+  return byCategory(open).find((g) => g.category === "Getting started")?.items[0] ?? null;
+}
+
+/** A published guide whose title matches, e.g. /track(ing)? calories/i for the Nutrition tab. */
+export function findGuide<T extends Pick<Resource, "title" | "published" | "unlock_week">>(list: T[], pattern: RegExp): T | null {
+  return list.find((r) => r.published && !r.unlock_week && pattern.test(r.title)) ?? null;
+}
+
 export async function listResources(publishedOnly: boolean): Promise<Resource[]> {
   return db<Resource[]>(`resources?select=*${publishedOnly ? "&published=eq.true" : ""}&order=sort.asc,created_at.asc`);
 }

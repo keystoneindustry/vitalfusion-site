@@ -8,6 +8,7 @@ import { todayIn } from "@/lib/dates";
 import { formatCallTime } from "@/lib/booking";
 import { PerfectDay } from "@/app/components/PlanViews";
 import TrackingApps from "@/app/components/TrackingApps";
+import { findGuide, listResources } from "@/lib/resources";
 
 export const metadata = { title: "Nutrition · Vital Fusion" };
 
@@ -61,7 +62,7 @@ export default async function NutritionPage() {
       <h2 className="section-title">Your perfect day</h2>
       <PerfectDay nutrition={content} targets={targets} showTotals={false} />
 
-      <TrackingApps />
+      <TrackingApps guideId={findGuide(await listResources(true).catch(() => []), /track(ing)?\s+(your\s+)?calories/i)?.id} />
     </>
   );
 }

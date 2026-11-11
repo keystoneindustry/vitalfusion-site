@@ -139,14 +139,16 @@ body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: 
 .sheet-backdrop { position: fixed; inset: 0; z-index: 19; background: rgba(0, 0, 0, 0.5); animation: fade 0.15s ease; }
 .sheet { position: absolute; right: 8px; left: 8px; bottom: calc(var(--tabbar-h) + var(--safe-bottom) + 8px); max-width: 420px; margin-left: auto;
   background: var(--card); border: 1px solid var(--card-border); border-radius: 18px; padding: 6px; box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
-  animation: rise 0.18s ease; }
+  animation: rise 0.18s ease; max-height: calc(100dvh - var(--tabbar-h) - var(--safe-bottom) - var(--safe-top) - 24px); overflow-y: auto; }
 .sheet ul { list-style: none; margin: 0; padding: 0; }
-.sheet a, .sheet button { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 14px; min-height: 52px; border-radius: 12px;
+.sheet a, .sheet button { display: flex; align-items: center; gap: 12px; width: 100%; padding: 11px 14px; min-height: 50px; border-radius: 12px;
   color: var(--text); text-decoration: none; font: inherit; font-size: 17px; font-weight: 600; background: none; border: 0; cursor: pointer; text-align: left; }
 .sheet a[aria-current="page"] { background: #1c2a3d; color: #fff; }
 .sheet a:active, .sheet button:active { background: var(--card-2); }
 .sheet li + li { border-top: 1px solid var(--card-border); }
-.sheet span { width: 26px; text-align: center; font-size: 20px; }
+.sheet a > span:first-child, .sheet button > span:first-child { width: 26px; flex: 0 0 26px; text-align: center; font-size: 20px; }
+.sheet-text { display: flex; flex-direction: column; gap: 1px; }
+.sheet-text small { font-size: 12.5px; font-weight: 500; color: var(--muted); }
 .signout-confirm { padding: 12px 14px; border-radius: 12px; background: var(--card-2); }
 .signout-confirm p { margin: 0 0 10px; color: var(--text-2); font-size: 15px; line-height: 1.4; }
 .signout-actions { display: flex; gap: 8px; justify-content: flex-end; }
@@ -539,6 +541,10 @@ p .cg { padding: 0 6px; margin: 0 2px 0 8px; }
 .answers-section { margin-top: 0; }
 .task-link { display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin: 0 0 10px; border-radius: 14px; background: #1c2a3d; border: 1px solid #2c4566; color: var(--text); text-decoration: none; }
 .task-link:active { background: #22344b; }
+.start-link { background: #211b0e; border-color: #5a4a26; }
+.start-link .small { color: #ffe2a8; }
+.sheet-label { padding: 10px 14px 4px; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.sheet li.sheet-label + li { border-top: 0; }
 .task-link.done { background: var(--card-2); border-color: var(--card-border); }
 .task-link.done .task-text .small { color: var(--good); }
 .task-icon { flex: 0 0 auto; font-size: 24px; }

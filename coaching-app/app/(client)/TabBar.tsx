@@ -17,16 +17,27 @@ const TABS = [
   },
 ];
 
-/** Extra screens behind the ☰ tab. */
-const MORE = [
-  { href: "/progress/weight", label: "Progress", emoji: "📈" },
-  { href: "/meals", label: "Meal library", emoji: "🍽️" },
-  { href: "/check-ins", label: "Check-ins", emoji: "📝" },
-  { href: "/food", label: "Food log", emoji: "📷" },
-  { href: "/resources", label: "Resources", emoji: "📚" },
-  { href: "/settings", label: "Settings", emoji: "⚙️" },
-  { href: "/install", label: "Add to home screen", emoji: "📲" },
+/** Extra screens behind the ☰ tab, most-used first. */
+const MORE_GROUPS: { label: string; items: { href: string; label: string; emoji: string; hint?: string }[] }[] = [
+  {
+    label: "Your coaching",
+    items: [
+      { href: "/check-ins", label: "Check-ins", emoji: "📝", hint: "Past check-ins and Tyler's replies" },
+      { href: "/progress/weight", label: "Progress", emoji: "📈", hint: "Weight graph and photos" },
+      { href: "/resources", label: "Resources", emoji: "📚", hint: "Guides and videos from Tyler" },
+      { href: "/meals", label: "Meal library", emoji: "🍽️", hint: "Meals to swap into your day" },
+      { href: "/food", label: "Food log", emoji: "📷", hint: "Your meal photos" },
+    ],
+  },
+  {
+    label: "Account",
+    items: [
+      { href: "/settings", label: "Settings", emoji: "⚙️" },
+      { href: "/install", label: "Add to home screen", emoji: "📲" },
+    ],
+  },
 ];
+const MORE = MORE_GROUPS.flatMap((g) => g.items);
 
 /** The bottom tab bar of the client app: four tabs plus a ☰ menu that slides up. */
 export default function TabBar() {
@@ -34,6 +45,11 @@ export default function TabBar() {
   const [open, setOpen] = useState(false);
   // Hide the bar while typing so it doesn't float above the phone keyboard.
   const typing = useTyping();
+  // Hide "Add to home screen" once they're using the installed app.
+  const [installed, setInstalled] = useState(false);
+  useEffect(() => {
+    setInstalled(window.matchMedia("(display-mode: standalone)").matches || (navigator as Navigator & { standalone?: boolean }).standalone === true);
+  }, []);
   const inMore = MORE.some((m) => pathname.startsWith(m.href)) || pathname.startsWith("/progress") || pathname.startsWith("/agreement");
 
   // Close the menu when the page changes or Escape is pressed.
@@ -51,14 +67,24 @@ export default function TabBar() {
         <div className="sheet-backdrop" onClick={() => setOpen(false)}>
           <div className="sheet" role="dialog" aria-label="More" onClick={(e: { stopPropagation: () => void }) => e.stopPropagation()}>
             <ul>
-              {MORE.map((m) => (
-                <li key={m.href}>
-                  <Link href={m.href} aria-current={pathname.startsWith(m.href) ? "page" : undefined}>
-                    <span aria-hidden="true">{m.emoji}</span>
-                    {m.label}
-                  </Link>
-                </li>
-              ))}
+              {MORE_GROUPS.map((g) => [
+                <li key={g.label} className="sheet-label" aria-hidden="true">
+                  {g.label}
+                </li>,
+                ...g.items
+                  .filter((m) => !(m.href === "/install" && installed))
+                  .map((m) => (
+                    <li key={m.href}>
+                      <Link href={m.href} aria-current={pathname.startsWith(m.href) ? "page" : undefined}>
+                        <span aria-hidden="true">{m.emoji}</span>
+                        <span className="sheet-text">
+                          {m.label}
+                          {m.hint && <small>{m.hint}</small>}
+                        </span>
+                      </Link>
+                    </li>
+                  )),
+              ])}
               <li>
                 <SignOutButton className="" icon="👋" />
               </li>

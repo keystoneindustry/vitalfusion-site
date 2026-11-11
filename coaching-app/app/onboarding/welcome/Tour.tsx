@@ -10,7 +10,8 @@ const SLIDES = [
   { icon: "🏋️", title: "Training", text: "Your program, one workout per day, with sets, reps and rest for every exercise. Tap a workout on Today to open it." },
   { icon: "🍽️", title: "Nutrition", text: "Your daily calorie and macro targets and your perfect day of eating. You'll track your calories in Cronometer or MyFitnessPal; the download links are right here once your plan is ready." },
   { icon: "📝", title: "Weekly check-in", text: "Once a week, on the day you pick, take your progress photos and answer a short check-in. Tyler replies in the app, and you can book an optional 1-on-1 call." },
-  { icon: "☰", title: "More", text: "Your meal library (every meal in your plan, ready to swap in), your progress (weight graph and photos), past check-ins and Tyler's replies, your food log, videos and guides from Tyler, and settings." },
+  { icon: "📚", title: "Resources", text: "Tyler's guides and videos, under ☰ More. Start with the one marked READ FIRST: how weigh-ins, progress photos and tracking work. New ones get added as you go." },
+  { icon: "☰", title: "More", text: "Also under More: your past check-ins and Tyler's replies, your progress (weight graph and photos), your meal library, and settings." },
 ];
 
 /** A short swipe-through tour of the tabs. */
