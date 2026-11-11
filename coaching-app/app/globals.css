@@ -118,6 +118,7 @@ input[type="date"], input[type="time"] { min-width: 0; max-width: 100%; -webkit-
 /* ───────── Client app shell ───────── */
 .app { min-height: 100dvh; padding-bottom: calc(var(--tabbar-h) + var(--safe-bottom) + 16px); }
 .topbar { display: flex; align-items: center; gap: 10px; padding: calc(10px + var(--safe-top)) var(--pad-x) 10px; max-width: 640px; margin: 0 auto; }
+.home-brand { display: flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; }
 .topbar img { width: 34px; height: 34px; border-radius: 9px; }
 .topbar .brand { font-weight: 800; font-size: 17px; }
 .tabbar {

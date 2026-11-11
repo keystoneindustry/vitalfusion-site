@@ -3,8 +3,10 @@ export default function OnboardingLayout({ children }: { children: React.ReactNo
   return (
     <div className="onb">
       <header className="topbar">
-        <img src="/icons/logo.png" alt="" />
-        <span className="brand">Getting started</span>
+        <a href="/" className="home-brand" aria-label="Home">
+          <img src="/icons/logo.png" alt="" />
+          <span className="brand">Getting started</span>
+        </a>
         <a href="/" className="small" style={{ marginLeft: "auto", color: "var(--muted)", textDecoration: "none" }}>
           Home
         </a>
