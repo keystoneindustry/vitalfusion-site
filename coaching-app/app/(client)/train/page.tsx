@@ -1,11 +1,10 @@
-import Link from "next/link";
 import { requireClient } from "@/lib/auth";
 import { getPublishedPlan, hasContent } from "@/lib/plans";
-import { TrainingProgram, workoutTitle } from "@/app/components/PlanViews";
+import { TrainingProgram } from "@/app/components/PlanViews";
 import { formatCallTime } from "@/lib/booking";
 import { estimateMinutes } from "@/lib/training-brief";
 import { todayIn } from "@/lib/dates";
-import { WEEKDAYS, weekDates } from "@/lib/calendar";
+import { weekDates } from "@/lib/calendar";
 import { loadDays } from "@/lib/client-days";
 
 const GOAL_LABEL: Record<string, string> = { lose: "Fat loss", muscle: "Build muscle", maintain: "Get fitter" };
@@ -45,30 +44,6 @@ export default async function TrainPage({ searchParams }: { searchParams: Promis
       <p className="lead" style={{ marginTop: -4 }}>
         {perWeek}× a week · ~{minutes} min · {GOAL_LABEL[published.targets.inputs.goal] ?? "Your goal"}
       </p>
-
-      {scheduled && (
-        <div className="week-strip" aria-label="This week">
-          {week.map((d, i) => {
-            const w = d.workouts[0];
-            const inner = (
-              <>
-                <span className="ws-day">{WEEKDAYS[i].slice(0, 1)}</span>
-                <span className="ws-name">{w ? workoutTitle(training.days[w.day]?.name ?? "", w.day).replace(/^(Full body|Upper body|Lower body)\s*/i, "") || `${w.day + 1}` : "Rest"}</span>
-              </>
-            );
-            const cls = `ws ${d.date === today ? "today" : ""} ${w ? "has" : ""} ${d.date < today ? "past" : ""}`;
-            return w ? (
-              <Link key={d.date} href={`/train?day=${w.day}#workout-${w.day + 1}`} className={cls}>
-                {inner}
-              </Link>
-            ) : (
-              <span key={d.date} className={cls}>
-                {inner}
-              </span>
-            );
-          })}
-        </div>
-      )}
 
       {todays && (
         <p className="today-workout">

@@ -200,7 +200,12 @@ export function TrainingProgram({ training, openDay = 0 }: { training: Training;
               </span>
               <span className="chev" aria-hidden="true">›</span>
             </summary>
-            {warmup.length > 0 && <p className="warmup-line">🔥 Warm up first: {warmup[0].replace(/\.$/, "")}{warmup.length > 1 ? " (more below)" : ""}</p>}
+            {warmup.length > 0 && (
+              <p className="warmup-line">
+                <b>🔥 Warm up first</b>
+                {warmup[0].replace(/\.$/, "").replace(/^\d+\s*minutes?:\s*/i, "")}
+              </p>
+            )}
             <ol className="ex-list">
               {d.exercises.map((e, j) => (
                 <li key={j}>
@@ -208,10 +213,10 @@ export function TrainingProgram({ training, openDay = 0 }: { training: Training;
                   <div className="ex-body">
                     <b className="ex-name">{e.name}</b>
                     <span className="ex-plan">
-                      {setsReps(e)}
-                      {e.rest && <span className="ex-rest"> · rest {e.rest.replace(/^rest\s*/i, "")}</span>}
+                      <span className="ex-sets">{setsReps(e)}</span>
+                      {e.rest && <span className="ex-rest">⏱ {e.rest.replace(/^rest\s*/i, "")} rest</span>}
                     </span>
-                    {e.notes && <p className="ex-cue">{e.notes}</p>}
+                    {e.notes && <p className="ex-cue">💡 {e.notes}</p>}
                   </div>
                 </li>
               ))}
