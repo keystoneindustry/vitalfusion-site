@@ -29,7 +29,7 @@ export default async function FillFormPage({ params, searchParams }: { params: P
       <h1 className="h1">{form.title}</h1>
       {form.intro && <p className="program-intro">{form.intro}</p>}
       {existing && <div className="notice notice-good">You already sent this one. Change anything below and send it again.</div>}
-      <FormFiller formId={form.id} date={date} questions={form.questions} initial={existing?.answers ?? {}} />
+      <FormFiller formId={form.id} date={date} questions={form.questions} initial={existing?.answers ?? {}} isCheckin={form.kind === "checkin"} />
     </>
   );
 }

@@ -4,6 +4,9 @@ import { requireClient } from "@/lib/auth";
 import { formatDate } from "@/lib/dates";
 import { answerLines, getForm, getSubmission, updateSubmission } from "@/lib/forms";
 import { toLines } from "@/lib/plan";
+import { getSettings } from "@/lib/settings";
+import { bookingUrl, formatCallTime } from "@/lib/booking";
+import { addDays, todayIn } from "@/lib/dates";
 
 export const metadata = { title: "Check-in · Vital Fusion" };
 
@@ -13,7 +16,12 @@ export default async function SubmissionPage({ params, searchParams }: { params:
   const { client } = await requireClient(`/check-ins/${id}`);
   const sub = await getSubmission(id);
   if (!sub || sub.client_id !== client.id) notFound();
-  const form = await getForm(sub.form_id);
+  const [form, settings] = await Promise.all([getForm(sub.form_id), getSettings()]);
+  const today = todayIn(client.timezone);
+  // The optional weekly 1-on-1 call: offered on this week's check-in.
+  const recent = sub.due_date >= addDays(today, -6);
+  const upcomingCall = client.next_call_at && Date.parse(client.next_call_at) > Date.now() ? client.next_call_at : null;
+  const callLink = settings.checkin_link ? bookingUrl(settings.checkin_link, { name: client.full_name, email: client.email, clientId: client.id }) : null;
   if (sub.replied_at && !sub.reply_seen_at) await updateSubmission(sub.id, { reply_seen_at: new Date().toISOString() });
 
   return (
@@ -24,6 +32,24 @@ export default async function SubmissionPage({ params, searchParams }: { params:
       <p className="eyebrow">{formatDate(sub.due_date)}</p>
       <h1 className="h1">{form?.title ?? "Check-in"}</h1>
       {sent && <div className="notice notice-good">Sent ✓ Tyler will read it and reply here.</div>}
+
+      {form?.kind === "checkin" && recent && (upcomingCall || callLink) && (
+        <section className="card card-accent">
+          <h2 className="h2">📞 1-on-1 call (optional)</h2>
+          {upcomingCall ? (
+            <p style={{ margin: 0 }}>
+              You're booked: <b>{formatCallTime(upcomingCall, client.timezone)}</b>. Need to change it? Use the link in your booking email.
+            </p>
+          ) : (
+            <>
+              <p className="coming" style={{ marginTop: 0 }}>Want to talk this week through with Tyler? Pick a time that works for you.</p>
+              <a className="btn btn-wide" href={callLink!} target="_blank" rel="noopener noreferrer">
+                Book a call
+              </a>
+            </>
+          )}
+        </section>
+      )}
 
       {sub.coach_reply ? (
         <section className="card card-accent reply">

@@ -8,8 +8,10 @@ const GOAL_LABEL: Record<string, string> = { lose: "Fat loss", muscle: "Build mu
 
 export const metadata = { title: "Training · Vital Fusion" };
 
-export default async function TrainPage() {
+export default async function TrainPage({ searchParams }: { searchParams: Promise<{ day?: string }> }) {
   const { client } = await requireClient("/train");
+  const { day } = await searchParams;
+  const openDay = Math.max(0, parseInt(day ?? "0", 10) || 0);
   const published = await getPublishedPlan(client.id);
   if (!hasContent(published) || published.content.training.days.length === 0) {
     return (
@@ -35,7 +37,7 @@ export default async function TrainPage() {
         </span>
         <span className="info-chip">🎯 {GOAL_LABEL[published.targets.inputs.goal] ?? "Your goal"}</span>
       </div>
-      <TrainingProgram training={published.content.training} />
+      <TrainingProgram training={published.content.training} openDay={openDay} />
       <p className="small muted" style={{ marginTop: 14 }}>Do the workouts in order. Rest a day between them when you can.</p>
     </>
   );

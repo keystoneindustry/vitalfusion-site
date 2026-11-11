@@ -28,3 +28,5 @@ The app itself uses the secret key on the server, and checks who is signed in in
 - `water_habit` (Nov 11, 2026): habits.kind may be `water`; seeds the built-in "Drink your water" habit (💧). The starting
   setup assigns it as "Drink N oz of water" from the plan's water target. Tyler's 30 check-in questions were written into
   the seeded "Weekly check-in" form the same day (data update, not a migration).
+- `workout_schedules_and_calls` (Nov 11, 2026): `schedules.kind` may be `workout` with `workout_day`; `clients.next_call_at`,
+  `clients.next_call_uid` (booked 1-on-1 check-in call).

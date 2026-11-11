@@ -42,10 +42,26 @@ export async function addScheduleAction(clientId: string, form: FormData): Promi
   back(client.id, "progress", { msg: "scheduled" });
 }
 
-export async function endScheduleAction(clientId: string, scheduleId: string): Promise<void> {
+export async function endScheduleAction(clientId: string, scheduleId: string, tab = "progress"): Promise<void> {
   const client = await loadClient(clientId);
   await endSchedule(scheduleId, client.id);
-  back(client.id, "progress", { msg: "removed" });
+  back(client.id, tab === "calendar" ? "calendar" : "progress", { msg: "removed" });
+}
+
+/** Puts one workout from their program on chosen weekdays (Calendar tab). */
+export async function addWorkoutAction(clientId: string, form: FormData): Promise<void> {
+  const client = await loadClient(clientId);
+  const day = parseInt(String(form.get("workout") ?? ""), 10);
+  const days = parseDays(form.getAll("days").map(String));
+  const month = String(form.get("m") ?? "");
+  const keep: Record<string, string> = /^\d{4}-\d{2}$/.test(month) ? { m: month } : {};
+  if (!Number.isInteger(day) || day < 0 || day > 13) back(client.id, "calendar", { ...keep, error: "Pick a workout." });
+  if (days.length === 0) back(client.id, "calendar", { ...keep, error: "Pick at least one day." });
+  const every = Math.max(1, Math.min(8, parseInt(String(form.get("every") ?? "1"), 10) || 1));
+  const today = todayIn(client.timezone);
+  await addSchedule({ client_id: client.id, kind: "workout", workout_day: day, form_id: null, days, every_weeks: every, start_date: today, end_date: client.end_date, one_date: null });
+  await addEvent(client.id, "schedule_added", { added: [`workout ${day + 1}`] });
+  back(client.id, "calendar", { ...keep, msg: "scheduled" });
 }
 
 /** Adds the starting setup (step goal, weigh-ins, photos) — whatever the client doesn't have yet. */

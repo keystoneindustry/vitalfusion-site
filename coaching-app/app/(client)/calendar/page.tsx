@@ -21,7 +21,11 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
   const dates = weekDates(start);
   const { days } = await loadDays(client.id, dates);
   const kickoffDay = client.kickoff_at ? todayIn(client.timezone, new Date(client.kickoff_at)) : null;
-  const empty = days.every((d) => !d.habits.length && !d.weighIn.due && !d.photos.due && !d.forms.length) && !(kickoffDay && dates.includes(kickoffDay));
+  const callDay = client.next_call_at ? todayIn(client.timezone, new Date(client.next_call_at)) : null;
+  const empty =
+    days.every((d) => !d.habits.length && !d.weighIn.due && !d.photos.due && !d.forms.length && !d.workouts.length) &&
+    !(kickoffDay && dates.includes(kickoffDay)) &&
+    !(callDay && dates.includes(callDay));
 
   return (
     <>
@@ -55,7 +59,9 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
         days.map((d, i) => {
           const isToday = d.date === today;
           const past = d.date < today;
-          const items: { icon: string; text: string; state: "done" | "missed" | "due"; href?: string }[] = [];
+          const items: { icon: string; text: string; state: "done" | "missed" | "due" | "plain"; href?: string }[] = [];
+          if (callDay === d.date && client.next_call_at) items.push({ icon: "📞", text: `1-on-1 call with Tyler · ${formatCallTime(client.next_call_at, client.timezone).split(" at ")[1] ?? ""}`, state: "due" });
+          for (const w of d.workouts) items.push({ icon: "🏋️", text: w.name, state: "plain", href: `/train?day=${w.day}` });
           if (kickoffDay === d.date && client.kickoff_at) items.push({ icon: "📞", text: `Kickoff call · ${formatCallTime(client.kickoff_at, client.timezone).split(" at ")[1] ?? ""}`, state: "due" });
           if (d.weighIn.due || d.weighIn.weight !== null)
             items.push({ icon: "⚖️", text: d.weighIn.weight !== null ? `Weigh-in · ${d.weighIn.weight} lb` : "Weigh-in", state: d.weighIn.weight !== null ? "done" : past ? "missed" : "due", href: isToday ? "/progress/weigh-in" : undefined });

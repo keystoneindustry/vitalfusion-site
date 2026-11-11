@@ -27,7 +27,9 @@ export default async function ClientProgressPage({ params, searchParams }: { par
   await requireCoach(`/coach/clients/${id}/progress`);
   const client = await getClient(id);
   if (!client) notFound();
-  const [schedules, weighIns, photos, forms] = await Promise.all([listSchedules(client.id), listWeighIns(client.id), listPhotos(client.id), listForms()]);
+  const [allSchedules, weighIns, photos, forms] = await Promise.all([listSchedules(client.id), listWeighIns(client.id), listPhotos(client.id), listForms()]);
+  // Workouts are scheduled on the Calendar tab.
+  const schedules = allSchedules.filter((s) => s.kind !== "workout");
   const formTitle = new Map(forms.map((f) => [f.id, f.title]));
   const urls = await signedUrls(PHOTO_BUCKET, photos.map((p) => p.path)).catch(() => ({}) as Record<string, string>);
   const name = firstName(client.full_name);

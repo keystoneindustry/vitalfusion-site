@@ -20,9 +20,11 @@ export type HabitAssignment = {
 
 export type Schedule = {
   id: string;
-  kind: "weigh_in" | "photos" | "form";
+  kind: "weigh_in" | "photos" | "form" | "workout";
   /** For kind "form": which form (e.g. the weekly check-in). */
   form_id?: string | null;
+  /** For kind "workout": which day of their training program (0 = the first workout). */
+  workout_day?: number | null;
   days: number[];
   every_weeks: number;
   start_date: string;

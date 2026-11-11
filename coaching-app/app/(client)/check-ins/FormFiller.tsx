@@ -8,7 +8,19 @@ import { submitFormAction } from "./actions";
 type Ev = { target: { value: string } };
 
 /** Fills in a form: all questions on one scrolling page, big tap targets. */
-export default function FormFiller({ formId, date, questions, initial }: { formId: string; date: string; questions: FormQuestion[]; initial: Record<string, string> }) {
+export default function FormFiller({
+  formId,
+  date,
+  questions,
+  initial,
+  isCheckin = false,
+}: {
+  formId: string;
+  date: string;
+  questions: FormQuestion[];
+  initial: Record<string, string>;
+  isCheckin?: boolean;
+}) {
   const router = useRouter();
   // "Pick any" answers are kept one option per line while filling in.
   const [answers, setAnswers] = useState<Record<string, string>>(() => {
@@ -135,6 +147,7 @@ export default function FormFiller({ formId, date, questions, initial }: { formI
       <button className="btn btn-wide" type="submit" disabled={pending}>
         {pending ? "Sending…" : "Send to Tyler"}
       </button>
+      {isCheckin && <p className="small muted center" style={{ margin: "10px 0 0" }}>After you send it, you can book an optional 1-on-1 call with Tyler.</p>}
     </form>
   );
 }

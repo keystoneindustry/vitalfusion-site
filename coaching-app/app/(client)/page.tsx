@@ -32,7 +32,8 @@ export default async function TodayPage() {
   // Forms due today, plus check-ins from the last 3 days that weren't sent yet.
   const formsDue = days.flatMap((d) => d.forms.filter((f) => d.date === today || !f.submitted).map((f) => ({ ...f, date: d.date })));
   const newReply = subs.find((x) => x.coach_reply && !x.reply_seen_at);
-  const hasTasks = !!day && (day.habits.length > 0 || day.weighIn.due || day.photos.due || formsDue.length > 0);
+  const callToday = client.next_call_at && todayIn(client.timezone, new Date(client.next_call_at)) === today ? client.next_call_at : null;
+  const hasTasks = !!day && (day.habits.length > 0 || day.weighIn.due || day.photos.due || formsDue.length > 0 || day.workouts.length > 0 || !!callToday);
 
   let packageLine = "Your coaching dates will show here.";
   if (status.kind === "not_started")
@@ -62,6 +63,25 @@ export default async function TodayPage() {
       {!onboarding && hasTasks && day && (
         <section className="card card-accent">
           <h2 className="h2">To do today</h2>
+          {callToday && (
+            <div className="task-link">
+              <span className="task-icon">📞</span>
+              <span className="task-text">
+                <b>1-on-1 call with Tyler</b>
+                <span className="small">{formatCallTime(callToday, client.timezone).split(" at ")[1] ?? ""}</span>
+              </span>
+            </div>
+          )}
+          {day.workouts.map((w) => (
+            <Link key={w.day} href={`/train?day=${w.day}`} className="task-link">
+              <span className="task-icon">🏋️</span>
+              <span className="task-text">
+                <b>{w.name}</b>
+                <span className="small">Today's workout</span>
+              </span>
+              <span className="chev" aria-hidden="true">›</span>
+            </Link>
+          ))}
           {formsDue.map((f) => (
             <Link
               key={`${f.formId}-${f.date}`}

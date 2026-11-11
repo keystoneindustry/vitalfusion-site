@@ -172,14 +172,14 @@ function Section({ icon, title, children, open = false }: { icon: string; title:
 }
 
 /** A training program, laid out to scan on a phone: workouts first, then short tip sections. */
-export function TrainingProgram({ training }: { training: Training }) {
+export function TrainingProgram({ training, openDay = 0 }: { training: Training; openDay?: number }) {
   return (
     <div className="program">
       {training.overview && <p className="program-intro">{toLines(training.overview).slice(0, 2).join(" ")}</p>}
 
       <div className="workouts">
         {training.days.map((d, k) => (
-          <details key={k} className="workout" open={k === 0}>
+          <details key={k} id={`workout-${k + 1}`} className="workout" open={k === openDay}>
             <summary>
               <span className="workout-num">{k + 1}</span>
               <span className="workout-title">

@@ -25,6 +25,9 @@ export type ClientRow = {
   kickoff_booking_uid: string | null;
   health_flag: boolean;
   health_note: string | null;
+  /** Their next booked 1-on-1 check-in call (from the Cal.com webhook). */
+  next_call_at?: string | null;
+  next_call_uid?: string | null;
 };
 
 export type ClientEvent = {

@@ -98,3 +98,10 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
 - Phones: bottom tab bars hide while a text box has focus (`app/components/useTyping.ts`) so they don't float over the
   keyboard; `body::before` paints a strip behind the iPhone status bar. Check-in answers autosave on the device
   (localStorage `vf-form-<formId>-<date>`) until sent.
+- Workout days + calendar (Nov 11): `schedules.kind = workout` with `workout_day` (index into the program's training days);
+  coach client tab **Calendar** (`/coach/clients/[id]/calendar`: month grid, day details, add/remove workout days;
+  `addWorkoutAction` in progress-actions). Clients see workouts on Today / Calendar → `/train?day=N` opens that workout.
+  `workoutName()` in `lib/client-days.ts`.
+- Optional weekly 1-on-1 call: after sending a weekly check-in, `/check-ins/[id]` offers "Book a call" (Settings →
+  check-in call booking link, prefilled via `bookingUrl`). The Cal.com webhook stores `clients.next_call_at` /
+  `next_call_uid` for check-in calls (event title must contain "check"); shown on Today, both calendars.

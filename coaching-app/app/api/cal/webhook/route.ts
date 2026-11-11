@@ -88,6 +88,7 @@ export async function POST(request: Request) {
         }).catch((err) => console.error("Kickoff email failed", err));
       }
     } else if (kind === "checkin") {
+      await updateClient(client.id, { next_call_at: p.startTime ?? null, next_call_uid: p.uid ?? null });
       await addEvent(client.id, "checkin_call_booked", { when });
     }
   } else if (trigger === "BOOKING_CANCELLED") {
@@ -102,6 +103,7 @@ export async function POST(request: Request) {
       });
       await addEvent(client.id, "kickoff_cancelled");
     } else if (kind === "checkin") {
+      if (!client.next_call_uid || client.next_call_uid === p.uid) await updateClient(client.id, { next_call_at: null, next_call_uid: null });
       await addEvent(client.id, "checkin_call_cancelled", { when });
     }
   }
