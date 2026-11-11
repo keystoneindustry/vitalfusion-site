@@ -25,3 +25,6 @@ The app itself uses the secret key on the server, and checks who is signed in in
 - `phase5_checkins_forms` (Nov 10, 2026): `forms` (seeded "Weekly check-in", kind checkin, placeholder questions),
   `form_submissions` (answers + questions snapshot, AI summary, coach reply); `schedules.kind` now includes `form` with
   `form_id`; setting `checkin_email`.
+- `water_habit` (Nov 11, 2026): habits.kind may be `water`; seeds the built-in "Drink your water" habit (💧). The starting
+  setup assigns it as "Drink N oz of water" from the plan's water target. Tyler's 30 check-in questions were written into
+  the seeded "Weekly check-in" form the same day (data update, not a migration).
