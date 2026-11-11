@@ -142,3 +142,8 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   `markTourSeenAction`; Settings → "Take the app tour again" (`/?tour=1`). The onboarding weight answer becomes the
   first weigh-in. Coach Details tab → "Delete client" (type "delete"): `lib/delete-client.ts` removes storage files
   (meal photos, progress photos, agreement PDFs), the clients row (everything else cascades) and the auth user.
+- Portion fitting (Nov 11): `lib/fit.ts` `fitNutrition(content, targets)` resizes ingredient grams (same foods,
+  0.35×–3×, least squares with a pull toward the original amounts, rounded to 5 g; household measures rescaled or
+  dropped) so the perfect day lands on the targets, then sizes every other library meal like the perfect-day meals of
+  its group. Runs automatically after every AI nutrition draft and revision; the coach's Meals tab has "Fit portions
+  to targets" (`fitMealsAction`) for existing or hand-edited plans.

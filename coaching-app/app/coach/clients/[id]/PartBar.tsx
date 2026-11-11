@@ -5,8 +5,9 @@ import { publishPartAction, revertPartAction } from "./plan-actions";
 
 const MESSAGES: Record<string, string> = {
   saved: "Saved ✓",
+  fitted: "Portions resized ✓ The perfect day now matches their targets. Review the amounts, then publish.",
   notes: "Call notes saved ✓",
-  targets: "Targets updated ✓ The meals don't resize by themselves: ask the AI to resize them, or edit them below.",
+  targets: "Targets updated ✓ Press “Fit portions to targets” under the meal plan to resize the meals.",
   published: "Published ✓ They've been emailed, and it's in their app now.",
   updated: "Changes published ✓ Their app shows the new version.",
   reverted: "Unpublished changes thrown away. This is what they see.",

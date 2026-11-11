@@ -1,5 +1,7 @@
 "use server";
 
+import { fitNutrition } from "@/lib/fit";
+
 import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { requireCoach } from "@/lib/auth";
@@ -180,6 +182,17 @@ export async function saveNutritionAction(clientId: string, payload: string): Pr
       ? `Saved, but there's no nutrition data for: ${missing.join(", ")}. Try a more common name (e.g. “chicken breast, cooked”).`
       : "Meals saved ✓",
   };
+}
+
+/** Resizes portions so the perfect day matches the targets and every library meal matches its group. */
+export async function fitMealsAction(clientId: string): Promise<void> {
+  const client = await loadClient(clientId);
+  const plan = await work(client);
+  const back = `/coach/clients/${client.id}/meals`;
+  if (isDrafting(plan, "nutrition")) redirect(`${back}?error=${encodeURIComponent("The AI is working on the meals right now. Try again when it's done.")}`);
+  if (!plan.content.meals.length || !plan.content.perfectDay.items.length) redirect(`${back}?error=${encodeURIComponent("Add meals and a perfect day first.")}`);
+  await updatePlan(plan.id, { content: fitNutrition(plan.content, plan.targets) });
+  redirect(`${back}?msg=fitted`);
 }
 
 // ───────── Publishing ─────────

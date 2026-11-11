@@ -11,10 +11,12 @@ import { emptyContent, hasEstimates, partState } from "@/lib/plan";
 import TargetsCard from "@/app/components/TargetsCard";
 import { MealLibrary, PerfectDay } from "@/app/components/PlanViews";
 import MealBuilder from "../MealBuilder";
+import SubmitButton from "@/app/components/SubmitButton";
+import { dayOffBy } from "@/lib/fit";
 import PartBar from "../PartBar";
 import AiCard from "../AiCard";
 import TargetsEditor from "../TargetsEditor";
-import { saveNutritionAction } from "../plan-actions";
+import { fitMealsAction, saveNutritionAction } from "../plan-actions";
 
 export const metadata = { title: "Meals · Vital Fusion Coach" };
 // The AI keeps working after the page answers; give it up to 5 minutes.
@@ -44,6 +46,7 @@ export default async function MealsPage({
   const food = logStats(logs, client.timezone, todayIn(client.timezone));
   const name = firstName(client.full_name);
   const has = content.meals.length > 0;
+  const off = has && content.perfectDay.items.length ? dayOffBy(content, targets) : null;
   const notes = content.coachNotes.filter((n) => !n.startsWith("Training: "));
 
   return (
@@ -66,7 +69,21 @@ export default async function MealsPage({
             <AiCard clientId={client.id} part="nutrition" has={false} healthFlag={client.health_flag} callNotes={open?.call_notes ?? ""} disabled={false} />
           )}
           <section className="card" id="meals">
-            <h2 className="h2">🍽️ Meal plan</h2>
+            <div className="row-between" style={{ alignItems: "flex-start" }}>
+              <h2 className="h2">🍽️ Meal plan</h2>
+              {has && !drafting && (
+                <form action={fitMealsAction.bind(null, client.id)}>
+                  <SubmitButton className="btn btn-ghost btn-sm" label="⚖️ Fit portions to targets" pendingLabel="Fitting…" />
+                </form>
+              )}
+            </div>
+            {has && !drafting && (
+              <p className="small muted" style={{ marginTop: -4 }}>
+                {off && Math.max(...Object.values(off).map(Math.abs)) <= 5
+                  ? "✓ The perfect day is within 5% of the targets."
+                  : "“Fit portions” resizes the amounts (same foods) so the perfect day lands on the targets. Save your edits first."}
+              </p>
+            )}
             {drafting ? (
               has ? (
                 <>

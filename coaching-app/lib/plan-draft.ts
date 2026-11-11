@@ -16,6 +16,7 @@ import { summarize, type Answers } from "./onboarding-questions";
 import { listMeals, mealLabel, hungerLabel, dayIn, timeIn, MEAL_PHOTO_BUCKET, type MealLog } from "./meals";
 import { downloadFile } from "./storage";
 import { applyUsda } from "./food-data";
+import { fitNutrition } from "./fit";
 import { ageOn } from "./agreement";
 import { todayIn } from "./dates";
 import { computeTargets, inputsFromAnswers, targetLine, type Targets } from "./targets";
@@ -393,7 +394,10 @@ const MEALS_PER_GROUP = 5;
 async function draftNutrition(ctx: ClientContext, t: Targets, revise: { current: Nutrition; instruction: string; callNotes: string } | null) {
   const profile: ContentBlock = { type: "text", text: `CLIENT PROFILE\n${profileText(ctx)}` };
   const targets: ContentBlock = { type: "text", text: targetsText(t) };
-  if (revise) return reviseNutrition(revise, profile, targets);
+  if (revise) {
+    const r = await reviseNutrition(revise, profile, targets);
+    return { ...r, value: fitNutrition(r.value, t) };
+  }
 
   // 1. Study the food log and lay out the day (with the photos).
   const content: ContentBlock[] = [profile, targets, ...(await foodLogBlocks(ctx))];
@@ -452,7 +456,8 @@ async function draftNutrition(ctx: ClientContext, t: Targets, revise: { current:
   });
   if (n.meals.length === 0) throw new Error("The AI's meals came back empty. Try again.");
   const { meals } = await applyUsda(n.meals);
-  return { value: { ...n, meals }, usage: [analysis.usage, ...written.map((w) => w.usage)], model: analysis.model };
+  // Resize portions so the perfect day lands on the targets (the AI's portions are usually 10–20% off).
+  return { value: fitNutrition({ ...n, meals }, t), usage: [analysis.usage, ...written.map((w) => w.usage)], model: analysis.model };
 }
 
 /** Applies only the meals the AI changed, so a revision stays short and fast. */
