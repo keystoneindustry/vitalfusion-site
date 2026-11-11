@@ -50,7 +50,13 @@ export function morningReminder(d: DayTasks, call: string | null = null): Remind
   return {
     lines,
     important,
-    push: { title: first ? `Today: ${first}` : "Your plan for today", body: lines.map((l) => l.replace(/^\S+\s/, "")).join(" · "), url: "/", tag: "morning" },
+    push: {
+      title: first ? `Today: ${first}` : "Your plan for today",
+      // The first workout is already in the title, so the body lists everything else.
+      body: lines.filter((l) => !first || l !== `🏋️ ${first}`).map((l) => l.replace(/^\S+\s/, "")).join(" · ") || "Tap to open today's workout.",
+      url: first ? `/train?day=${d.workouts[0].day}` : "/",
+      tag: "morning",
+    },
   };
 }
 
