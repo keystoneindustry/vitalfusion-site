@@ -40,7 +40,12 @@ export default async function ClientProgressPage({ params }: { params: Promise<{
         )}
       </section>
       <section className="card">
-        <h2 className="h2">📸 Progress photos</h2>
+        <div className="row-between" style={{ marginBottom: 12 }}>
+          <h2 className="h2" style={{ margin: 0 }}>📸 Progress photos</h2>
+          <Link className="btn btn-sm" href={`/coach/clients/${client.id}/share`}>
+            ✨ Share card
+          </Link>
+        </div>
         <PhotoCompare photos={photos} urls={urls} />
         <p className="small muted" style={{ marginBottom: 0 }}>
           Weigh-in and photo days are set on the <Link href={`/coach/clients/${client.id}/calendar`}>Calendar</Link> tab.

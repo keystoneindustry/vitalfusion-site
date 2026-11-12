@@ -370,8 +370,8 @@ textarea.builder-title { resize: vertical; min-height: 0; line-height: 1.35; }
 .client-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .health-chip { display: inline-block; margin: 10px 0 0; padding: 5px 10px; border-radius: 999px; background: #211b0e; border: 1px solid #5a4a26; color: #ffe2a8; font-size: 13.5px; font-weight: 600; }
 /* Phones: all 9 sections visible as a 3 × 3 grid of buttons (no hidden sideways scrolling). */
-.client-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin: 14px 0 16px; }
-.client-tabs a { display: flex; align-items: center; justify-content: center; gap: 3px; min-height: 40px; padding: 6px 4px; border-radius: 10px; background: var(--card); border: 1px solid var(--card-border); color: var(--muted); text-decoration: none; font-weight: 700; font-size: 12.5px; text-align: center; line-height: 1.15; white-space: nowrap; }
+.client-tabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; margin: 14px 0 16px; }
+.client-tabs a { display: flex; align-items: center; justify-content: center; gap: 3px; min-height: 40px; padding: 6px 4px; border-radius: 10px; background: var(--card); border: 1px solid var(--card-border); color: var(--muted); text-decoration: none; font-weight: 700; font-size: 11.5px; text-align: center; line-height: 1.15; white-space: nowrap; letter-spacing: -0.01em; }
 .client-tabs .tab-badge { font-size: 11px; }
 .client-tabs a[aria-current="page"] { color: #fff; background: #1c2a3d; border-color: var(--accent); }
 .client-head h1 { font-size: 24px; line-height: 1.15; overflow-wrap: anywhere; }
@@ -758,3 +758,46 @@ p .cg { padding: 0 6px; margin: 0 2px 0 8px; }
   .win-burst { animation: win-pop 0.6s ease; }
   @keyframes win-pop { 0% { transform: scale(0.3) rotate(-20deg); opacity: 0; } 70% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); } }
 }
+
+/* ───────── Grocery list ───────── */
+.grocery-link { margin-top: 14px; }
+.grocery-days { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0 0 8px; }
+.grocery-days .chip { margin: 0; }
+.grocery-aisle .h2 { font-size: 17px; margin-bottom: 8px; }
+.grocery-items { list-style: none; margin: 0; padding: 0; }
+.grocery-item { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 0; background: none; border: 0; border-bottom: 1px solid var(--card-border); color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+.grocery-items li:last-child .grocery-item { border-bottom: 0; }
+.grocery-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.grocery-text b { font-weight: 600; }
+.grocery-amount { font-weight: 700; color: var(--accent); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.grocery-item.on .grocery-text b, .grocery-item.on .grocery-amount { text-decoration: line-through; color: var(--muted); }
+.grocery-item.on .tick-box { background: var(--good); border-color: var(--good); color: #0b0d12; }
+
+/* ───────── Monthly progress report ───────── */
+.report { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 18px; margin: 0 0 14px; }
+.report-headline { font-size: 24px; line-height: 1.2; margin: 0 0 16px; font-weight: 800; }
+.report-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 6px; }
+.report-stat { background: var(--card-2); border: 1px solid var(--card-border); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 2px; }
+.report-stat b { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.report-stat b.good { color: var(--good); }
+.report-stat span { color: var(--muted); font-size: 13px; }
+.report-block { margin-top: 18px; }
+.report-block h3 { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
+.report-line { width: 100%; height: auto; display: block; background: var(--card-2); border-radius: 12px; }
+.report-photos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.report-photos figure { margin: 0; }
+.report-photos img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 12px; display: block; background: var(--card-2); }
+.report-photos figcaption { color: var(--muted); font-size: 13px; margin-top: 4px; text-align: center; }
+.report-list { list-style: none; margin: 0; padding: 0; }
+.report-list li { padding: 5px 0; line-height: 1.45; }
+.report-message p { white-space: pre-line; line-height: 1.6; margin: 0; color: var(--text-2); }
+.report-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--card-border); color: var(--text); text-decoration: none; }
+.report-row:last-child { border-bottom: 0; }
+@media (min-width: 860px) { .report-stats { grid-template-columns: repeat(4, 1fr); } }
+
+/* ───────── Share card maker (coach) ───────── */
+.share-grid { display: grid; gap: 14px; }
+.share-canvas { width: 100%; max-width: 480px; height: auto; display: block; border-radius: 14px; border: 1px solid var(--card-border); background: #0b0d12; }
+.check-row { cursor: pointer; }
+.check-row input[type="checkbox"] { appearance: auto; -webkit-appearance: checkbox; width: 20px; height: 20px; min-width: 20px; padding: 0; margin: 0; accent-color: var(--accent); box-shadow: none; }
+@media (min-width: 860px) { .share-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; } }

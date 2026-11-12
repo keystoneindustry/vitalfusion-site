@@ -60,6 +60,14 @@ export default async function NutritionPage() {
 
       <h2 className="section-title">Your perfect day</h2>
       <PerfectDay nutrition={content} targets={targets} showTotals={false} />
+      <Link href="/nutrition/grocery" className="task-link grocery-link">
+        <span className="task-icon">🛒</span>
+        <span className="task-text">
+          <b>Grocery list</b>
+          <span className="small">Everything for your perfect day, for 3, 5 or 7 days</span>
+        </span>
+        <span className="chev" aria-hidden="true">›</span>
+      </Link>
 
       <TrackingApps guideId={findGuide(await listResources(true).catch(() => []), /track(ing)?\s+(your\s+)?calories/i)?.id} />
     </>

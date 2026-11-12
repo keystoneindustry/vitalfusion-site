@@ -7,6 +7,7 @@ import { formatCallTime } from "@/lib/booking";
 import { planSummaries } from "@/lib/plans";
 import { awaitingReply } from "@/lib/forms";
 import { loadDays, type DayTasks } from "@/lib/client-days";
+import { reportDue } from "@/lib/reports";
 import { coachFlags } from "@/lib/coach-flags";
 import { db } from "@/lib/supabase";
 
@@ -44,6 +45,12 @@ export default async function CoachHome() {
   ]);
   const current = clients.filter((c) => c.stage !== "finished");
   const flags = coachFlags(current, plans, unreplied, today);
+  // Monthly progress reports that are due.
+  const sentReports = await db<{ client_id: string; period_end: string }[]>(`progress_reports?select=client_id,period_end&status=eq.sent&order=period_end.desc`).catch(() => []);
+  for (const c of current) {
+    const last = sentReports.find((r) => r.client_id === c.id)?.period_end ?? null;
+    if (reportDue(c, last, today)) flags.push({ id: c.id, text: `📊 ${c.full_name}'s monthly progress report is due`, href: `/coach/clients/${c.id}/reports` });
+  }
   const name = new Map(clients.map((c) => [c.id, c.full_name]));
 
   // Calls today (in Tyler's time zone).

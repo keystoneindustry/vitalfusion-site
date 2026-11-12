@@ -135,6 +135,10 @@ export function describeEvent(e: ClientEvent): string {
       return `Booked a check-in call${typeof d.when === "string" ? ` for ${d.when}` : ""}`;
     case "checkin_call_cancelled":
       return "Cancelled a check-in call";
+    case "report_created":
+      return "Monthly progress report drafted";
+    case "report_sent":
+      return "📊 Monthly progress report sent";
     case "milestone":
       return `🏆 Reached a milestone: ${String(d.title ?? "a win")}`;
     case "why_updated":
