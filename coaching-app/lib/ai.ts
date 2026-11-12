@@ -4,7 +4,41 @@
  * override the model.
  */
 
+import { db } from "./supabase";
+
 export const DEFAULT_MODEL = "claude-sonnet-5-5";
+
+/** List prices in USD per million tokens (input, output). Used only to estimate spend for the dashboard. */
+const PRICES: Record<string, [number, number]> = {
+  "claude-sonnet": [2, 10],
+  "claude-opus": [4, 20],
+  "claude-haiku": [1, 5],
+};
+/** USD per web search. */
+const WEB_SEARCH_PRICE = 0.01;
+
+export function estimateCost(model: string, inputTokens: number, outputTokens: number, webSearches = 0): number {
+  const key = Object.keys(PRICES).find((k) => model.startsWith(k)) ?? "claude-sonnet";
+  const [inp, out] = PRICES[key];
+  return Math.round(((inputTokens * inp + outputTokens * out) / 1_000_000 + webSearches * WEB_SEARCH_PRICE) * 100000) / 100000;
+}
+
+/** Records one Claude API call in `ai_usage` (for the spend dashboard). Never throws. */
+export async function logUsage(feature: string, model: string, usage: { input_tokens?: number; output_tokens?: number; cache_read_input_tokens?: number; cache_creation_input_tokens?: number; server_tool_use?: { web_search_requests?: number } } | undefined): Promise<void> {
+  if (!usage) return;
+  const input = (usage.input_tokens ?? 0) + (usage.cache_read_input_tokens ?? 0) + (usage.cache_creation_input_tokens ?? 0);
+  const output = usage.output_tokens ?? 0;
+  const searches = usage.server_tool_use?.web_search_requests ?? 0;
+  try {
+    await db("ai_usage", {
+      method: "POST",
+      body: { feature, model, input_tokens: input, output_tokens: output, web_searches: searches, cost_usd: estimateCost(model, input, output, searches) },
+      prefer: "return=minimal",
+    });
+  } catch (err) {
+    console.error("Couldn't log AI usage", err);
+  }
+}
 
 export type ContentBlock =
   | { type: "text"; text: string }
@@ -105,6 +139,7 @@ export async function askForJson(opts: {
   if (res.status < 200 || res.status >= 300) throw new AiError(errorMessage(res.status, res.text));
 
   const data = JSON.parse(res.text) as { content?: { type: string; text?: string }[]; usage?: AiUsage; stop_reason?: string };
+  await logUsage(opts.output.name, model, data.usage);
   if (data.stop_reason === "max_tokens") throw new AiError("The AI's answer was cut off (too long). Try again.");
   if (data.stop_reason === "refusal") throw new AiError("The AI declined to write this plan. Check the client's answers, or build it yourself.");
   const text = data.content?.find((c) => c.type === "text")?.text;

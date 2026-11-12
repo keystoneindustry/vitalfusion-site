@@ -155,3 +155,7 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   Chats are NOT stored on the server (only in the phone's localStorage `vf-assistant-<clientId>`; Tyler can't see them, by his
   choice). Limit 20 questions/day per client in the client's time zone: table `assistant_usage` + RPC
   `use_assistant_question` (atomic, returns -1 at the limit) and `refund_assistant_question` (on failure).
+- AI spend log (Nov 12): every Claude API call is recorded in `ai_usage` (feature = the JSON schema name, or
+  `nutrition_assistant`; tokens; web searches; `cost_usd` estimated by `estimateCost` in `lib/ai.ts` at list prices,
+  Sonnet $2 / $10 per million tokens, $0.01 per search). Plan drafts before Nov 12 were backfilled as `plan_draft`.
+  The real bill is in console.anthropic.com. Tyler's business dashboard (a Claude Data artifact) reads this table.

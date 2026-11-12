@@ -34,3 +34,10 @@ assert.ok(p.includes("mushrooms"));
 assert.ok(systemPrompt({ firstName: "", goal: "", targets: null, allergies: "", dietStyle: "", foodsAvoid: "", foodsLove: "" }, "x").includes("not set yet"));
 
 console.log("assistant tests passed");
+
+// Spend estimate: Sonnet $2 / $10 per million tokens, $0.01 per web search.
+import { estimateCost } from "../lib/ai";
+assert.equal(estimateCost("claude-sonnet-5-5", 1_000_000, 0), 2);
+assert.equal(estimateCost("claude-sonnet-5-5", 10_000, 1_000, 2), 0.05);
+assert.equal(estimateCost("unknown-model", 0, 1_000_000), 10);
+console.log("spend estimate tests passed");

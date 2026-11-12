@@ -6,7 +6,7 @@
  * questions per day (`assistant_usage`, DAILY_LIMIT).
  */
 
-import { AiError, aiModel } from "./ai";
+import { AiError, aiModel, logUsage } from "./ai";
 import { db } from "./supabase";
 
 export const DAILY_LIMIT = 20;
@@ -138,7 +138,8 @@ export async function askAssistant(profile: AssistantProfile, history: ChatMessa
       console.error("Assistant API error", res.status, res.text.slice(0, 300));
       throw new AiError("The assistant couldn't answer that. Try again.");
     }
-    const data = JSON.parse(res.text) as { content?: Block[]; stop_reason?: string };
+    const data = JSON.parse(res.text) as { content?: Block[]; stop_reason?: string; usage?: Parameters<typeof logUsage>[2] };
+    await logUsage("nutrition_assistant", body.model as string, data.usage);
     const content = data.content ?? [];
     collected.push(...content);
     // A long web search can pause the turn: send it back so the model finishes.
