@@ -183,5 +183,5 @@ export function coachLeadEmail(q: QuizInput, r: MacroResults): { subject: string
   </div>
 </div></body></html>`;
   const text = Object.entries(row).map(([k, v]) => `${k}: ${v}`).join("\n");
-  return { subject: `[Macro] ${emoji} New macro lead (${rating}) — ${q.name}`, html, text };
+  return { subject: `[Macro] ${emoji} New macro quiz signup (${rating}) — ${q.name}`, html, text };
 }
