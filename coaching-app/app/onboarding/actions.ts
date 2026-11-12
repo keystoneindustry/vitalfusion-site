@@ -3,7 +3,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { requireClient } from "@/lib/auth";
-import { addEvent, type ClientRow } from "@/lib/clients";
+import { addEvent, type ClientRow, updateClient } from "@/lib/clients";
 import { firstName } from "@/lib/client-input";
 import { env } from "@/lib/env";
 import {
@@ -103,6 +103,9 @@ export async function submitQuestions(rawAnswers: unknown): Promise<SubmitResult
   if (!existing?.submitted_at) {
     await saveResponse(client.id, { answers, submitted_at: new Date().toISOString() });
     await addEvent(client.id, "questions_submitted");
+    // Their "why" goes on the Today screen.
+    const why = typeof answers.why === "string" ? answers.why.trim().slice(0, 600) : "";
+    if (why) await updateClient(client.id, { why }).catch((err) => console.error("Saving why failed", err));
     // Their current weight becomes their first weigh-in, so Progress starts with a number.
     const weight = parseWeight(answers.weight);
     if (weight !== null) await saveWeighIn(client.id, todayIn(client.timezone), weight, "From onboarding").catch((err) => console.error("Starting weigh-in failed", err));

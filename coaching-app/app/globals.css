@@ -729,3 +729,32 @@ p .cg { padding: 0 6px; margin: 0 2px 0 8px; }
 .chat-form .btn { flex: none; min-width: 72px; }
 .chat-foot { margin-top: 8px; }
 .chat-note { margin: 10px 0 0; line-height: 1.45; }
+
+/* ───────── Your why + wins & streaks ───────── */
+.why-card { display: block; margin: 0 0 14px; padding: 14px 16px; border-radius: var(--radius); border: 1px solid #5a4c26; background: linear-gradient(180deg, #221d10, #17150f); color: var(--text); text-decoration: none; }
+.why-card:active { background: #2a2414; }
+.why-label { display: block; color: var(--gold); font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+.why-text { display: block; font-size: 17px; line-height: 1.5; font-style: italic; color: #fff4d6; white-space: pre-line; }
+.streak-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 11px; border-radius: 999px; background: #2a1d0e; border: 1px solid #6a4a1e; color: #ffcf7a; font-weight: 800; font-size: 15px; text-decoration: none; white-space: nowrap; }
+.wins-link { background: var(--card); border-color: var(--card-border); }
+.all-done { margin: 10px 0 0; padding: 10px 12px; border-radius: 12px; background: #2a1d0e; border: 1px solid #6a4a1e; color: #ffcf7a; font-weight: 700; font-size: 15px; }
+.win-card { position: relative; border-color: #5a4c26; background: linear-gradient(180deg, #2a2310, var(--card)); overflow: hidden; }
+.win-burst { position: absolute; right: 14px; top: 10px; font-size: 34px; }
+.win-list { list-style: none; margin: 0; padding: 0; }
+.win-list li { font-size: 17px; font-weight: 700; padding: 4px 0; }
+.streak-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 0 14px; }
+.streak-tile { display: flex; flex-direction: column; gap: 2px; background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 14px; }
+.streak-num { font-size: 28px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.next-wins { list-style: none; margin: 0; padding: 0; }
+.next-wins li + li { margin-top: 14px; }
+.win-bar { height: 8px; border-radius: 999px; background: #262a33; margin-top: 6px; overflow: hidden; }
+.win-bar span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--gold)); }
+.won-list { list-style: none; margin: 0; padding: 0; }
+.won-list li { display: flex; gap: 12px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--card-border); }
+.won-list li:last-child { border-bottom: 0; }
+.won-list li > span:last-child { display: flex; flex-direction: column; }
+.won-emoji { font-size: 24px; width: 32px; text-align: center; }
+@media (prefers-reduced-motion: no-preference) {
+  .win-burst { animation: win-pop 0.6s ease; }
+  @keyframes win-pop { 0% { transform: scale(0.3) rotate(-20deg); opacity: 0; } 70% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); } }
+}

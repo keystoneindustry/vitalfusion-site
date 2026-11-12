@@ -25,6 +25,7 @@ const MORE_GROUPS: { label: string; items: { href: string; label: string; emoji:
     items: [
       { href: "/check-ins", label: "Check-ins", emoji: "📝", hint: "Past check-ins and replies" },
       { href: "/progress/weight", label: "Progress", emoji: "📈", hint: "Weight graph and photos" },
+      { href: "/wins", label: "Wins & streaks", emoji: "🏆", hint: "Your streaks and milestones" },
       { href: "/resources", label: "Resources", emoji: "📚", hint: "Guides and videos" },
       { href: "/assistant", label: "AI Nutrition Assistant", emoji: "🤖", hint: "Ask what to eat anywhere" },
       { href: "/meals", label: "Meal library", emoji: "🍽️", hint: "Meals to swap into your day" },

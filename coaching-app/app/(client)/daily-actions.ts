@@ -18,6 +18,7 @@ export async function toggleHabitAction(assignmentId: string, date: string, done
   if (!a || a.client_id !== client.id || !allowedDate(date, todayIn(client.timezone))) return { ok: false };
   await setCheck(a.id, client.id, date, done);
   revalidatePath("/calendar");
+  revalidatePath("/wins");
   return { ok: true };
 }
 

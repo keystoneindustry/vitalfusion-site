@@ -6,7 +6,22 @@ import { toggleHabitAction } from "./daily-actions";
 export type HabitItem = { id: string; title: string; icon: string; description: string | null; done: boolean };
 
 /** Tap-to-tick habits for one day. Updates instantly and saves in the background. */
-export default function HabitChecklist({ date, items, editable = true, showDescriptions = false }: { date: string; items: HabitItem[]; editable?: boolean; showDescriptions?: boolean }) {
+export default function HabitChecklist({
+  date,
+  items,
+  editable = true,
+  showDescriptions = false,
+  streak,
+  todayDone = false,
+}: {
+  date: string;
+  items: HabitItem[];
+  editable?: boolean;
+  showDescriptions?: boolean;
+  /** Current habit streak (Today only): shows a celebration line when every habit is ticked. */
+  streak?: number;
+  todayDone?: boolean;
+}) {
   const [done, setDone] = useState<Record<string, boolean>>(() => Object.fromEntries(items.map((i) => [i.id, i.done])));
   const [, start] = useTransition();
   const [error, setError] = useState("");
@@ -44,6 +59,15 @@ export default function HabitChecklist({ date, items, editable = true, showDescr
           </li>
         ))}
       </ul>
+      {streak !== undefined && items.length > 0 && items.every((i) => done[i.id]) && (
+        <p className="all-done" aria-live="polite">
+          🔥 All habits done today!{" "}
+          {(() => {
+            const n = todayDone ? streak : streak + 1;
+            return n > 1 ? `That's ${n} days in a row.` : "Streak started.";
+          })()}
+        </p>
+      )}
       {error && <p className="err">{error}</p>}
     </>
   );

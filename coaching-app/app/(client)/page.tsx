@@ -16,6 +16,8 @@ import Notifications from "@/app/components/Notifications";
 import AppTour from "./AppTour";
 import { vapidPublicKey } from "@/lib/push";
 import { listResources, startHere } from "@/lib/resources";
+import { loadWins } from "@/lib/wins";
+import WinsCelebration from "./WinsCelebration";
 
 export const metadata = { title: "Today · Vital Fusion" };
 
@@ -34,6 +36,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
     ? [{ days: [] }, []]
     : await Promise.all([loadDays(client.id, recent), listSubmissions(client.id, 5)]);
   const day = days[days.length - 1];
+  const wins = onboarding ? null : await loadWins(client, today).catch((err) => (console.error("Wins failed", err), null));
   // Forms due today, plus check-ins from the last 3 days that weren't sent yet.
   const formsDue = days.flatMap((d) => d.forms.filter((f) => d.date === today || !f.submitted).map((f) => ({ ...f, date: d.date })));
   const newReply = subs.find((x) => x.coach_reply && !x.reply_seen_at);
@@ -73,9 +76,35 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
         </Link>
       )}
 
+      {wins && <WinsCelebration wins={wins.unseen.map(({ key, title, emoji }) => ({ key, title, emoji }))} />}
+
+      {!onboarding &&
+        (client.why ? (
+          <Link href="/why" className="why-card" aria-label="Your why. Tap to edit it.">
+            <span className="why-label">💭 Your why</span>
+            <span className="why-text">“{client.why}”</span>
+          </Link>
+        ) : (
+          <Link href="/why" className="task-link">
+            <span className="task-icon">💭</span>
+            <span className="task-text">
+              <b>Add your why</b>
+              <span className="small">Why this matters to you. It'll show here every day.</span>
+            </span>
+            <span className="chev" aria-hidden="true">›</span>
+          </Link>
+        ))}
+
       {!onboarding && hasTasks && day && (
         <section className="card card-accent">
-          <h2 className="h2">To do today</h2>
+          <div className="row-between" style={{ marginBottom: 12 }}>
+            <h2 className="h2" style={{ margin: 0 }}>To do today</h2>
+            {wins && wins.streaks.current > 0 && (
+              <Link href="/wins" className="streak-chip" aria-label={`${wins.streaks.current}-day habit streak`}>
+                🔥 {wins.streaks.current}
+              </Link>
+            )}
+          </div>
           {callToday && (
             <div className="task-link">
               <span className="task-icon">📞</span>
@@ -129,8 +158,22 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
               <span className="chev" aria-hidden="true">›</span>
             </Link>
           )}
-          {day.habits.length > 0 && <HabitChecklist key={today} date={today} items={day.habits} />}
+          {day.habits.length > 0 && <HabitChecklist key={today} date={today} items={day.habits} streak={wins?.streaks.current ?? 0} todayDone={wins?.streaks.todayDone ?? false} />}
         </section>
+      )}
+
+      {wins && (
+        <Link href="/wins" className="task-link wins-link">
+          <span className="task-icon">🏆</span>
+          <span className="task-text">
+            <b>Wins &amp; streaks</b>
+            <span className="small">
+              {wins.streaks.current > 0 ? `🔥 ${wins.streaks.current}-day streak` : "Start a streak today"} · {wins.stored.length} win
+              {wins.stored.length === 1 ? "" : "s"} so far
+            </span>
+          </span>
+          <span className="chev" aria-hidden="true">›</span>
+        </Link>
       )}
 
 

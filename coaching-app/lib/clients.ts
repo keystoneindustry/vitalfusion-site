@@ -32,6 +32,8 @@ export type ClientRow = {
   reminders_enabled?: boolean;
   /** When they finished (or skipped) the live app tour. */
   tour_seen_at?: string | null;
+  /** Their "why": shown on Today every time they open the app (from onboarding, editable). */
+  why?: string | null;
 };
 
 export type ClientEvent = {
@@ -133,6 +135,10 @@ export function describeEvent(e: ClientEvent): string {
       return `Booked a check-in call${typeof d.when === "string" ? ` for ${d.when}` : ""}`;
     case "checkin_call_cancelled":
       return "Cancelled a check-in call";
+    case "milestone":
+      return `🏆 Reached a milestone: ${String(d.title ?? "a win")}`;
+    case "why_updated":
+      return "Updated their “why”";
     case "first_meal_logged":
       return "Logged their first meal";
     case "plan_drafted":

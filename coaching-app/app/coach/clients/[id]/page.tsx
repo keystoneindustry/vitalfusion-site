@@ -83,6 +83,13 @@ export default async function ClientOverview({
         </div>
       )}
 
+      {client.why && (
+        <div className="why-card why-card-coach">
+          <span className="why-label">💭 Their why</span>
+          <span className="why-text">“{client.why}”</span>
+        </div>
+      )}
+
       <div className="overview-grid">
         <Link href={`${base}/food`} className="overview-card">
           <span className="ov-icon">📷</span>

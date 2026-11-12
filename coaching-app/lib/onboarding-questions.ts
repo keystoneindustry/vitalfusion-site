@@ -28,7 +28,7 @@ const LOSE_OR_GAIN = (a: Answers) => a.goal === "Lose fat" || a.goal === "Build 
 export const QUESTIONS: Question[] = [
   // Goals & basics
   { id: "goal", section: "Your goal", kind: "choice", prompt: "What's your main goal?", options: ["Lose fat", "Build muscle", "Maintain my weight and get fitter", "Improve my health and energy"], other: true },
-  { id: "why", section: "Your goal", kind: "longtext", prompt: "Why does this goal matter to you right now?", help: "The more honest, the better. This is what we'll come back to on hard days.", placeholder: "e.g. I want to feel confident at my sister's wedding in June" },
+  { id: "why", section: "Your goal", kind: "longtext", prompt: "Why does this goal matter to you right now?", help: "This is your “why”. It shows at the top of your app every day, so be honest. It's what we'll come back to on hard days.", placeholder: "e.g. I want to feel confident at my sister's wedding in June" },
   { id: "sex", section: "About you", kind: "choice", prompt: "What's your sex?", help: "Used for your calorie and macro numbers.", options: ["Male", "Female"] },
   { id: "height", section: "About you", kind: "height", prompt: "How tall are you?" },
   { id: "weight", section: "About you", kind: "number", prompt: "What do you weigh right now?", unit: "lb", min: 70, max: 700 },
