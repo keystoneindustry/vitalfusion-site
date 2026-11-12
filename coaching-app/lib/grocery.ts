@@ -87,6 +87,11 @@ export function formatWeight(grams: number): string {
   return `${g.toLocaleString("en-US")} g`;
 }
 
+/** Meat and fish are shown in ounces (how they're sold and labeled). */
+export function formatOunces(grams: number): string {
+  return `${Math.max(1, Math.ceil(grams / 28.35)).toLocaleString("en-US")} oz`;
+}
+
 function plural(n: number, one: string): string {
   return n === 1 ? one : one.endsWith("y") && !/[aeiou]y$/.test(one) ? `${one.slice(0, -1)}ies` : `${one}s`;
 }
@@ -134,8 +139,9 @@ export function groceryList(n: Pick<Nutrition, "meals" | "perfectDay">, days: nu
       else amount = word ? `${c} ${plural(c, word.replace(/s$/, ""))}` : `${c}`;
       note = formatWeight(a.grams);
     } else {
-      amount = formatWeight(a.grams);
-      if (a.buyAs) note = `${formatWeight(a.cookedGrams)} cooked = about ${amount} ${a.buyAs}`;
+      const fmt = aisleFor(a.name) === "Meat & fish" ? formatOunces : formatWeight;
+      amount = fmt(a.grams);
+      if (a.buyAs) note = `${fmt(a.cookedGrams)} cooked = about ${amount} ${a.buyAs}`;
     }
     out.push({ key, name: a.name, aisle: aisleFor(a.name), amount, note, grams: Math.round(a.grams) });
   }

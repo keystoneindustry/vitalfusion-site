@@ -780,3 +780,8 @@ p .cg { padding: 0 6px; margin: 0 2px 0 8px; }
 .check-row { cursor: pointer; }
 .check-row input[type="checkbox"] { appearance: auto; -webkit-appearance: checkbox; width: 20px; height: 20px; min-width: 20px; padding: 0; margin: 0; accent-color: var(--accent); box-shadow: none; }
 @media (min-width: 860px) { .share-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; } }
+/* Today: "your why" as a slim quote under the greeting. */
+.why-quote { display: block; margin: -6px 0 18px; padding: 2px 0 2px 14px; border-left: 3px solid var(--gold); color: var(--text); text-decoration: none; }
+.why-quote .why-label { margin-bottom: 3px; font-size: 11px; }
+.why-quote .why-text { font-size: 16px; line-height: 1.45; }
+.why-empty .why-text { color: var(--muted); font-style: normal; }

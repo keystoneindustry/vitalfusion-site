@@ -159,17 +159,17 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   `nutrition_assistant`; tokens; web searches; `cost_usd` estimated by `estimateCost` in `lib/ai.ts` at list prices,
   Sonnet $2 / $10 per million tokens, $0.01 per search). Plan drafts before Nov 12 were backfilled as `plan_draft`.
   The real bill is in console.anthropic.com. Tyler's business dashboard (a Claude Data artifact) reads this table.
-- Your why + wins (Nov 12): `clients.why` (from the onboarding "why" answer, copied on submit; backfilled) shows as a gold
-  card at the top of Today; tap → `/why` to edit (`saveWhyAction` in `app/(client)/wins-actions.ts`). Coach Overview shows it too.
+- Your why + wins (Nov 12): `clients.why` (from the onboarding "why" answer, copied on submit; backfilled) shows as a slim gold quote under the greeting on Today; tap → `/why` to edit (`saveWhyAction` in `app/(client)/wins-actions.ts`). Coach Overview shows it too.
   Streaks & milestones: pure logic in `lib/milestones.ts` (perfect day = every habit due that day ticked; unfinished today
   never breaks a streak; check-in streak allows the 3-day late window; milestone ladders: habit streaks, perfect days,
   check-ins, check-in streak, weigh-ins, first photos, lb down/up from the first weigh-in by onboarding goal, 1 month /
   halfway / program done). `lib/wins.ts` `loadWins()` computes them and stores newly reached ones once in
   `client_milestones` (+ a "milestone" timeline event); Today shows a 🔥 streak chip, an "All habits done" line in the
-  habit list, a celebration card for unseen wins (`WinsCelebration.tsx`) and a Wins link; ☰ More → Wins & streaks (`/wins`).
+  habit list, a celebration card for unseen wins (`WinsCelebration.tsx`); ☰ More → Wins & streaks (`/wins`). Today order (Nov 12): greeting →
+  why quote → reply/wins cards → To do today → targets → READ FIRST link (first 2 weeks) → install/notification prompts.
 - Grocery list (Nov 12): Nutrition → `/nutrition/grocery` (`GroceryList.tsx`). Pure `lib/grocery.ts` `groceryList(nutrition, days)`
   adds up the perfect day's ingredients × servings × 3/5/7 days, converts cooked rice/pasta/oats/meat/beans to dry/raw
-  buying weight, counts countable items (eggs → dozens, slices, "1 medium" apple), groups by store section. Ticks are
+  buying weight (grams; meat & fish in ounces), counts countable items (eggs → dozens, slices, "1 medium" apple), groups by store section. Ticks are
   saved on the phone (localStorage `vf-grocery-<planId>`).
 - Monthly progress reports were built and then removed at Tyler's request (Nov 12, "too much clutter"). The empty-ish
   `progress_reports` table is left in the database, unused.

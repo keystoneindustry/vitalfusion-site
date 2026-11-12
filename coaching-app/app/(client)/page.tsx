@@ -63,6 +63,18 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
     <>
       <h1 className="h1">Hi {firstName(client.full_name)} 👋</h1>
       <p className="lead">{packageLine}</p>
+      {!onboarding &&
+        (client.why ? (
+          <Link href="/why" className="why-quote" aria-label="Your why. Tap to edit it.">
+            <span className="why-label">💭 Your why</span>
+            <span className="why-text">“{client.why}”</span>
+          </Link>
+        ) : (
+          <Link href="/why" className="why-quote why-empty">
+            <span className="why-label">💭 Your why</span>
+            <span className="why-text">Tap to add why this matters to you</span>
+          </Link>
+        ))}
       {showTour && <AppTour guideHref={tourGuide ? `/resources/${tourGuide.id}` : null} />}
 
       {newReply && (
@@ -77,23 +89,6 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
       )}
 
       {wins && <WinsCelebration wins={wins.unseen.map(({ key, title, emoji }) => ({ key, title, emoji }))} />}
-
-      {!onboarding &&
-        (client.why ? (
-          <Link href="/why" className="why-card" aria-label="Your why. Tap to edit it.">
-            <span className="why-label">💭 Your why</span>
-            <span className="why-text">“{client.why}”</span>
-          </Link>
-        ) : (
-          <Link href="/why" className="task-link">
-            <span className="task-icon">💭</span>
-            <span className="task-text">
-              <b>Add your why</b>
-              <span className="small">Why this matters to you. It'll show here every day.</span>
-            </span>
-            <span className="chev" aria-hidden="true">›</span>
-          </Link>
-        ))}
 
       {!onboarding && hasTasks && day && (
         <section className="card card-accent">
@@ -162,19 +157,6 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
         </section>
       )}
 
-      {wins && (
-        <Link href="/wins" className="task-link wins-link">
-          <span className="task-icon">🏆</span>
-          <span className="task-text">
-            <b>Wins &amp; streaks</b>
-            <span className="small">
-              {wins.streaks.current > 0 ? `🔥 ${wins.streaks.current}-day streak` : "Start a streak today"} · {wins.stored.length} win
-              {wins.stored.length === 1 ? "" : "s"} so far
-            </span>
-          </span>
-          <span className="chev" aria-hidden="true">›</span>
-        </Link>
-      )}
 
 
       {onboarding ? (
@@ -196,6 +178,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
         </section>
       ) : plan ? (
         <>
+          <TargetsCard targets={plan.targets} />
           {guide && (
             <Link href={`/resources/${guide.id}`} className="task-link start-link">
               <span className="task-icon">📚</span>
@@ -206,7 +189,6 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
               <span className="chev" aria-hidden="true">›</span>
             </Link>
           )}
-          <TargetsCard targets={plan.targets} />
           <InstallCard />
           {client.reminders_enabled !== false && <Notifications vapidKey={vapidPublicKey()} compact />}
         </>
