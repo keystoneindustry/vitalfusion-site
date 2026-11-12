@@ -95,7 +95,7 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   plain `YYYY-MM-DD` and handled as UTC so they never shift a day.
 - Run `npm test` after touching `lib/`. Design matches the site: dark theme, accent #6a9fc6, gold #ffe7ab,
   phone-first CSS with `@media (min-width: 860px)` for desktop.
-- Phones: `useBottomBarFix` re-lays out the tab bars on launch/return in the installed iPhone app (iOS otherwise leaves a gap under them until a tap). Bottom tab bars hide while a text box has focus (`app/components/useTyping.ts`) so they don't float over the
+- Phones: zoom is off (viewport maximumScale 1 / userScalable false, `NoZoom.tsx` cancels iPhone pinch gestures, `touch-action: manipulation`, text boxes ≥16px so iOS never auto-zooms). `useBottomBarFix` re-lays out the tab bars on launch/return in the installed iPhone app (iOS otherwise leaves a gap under them until a tap). Bottom tab bars hide while a text box has focus (`app/components/useTyping.ts`) so they don't float over the
   keyboard; `body::before` paints a strip behind the iPhone status bar. Check-in answers autosave on the device
   (localStorage `vf-form-<formId>-<date>`) until sent.
 - Workout days + calendar (Nov 11): `schedules.kind = workout` with `workout_day` (index into the program's training days);

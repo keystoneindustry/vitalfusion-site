@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import NoZoom from "./components/NoZoom";
 import RegisterServiceWorker from "./components/RegisterServiceWorker";
 import "./globals.css";
 
@@ -22,6 +23,9 @@ export const viewport: Viewport = {
   themeColor: "#0b0d12",
   width: "device-width",
   initialScale: 1,
+  // App-like: no pinch or double-tap zoom (see app/components/NoZoom.tsx for iPhone).
+  maximumScale: 1,
+  userScalable: false,
   viewportFit: "cover",
 };
 
@@ -31,6 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         {children}
         <RegisterServiceWorker />
+        <NoZoom />
       </body>
     </html>
   );
