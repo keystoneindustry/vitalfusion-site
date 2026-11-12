@@ -155,9 +155,11 @@ export function agreementClientEmail(firstName: string) {
 /** Notice to the coach when a client signs. Flags any "yes" on the health questions. */
 export function agreementCoachEmail(opts: { clientName: string; parqYes: string[]; explanation: string; link: string }) {
   const flagged = opts.parqYes.length > 0;
-  const subject = flagged
-    ? `⚠️ ${opts.clientName} signed and answered YES on the health questions`
-    : `✅ ${opts.clientName} signed their coaching agreement`;
+  const heading = flagged
+    ? `${opts.clientName} signed and answered YES on the health questions`
+    : `${opts.clientName} signed their coaching agreement`;
+  // "[LEGAL]" lets Tyler's Gmail filter file it.
+  const subject = `[LEGAL] ${flagged ? "⚠️" : "✅"} ${heading}`;
   const flagHtml = flagged
     ? `<div style="margin:0 0 14px;padding:12px 14px;border:1px solid #5a4a26;border-radius:12px;background:#211b0e;color:#ffe2a8">
          <b>Answered YES to:</b><ul style="margin:6px 0 6px 18px;padding:0">${opts.parqYes.map((q) => `<li>${esc(q)}</li>`).join("")}</ul>
@@ -168,7 +170,7 @@ export function agreementCoachEmail(opts: { clientName: string; parqYes: string[
   return {
     subject,
     html: card(
-      subject.replace(/^(⚠️|✅) /, ""),
+      heading,
       `${flagHtml}<p style="margin:0">The signed agreement is attached and saved on their profile.</p>${button("Open their profile", opts.link)}`,
     ),
     text: `${subject}\n\n${
