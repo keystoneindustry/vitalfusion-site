@@ -322,3 +322,20 @@ export function reminderEmail(firstName: string, kind: "morning" | "evening", li
     text: `${intro}\n${lines.map((l) => `- ${l}`).join("\n")}\n\nOpen the app: ${link}\n\nTurn on notifications in the app's Settings to get these on your phone instead, or turn reminders off there.`,
   };
 }
+
+/** Daily note to Tyler about clients who've gone quiet. "[At risk]" lets a Gmail filter file it. */
+export function atRiskDigestEmail(risks: { name: string; level: "high" | "watch"; reasons: string[] }[], link: string) {
+  const high = risks.filter((r) => r.level === "high").length;
+  const subject = `[At risk] ${risks.length} client${risks.length === 1 ? "" : "s"} need${risks.length === 1 ? "s" : ""} a nudge${high ? ` (${high} urgent)` : ""}`;
+  const rows = risks
+    .map(
+      (r) =>
+        `<p style="margin:0 0 12px"><b style="color:#f4f5f7">${r.level === "high" ? "🔴" : "🟡"} ${esc(r.name)}</b><br><span style="color:#b6bcc6">${r.reasons.map(esc).join(" · ")}</span></p>`,
+    )
+    .join("");
+  return {
+    subject,
+    html: card("Clients who've gone quiet", `${rows}<p style="margin:0">A quick text or voice note today goes a long way.</p>${button("Open your coach Home", link)}`),
+    text: `Clients who've gone quiet:\n\n${risks.map((r) => `${r.level === "high" ? "URGENT" : "Watch"}: ${r.name} (${r.reasons.join("; ")})`).join("\n")}\n\n${link}`,
+  };
+}

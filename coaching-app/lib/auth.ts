@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { authPublic, db, q, SupabaseError, type AuthUser } from "./supabase";
 import { readSessionCookies } from "./session";
 import { isCoachEmail } from "./env";
@@ -64,6 +65,12 @@ export async function requireClient(path: string): Promise<Viewer & { client: Cl
   const viewer = await requireViewer(path);
   if (viewer.role === "coach") redirect("/coach");
   if (!viewer.client) redirect("/no-access");
+  // Remember when they last opened the app (at most every 30 minutes), for Tyler's at-risk alerts.
+  const seen = viewer.client.last_seen_at ? Date.parse(viewer.client.last_seen_at) : 0;
+  if (Date.now() - seen > 30 * 60 * 1000) {
+    const id = viewer.client.id;
+    after(() => updateClient(id, { last_seen_at: new Date().toISOString() }).catch((err) => console.error("last_seen update failed", err)));
+  }
   return viewer as Viewer & { client: ClientRow };
 }
 

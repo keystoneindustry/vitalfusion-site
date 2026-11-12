@@ -7,6 +7,7 @@ import { formatCallTime } from "@/lib/booking";
 import { planSummaries } from "@/lib/plans";
 import { awaitingReply } from "@/lib/forms";
 import { loadDays, type DayTasks } from "@/lib/client-days";
+import { loadAtRisk } from "@/lib/at-risk";
 import { coachFlags } from "@/lib/coach-flags";
 import { db } from "@/lib/supabase";
 
@@ -63,6 +64,10 @@ export default async function CoachHome() {
       return { client: c, chips: days[0] ? chipsFor(days[0]) : [] };
     }),
   );
+  const risks = await loadAtRisk(current).catch((err) => {
+    console.error("At-risk check failed", err);
+    return [];
+  });
   const recent = events.filter((e) => Date.now() - Date.parse(e.created_at) < 3 * 24 * 3600 * 1000).slice(0, 8);
 
   return (
@@ -70,7 +75,7 @@ export default async function CoachHome() {
       <p className="eyebrow">{formatDate(today)}</p>
       <h1 className="h1">{greeting()}, Tyler</h1>
 
-      <div className="stat-row">
+      <div className="stat-row stat-row-4">
         <Link href="/coach/clients" className="stat stat-link">
           <b>{current.length}</b>
           <span>clients</span>
@@ -79,6 +84,10 @@ export default async function CoachHome() {
           <b>{unreplied.length}</b>
           <span>to reply</span>
         </Link>
+        <a href="#at-risk" className={`stat stat-link${risks.length ? " stat-warn" : ""}`}>
+          <b>{risks.length}</b>
+          <span>at risk</span>
+        </a>
         <div className="stat">
           <b>{calls.length}</b>
           <span>call{calls.length === 1 ? "" : "s"} today</span>
@@ -87,6 +96,27 @@ export default async function CoachHome() {
 
       <div className="detail-grid">
         <div>
+          {risks.length > 0 && (
+            <section className="card risk-card" id="at-risk">
+              <h2 className="h2">🚨 At risk</h2>
+              <p className="muted small" style={{ marginTop: -6 }}>Clients who've gone quiet. A quick text or voice note today goes a long way.</p>
+              <ul className="risk-list">
+                {risks.map((r) => (
+                  <li key={r.clientId}>
+                    <Link href={`/coach/clients/${r.clientId}`}>
+                      <span className={`risk-dot ${r.level}`} aria-hidden="true" />
+                      <span className="risk-text">
+                        <b>{r.name}</b>
+                        <span className="small">{r.reasons.join(" · ")}</span>
+                        <span className="muted small">{r.lastSeen ? `Last opened the app ${timeAgo(r.lastSeen)}` : "Never opened the app"}</span>
+                      </span>
+                      <span className={`pill ${r.level === "high" ? "pill-risk" : "pill-watch"}`}>{r.level === "high" ? "Reach out" : "Watch"}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
           <section className="card card-accent">
             <h2 className="h2">Needs your attention</h2>
             {flags.length === 0 ? (

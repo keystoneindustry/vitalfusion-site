@@ -1,4 +1,5 @@
 import { runReminders, sendReminderNow } from "@/lib/reminders";
+import { sendAtRiskDigest } from "@/lib/at-risk";
 import { env } from "@/lib/env";
 
 /**
@@ -20,5 +21,10 @@ export async function GET(request: Request): Promise<Response> {
   const clientId = url.searchParams.get("client");
   if ((test === "morning" || test === "evening") && clientId) return Response.json({ result: await sendReminderNow(clientId, test, origin) });
   const result = await runReminders(origin);
-  return Response.json(result);
+  // Once a day (9am Eastern): email Tyler the clients who've gone quiet.
+  const atRisk = await sendAtRiskDigest(origin).catch((err) => {
+    console.error("At-risk digest failed", err);
+    return { sent: false, clients: 0 };
+  });
+  return Response.json({ ...result, atRisk });
 }

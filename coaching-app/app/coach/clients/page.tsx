@@ -7,6 +7,7 @@ import { ONBOARDING_STEPS } from "@/lib/onboarding";
 import { formatCallTime } from "@/lib/booking";
 import { planSummaries } from "@/lib/plans";
 import { awaitingReply } from "@/lib/forms";
+import { loadAtRisk } from "@/lib/at-risk";
 
 function onboardingLine(step: string, kickoffAt: string | null, tz: string): string | null {
   if (step === "done") return kickoffAt ? `Kickoff: ${formatCallTime(kickoffAt, tz)}` : "Onboarding done";
@@ -22,6 +23,7 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
   const filter = stage && isStage(stage) ? stage : null;
 
   const [clients, plans, unreplied] = await Promise.all([listClients(), planSummaries(), awaitingReply()]);
+  const risks = await loadAtRisk(clients).catch(() => []);
   const today = todayIn();
   const counts = Object.fromEntries(STAGES.map((s) => [s.value, clients.filter((c) => c.stage === s.value).length]));
   const current = clients.filter((c) => c.stage !== "finished");
@@ -80,7 +82,18 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
                   <br />
                   {c.start_date ? `${formatDate(c.start_date, false)} – ${formatDate(c.end_date)}` : "No dates set"}
                   {" · "}
-                  {c.last_seen_at ? `Last signed in ${timeAgo(c.last_seen_at)}` : c.invited_at ? "Not signed in yet" : "Not invited yet"}
+                  {c.last_seen_at ? `Last opened the app ${timeAgo(c.last_seen_at)}` : c.invited_at ? "Not signed in yet" : "Not invited yet"}
+                  {(() => {
+                    const r = risks.find((x) => x.clientId === c.id);
+                    return r ? (
+                      <>
+                        <br />
+                        <span style={{ color: r.level === "high" ? "#ff8a8a" : "var(--warn)" }}>
+                          {r.level === "high" ? "🔴" : "🟡"} At risk: {r.reasons.join(" · ")}
+                        </span>
+                      </>
+                    ) : null;
+                  })()}
                   {c.first_signed_in_at && (c.stage === "onboarding" || c.onboarding_step !== "done") && (
                     <>
                       <br />

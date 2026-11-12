@@ -177,3 +177,10 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   (`ShareCardMaker.tsx` draws a branded 1080×1350 post or 1080×1920 story on a canvas; pick pose and two photo days,
   headline auto "Down X lb in N weeks" from weigh-ins, optional dates/first name; download, or the share sheet on phones).
   Photos come through `share/photo/route.ts` (coach-only, same-origin so the canvas can export).
+- At-risk alerts (Nov 12): `lib/at-risk.ts`. `assessRisk` (pure) → "high" (reach out) or "watch": app not opened 3+ days
+  (watch) / 7+ or never (high); nothing logged (habit tick, weigh-in, check-in, photo, meal) 3+ / 7+ days; no habits ticked
+  in the last 3 days; missed last check-in (watch) / last 2 (high). 3-day grace after onboarding/start. Only active,
+  onboarded clients. `clients.last_seen_at` is now refreshed on every visit (at most every 30 min, in `requireClient` via
+  `after()`). Coach Home: "at risk" stat + 🚨 At risk card; Clients list shows the reasons. Daily email to the
+  `checkin_email` address at 9am Eastern, subject "[At risk] N clients need a nudge", sent from the hourly reminders job
+  (`sendAtRiskDigest`, deduped by `at_risk_digest_log`); nothing is sent when no one is at risk.

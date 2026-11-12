@@ -785,3 +785,15 @@ p .cg { padding: 0 6px; margin: 0 2px 0 8px; }
 .why-quote .why-label { margin-bottom: 3px; font-size: 11px; }
 .why-quote .why-text { font-size: 16px; line-height: 1.45; }
 .why-empty .why-text { color: var(--muted); font-style: normal; }
+
+/* ───────── At-risk clients (coach Home) ───────── */
+.risk-card { border-color: #5c2a2a; background: linear-gradient(180deg, #24161a, var(--card)); }
+.risk-list { list-style: none; margin: 0; padding: 0; }
+.risk-list li + li { border-top: 1px solid var(--card-border); }
+.risk-list a { display: flex; align-items: center; gap: 12px; padding: 12px 0; color: var(--text); text-decoration: none; }
+.risk-dot { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+.risk-dot.high { background: #ff6b6b; box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.18); }
+.risk-dot.watch { background: #f0c35a; box-shadow: 0 0 0 4px rgba(240, 195, 90, 0.18); }
+.risk-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.pill-risk { background: #3a1c1f; color: #ff9a9a; border: 1px solid #6b2c31; }
+.pill-watch { background: #33290f; color: #f0c35a; border: 1px solid #5f4c1b; }
