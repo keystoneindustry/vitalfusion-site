@@ -147,3 +147,10 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   dropped) so the perfect day lands on the targets, then sizes every other library meal like the perfect-day meals of
   its group. Runs automatically after every AI nutrition draft and revision; the coach's Meals tab has "Fit portions
   to targets" (`fitMealsAction`) for existing or hand-edited plans.
+- AI Nutrition Assistant (Nov 12): ☰ More → `/assistant` (`app/(client)/assistant/`: page + `AssistantChat.tsx`). Clients ask food
+  questions (restaurants, swaps, snacks); `POST /api/assistant` → `lib/assistant.ts` (Claude API with the server-side
+  `web_search_20250305` tool, max 3 searches; falls back to no search if web search isn't enabled for the API org; handles
+  `pause_turn`). The system prompt carries the client's published targets, goal, allergies, diet style and foods to avoid.
+  Chats are NOT stored on the server (only in the phone's localStorage `vf-assistant-<clientId>`; Tyler can't see them, by his
+  choice). Limit 20 questions/day per client in the client's time zone: table `assistant_usage` + RPC
+  `use_assistant_question` (atomic, returns -1 at the limit) and `refund_assistant_question` (on failure).
