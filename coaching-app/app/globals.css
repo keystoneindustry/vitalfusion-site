@@ -802,3 +802,6 @@ p .cg { padding: 0 6px; margin: 0 2px 0 8px; }
 /* No double-tap zoom; text boxes at 16px+ so iPhone doesn't zoom in when one is tapped. */
 html { touch-action: manipulation; -webkit-text-size-adjust: 100%; }
 input, select, textarea { font-size: max(16px, 1em); }
+.start-photos { border-color: #5a4c26; background: linear-gradient(180deg, #221d10, var(--card)); }
+.start-photo-tips { padding: 0 0 0 20px; margin: 0 0 14px; }
+.start-photo-tips li { margin: 4px 0; }

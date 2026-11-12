@@ -18,6 +18,8 @@ import { vapidPublicKey } from "@/lib/push";
 import { listResources, startHere } from "@/lib/resources";
 import { loadWins } from "@/lib/wins";
 import WinsCelebration from "./WinsCelebration";
+import StartingPhotos from "@/app/components/StartingPhotos";
+import { listPhotos } from "@/lib/progress";
 
 export const metadata = { title: "Today · Vital Fusion" };
 
@@ -30,6 +32,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
   const published = onboarding ? null : await getPublishedPlan(client.id);
   const live = hasContent(published) ? published : null;
   const plan = live && live.content.meals.length > 0 ? live : null;
+  const needsStartPhotos = !onboarding && (await listPhotos(client.id).catch(() => [{}])).length === 0;
   // A new meal plan or program: invite them to the tab's quick tour (once).
   const newParts = [
     plan && !client.nutrition_tour_seen_at ? { href: "/nutrition", icon: "🍽️", title: "Your meal plan is ready!", text: "Take a 1-minute tour of your Nutrition tab" } : null,
@@ -94,6 +97,8 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
           <span className="chev" aria-hidden="true">›</span>
         </Link>
       )}
+
+      {needsStartPhotos && <StartingPhotos timezone={client.timezone} />}
 
       {newParts.map((p) => (
         <Link key={p.href} href={p.href} className="task-link new-part-link">

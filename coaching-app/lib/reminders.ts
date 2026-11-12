@@ -35,8 +35,9 @@ export function reminderKind(hour: number): "morning" | "evening" | null {
 export type Reminder = { lines: string[]; push: PushMessage; important: boolean };
 
 /** Morning: everything on today's calendar. Null on a day with nothing scheduled. */
-export function morningReminder(d: DayTasks, call: string | null = null): Reminder | null {
+export function morningReminder(d: DayTasks, call: string | null = null, startingPhotos = false): Reminder | null {
   const lines: string[] = [];
+  if (startingPhotos) lines.push("📸 Starting progress photos, before you eat");
   if (call) lines.push(`📞 1-on-1 call with Tyler at ${call}`);
   for (const w of d.workouts) lines.push(`🏋️ ${w.name}`);
   for (const f of d.forms.filter((f) => !f.submitted)) lines.push(`📝 ${f.title}`);
@@ -54,7 +55,7 @@ export function morningReminder(d: DayTasks, call: string | null = null): Remind
       title: first ? `REMINDER: ${first} today` : "REMINDER: Your plan for today",
       // The first workout is already in the title, so the body lists everything else.
       body: lines.filter((l) => !first || l !== `🏋️ ${first}`).map((l) => l.replace(/^\S+\s/, "")).join(" · ") || "Tap to open today's workout.",
-      url: first ? `/train?day=${d.workouts[0].day}` : "/",
+      url: first ? `/train?day=${d.workouts[0].day}` : startingPhotos ? "/progress/photos/new" : "/",
       tag: "morning",
     },
   };
@@ -129,9 +130,16 @@ function wantsReminders(c: ClientRow): boolean {
 }
 
 /** One pass of the hourly job. Returns a short summary for the logs. */
+/** Clients who've taken at least one progress photo (the rest still owe their starting photos). */
+async function clientsWithPhotos(): Promise<Set<string>> {
+  const rows = await db<{ client_id: string }[]>("progress_photos?select=client_id").catch(() => []);
+  return new Set(rows.map((r) => r.client_id));
+}
+
 export async function runReminders(origin: string, now = new Date()): Promise<{ checked: number; sent: { client: string; kind: string; channel: string }[] }> {
   const clients = (await listClients()).filter(wantsReminders);
   const sent: { client: string; kind: string; channel: string }[] = [];
+  const withPhotos = await clientsWithPhotos();
   for (const c of clients) {
     const kind = reminderKind(localHour(c.timezone, now));
     if (!kind) continue;
@@ -141,7 +149,7 @@ export async function runReminders(origin: string, now = new Date()): Promise<{ 
       const { days } = await loadDays(c.id, [date]);
       const day = days[0];
       const call = c.next_call_at && todayIn(c.timezone, new Date(c.next_call_at)) === date ? (formatCallTime(c.next_call_at, c.timezone).split(" at ")[1] ?? null) : null;
-      const r = day ? (kind === "morning" ? morningReminder(day, call) : eveningReminder(day)) : null;
+      const r = day ? (kind === "morning" ? morningReminder(day, call, !withPhotos.has(c.id)) : eveningReminder(day)) : null;
       if (!r) {
         await record(c.id, date, kind, "none", "nothing due");
         continue;
@@ -170,7 +178,8 @@ export async function sendReminderNow(clientId: string, kind: "morning" | "eveni
   const date = todayIn(c.timezone);
   const { days } = await loadDays(c.id, [date]);
   const call = c.next_call_at && todayIn(c.timezone, new Date(c.next_call_at)) === date ? (formatCallTime(c.next_call_at, c.timezone).split(" at ")[1] ?? null) : null;
-  const r = days[0] ? (kind === "morning" ? morningReminder(days[0], call) : eveningReminder(days[0])) : null;
+  const startingPhotos = !(await clientsWithPhotos()).has(c.id);
+  const r = days[0] ? (kind === "morning" ? morningReminder(days[0], call, startingPhotos) : eveningReminder(days[0])) : null;
   if (!r) return "nothing due today";
   const ok = await pushToClient(c.id, { ...r.push, url: `${origin}${r.push.url ?? "/"}` });
   return ok ? `sent: ${r.push.title} — ${r.push.body}` : "no phone with notifications on";

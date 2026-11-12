@@ -20,7 +20,8 @@ export default async function PhotosPage() {
       </p>
       <h1 className="h1">Today's photos</h1>
       <ul className="tips" style={{ padding: "0 0 0 20px", marginBottom: 16 }}>
-        <li>Morning, before eating, same spot and lighting each time.</li>
+        <li>First thing in the morning, fasted (before you eat or drink), after the bathroom.</li>
+        <li>Same spot and lighting each time.</li>
         <li>Fitted clothes or swimwear so changes are visible.</li>
         <li>Phone at chest height, or ask someone to take them.</li>
       </ul>

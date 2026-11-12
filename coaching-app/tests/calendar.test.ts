@@ -83,3 +83,14 @@ assert.equal(sets[0].date, "2026-11-15");
 assert.deepEqual(sets[1].poses, { front: "a", back: "c" });
 
 console.log("calendar tests passed");
+
+// First weekly check-in: set up on Thursday Nov 12 2026 with Sunday as their day → starts a week out → Sunday Nov 22.
+{
+  const { scheduleDueOn: due } = await import("../lib/calendar");
+  const s = { id: "x", kind: "form" as const, form_id: "f", days: [0], every_weeks: 1, start_date: "2026-11-19", end_date: null, one_date: null, active: true };
+  assert.equal(due(s, "2026-11-15"), false, "not this Sunday");
+  assert.equal(due(s, "2026-11-22"), true, "the Sunday after next");
+  const same = { ...s, days: [4] }; // picked Thursday, the day they signed up
+  assert.equal(due(same, "2026-11-12"), false);
+  assert.equal(due(same, "2026-11-19"), true, "exactly a week later");
+}

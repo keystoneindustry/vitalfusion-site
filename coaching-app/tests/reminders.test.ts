@@ -42,3 +42,14 @@ assert.equal(morningReminder({ ...day, habits: [], weighIn: { due: false, weight
 const habitsOnly = morningReminder({ ...day, weighIn: { due: false, weight: null }, forms: [], workouts: [] })!;
 assert.equal(habitsOnly.important, false);
 console.log("reminder tests passed");
+
+// Starting progress photos lead the morning reminder until they're taken, and the tap opens the camera page.
+{
+  const { morningReminder: mr } = await import("../lib/reminders");
+  const empty = { date: "2026-11-13", workouts: [], forms: [], weighIn: { due: false, weight: null }, photos: { due: false, count: 0 }, habits: [] } as unknown as Parameters<typeof mr>[0];
+  const r = mr(empty, null, true)!;
+  assert.equal(r.lines[0], "📸 Starting progress photos, before you eat");
+  assert.equal(r.important, true);
+  assert.equal(r.push.url, "/progress/photos/new");
+  assert.equal(mr(empty, null, false), null);
+}

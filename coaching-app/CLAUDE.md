@@ -192,3 +192,9 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   (`clients.nutrition_tour_seen_at` / `training_tour_seen_at`, `markFeatureTourSeenAction`); `?tour=1` replays (Settings
   has "Nutrition tour" / "Training tour" buttons). Today shows a green "Your meal plan / training program is ready! Take a
   1-minute tour" card until each tour is seen.
+- Starting progress photos (Nov 12): `app/components/StartingPhotos.tsx` card (front/side/back, first thing in the morning,
+  fasted; after 11am local it says "do these tomorrow morning") shows on the kickoff-booked screen (end of onboarding) and at
+  the top of Today until they have any progress photo. The 8am reminder leads with "📸 Starting progress photos, before you
+  eat" (counts as important, so email if no push) and opens `/progress/photos/new`.
+- First check-in a week out (Nov 12): the starting setup now starts the weekly check-in and photo schedules at today + 7, so
+  the first one is on their chosen day at least a week away (signed up Thursday, picked Sunday → the Sunday after next).

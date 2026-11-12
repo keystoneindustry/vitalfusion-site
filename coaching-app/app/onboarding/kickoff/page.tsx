@@ -5,6 +5,8 @@ import { onboardingPage } from "../guard";
 import StepHeader from "../StepHeader";
 import { kickoffSelfReport } from "../actions";
 import SubmitButton from "@/app/components/SubmitButton";
+import StartingPhotos from "@/app/components/StartingPhotos";
+import { listPhotos } from "@/lib/progress";
 
 export const metadata = { title: "Book your kickoff call · Vital Fusion" };
 
@@ -13,6 +15,7 @@ export default async function KickoffPage() {
   const { kickoff_link } = await getSettings();
   const url = bookingUrl(kickoff_link, { name: client.full_name, email: client.email, clientId: client.id });
 
+  const hasPhotos = (await listPhotos(client.id).catch(() => [])).length > 0;
   if (client.kickoff_at) {
     return (
       <>
@@ -22,10 +25,11 @@ export default async function KickoffPage() {
             <b>{formatCallTime(client.kickoff_at, client.timezone)}</b> on Google Meet. The link is in your calendar invite.
           </p>
           <p className="coming">Until then, photograph your meals so Tyler can see how you eat now.</p>
-          <Link className="btn btn-wide" href="/">
-            Go to my app →
-          </Link>
         </section>
+        {!hasPhotos && <StartingPhotos timezone={client.timezone} />}
+        <Link className="btn btn-wide" href="/">
+          Go to my app →
+        </Link>
       </>
     );
   }

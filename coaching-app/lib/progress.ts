@@ -160,12 +160,15 @@ export async function applyDefaultSchedule(client: ClientRow): Promise<string[]>
   if (!schedules.some((s) => s.kind === "photos")) {
     const day = weekdayFromName(typeof answers.photoDay === "string" ? answers.photoDay : "") ?? 0;
     const every = Math.max(1, Math.min(8, parseInt(settings.default_photo_every_weeks || "1", 10) || 1));
-    await addSchedule({ client_id: client.id, kind: "photos", days: [day], every_weeks: every, start_date: start, end_date: client.end_date, one_date: null });
+    // First check-in photos a full week out (their starting photos come first, from Today).
+    await addSchedule({ client_id: client.id, kind: "photos", days: [day], every_weeks: every, start_date: addDays(start, 7), end_date: client.end_date, one_date: null });
     added.push("progress photos");
   }
   if (!schedules.some((s) => s.kind === "form" && s.form_id === checkin?.id) && checkin) {
     const day = weekdayFromName(typeof answers.photoDay === "string" ? answers.photoDay : "") ?? 0;
-    await addSchedule({ client_id: client.id, kind: "form", form_id: checkin.id, days: [day], every_weeks: 1, start_date: start, end_date: client.end_date, one_date: null });
+    // The first weekly check-in is on their chosen day at least a week from now
+    // (signed up Thursday, picked Sunday → first check-in the Sunday after next).
+    await addSchedule({ client_id: client.id, kind: "form", form_id: checkin.id, days: [day], every_weeks: 1, start_date: addDays(start, 7), end_date: client.end_date, one_date: null });
     added.push("weekly check-in");
   }
   if (added.length) await addEvent(client.id, "schedule_added", { added });
