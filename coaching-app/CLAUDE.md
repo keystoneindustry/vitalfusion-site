@@ -184,3 +184,11 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   `after()`). Coach Home: "at risk" stat + 🚨 At risk card; Clients list shows the reasons. Daily email to the
   `checkin_email` address at 9am Eastern, subject "[At risk] N clients need a nudge", sent from the hourly reminders job
   (`sendAtRiskDigest`, deduped by `at_risk_digest_log`); nothing is sent when no one is at risk.
+- Nutrition & Training tab tours (Nov 12): `app/(client)/FeatureTour.tsx` (generic: steps with a CSS selector each, missing
+  targets skipped, scrolls each target near the top and spotlights it; same look as AppTour) with steps in
+  `app/(client)/tour-steps.ts` (`NUTRITION_TOUR`: targets → perfect day → grocery list → tracking apps → ☰ More for the meal
+  library + AI assistant; `TRAINING_TOUR`: program line → workout cards → warm-up → sets/reps/rest → demo → program notes →
+  Calendar tab). Shown once the first time they open /nutrition or /train after that part is live
+  (`clients.nutrition_tour_seen_at` / `training_tour_seen_at`, `markFeatureTourSeenAction`); `?tour=1` replays (Settings
+  has "Nutrition tour" / "Training tour" buttons). Today shows a green "Your meal plan / training program is ready! Take a
+  1-minute tour" card until each tour is seen.

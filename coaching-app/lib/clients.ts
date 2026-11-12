@@ -34,6 +34,9 @@ export type ClientRow = {
   tour_seen_at?: string | null;
   /** Their "why": shown on Today every time they open the app (from onboarding, editable). */
   why?: string | null;
+  /** When they finished the Nutrition / Training tab tours (shown once after each part of the plan goes live). */
+  nutrition_tour_seen_at?: string | null;
+  training_tour_seen_at?: string | null;
 };
 
 export type ClientEvent = {

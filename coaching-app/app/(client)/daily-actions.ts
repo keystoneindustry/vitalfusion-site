@@ -44,3 +44,10 @@ export async function markTourSeenAction(): Promise<void> {
   const { client } = await requireClient("/");
   if (!client.tour_seen_at) await updateClient(client.id, { tour_seen_at: new Date().toISOString() });
 }
+
+/** The Nutrition / Training tab tour has been seen (once each, after that part of the plan goes live). */
+export async function markFeatureTourSeenAction(tour: "nutrition" | "training"): Promise<void> {
+  const { client } = await requireClient("/");
+  const key = tour === "nutrition" ? "nutrition_tour_seen_at" : "training_tour_seen_at";
+  if (!client[key]) await updateClient(client.id, { [key]: new Date().toISOString() });
+}

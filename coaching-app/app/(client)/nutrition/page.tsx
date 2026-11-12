@@ -9,11 +9,14 @@ import { formatCallTime } from "@/lib/booking";
 import { PerfectDay } from "@/app/components/PlanViews";
 import TrackingApps from "@/app/components/TrackingApps";
 import { findGuide, listResources } from "@/lib/resources";
+import FeatureTour from "../FeatureTour";
+import { NUTRITION_TOUR } from "../tour-steps";
 
 export const metadata = { title: "Nutrition · Vital Fusion" };
 
-export default async function NutritionPage() {
+export default async function NutritionPage({ searchParams }: { searchParams: Promise<{ tour?: string }> }) {
   const { client } = await requireClient("/nutrition");
+  const { tour } = await searchParams;
   const published = await getPublishedPlan(client.id);
   if (!hasContent(published) || published.content.meals.length === 0) {
     const onboarding = client.onboarding_step !== "done";
@@ -56,11 +59,15 @@ export default async function NutritionPage() {
     <>
       <h1 className="h1">Your nutrition</h1>
       {content.welcome && <p className="program-intro">{toLines(content.welcome).slice(0, 2).join(" ")}</p>}
-      <TargetsCard targets={targets} />
+      <div data-tour="n-targets">
+        <TargetsCard targets={targets} />
+      </div>
 
-      <h2 className="section-title">Your perfect day</h2>
-      <PerfectDay nutrition={content} targets={targets} showTotals={false} />
-      <Link href="/nutrition/grocery" className="task-link grocery-link">
+      <div data-tour="n-perfect">
+        <h2 className="section-title">Your perfect day</h2>
+        <PerfectDay nutrition={content} targets={targets} showTotals={false} />
+      </div>
+      <Link href="/nutrition/grocery" className="task-link grocery-link" data-tour="n-grocery">
         <span className="task-icon">🛒</span>
         <span className="task-text">
           <b>Grocery list</b>
@@ -69,7 +76,17 @@ export default async function NutritionPage() {
         <span className="chev" aria-hidden="true">›</span>
       </Link>
 
-      <TrackingApps guideId={findGuide(await listResources(true).catch(() => []), /track(ing)?\s+(your\s+)?calories/i)?.id} />
+      {(!client.nutrition_tour_seen_at || tour === "1") && (
+        <FeatureTour
+          tour="nutrition"
+          label="Nutrition tour"
+          steps={NUTRITION_TOUR}
+          finish={{ title: "🥗 You're ready to eat for your goal", text: "Start with your perfect day, grab what's on your grocery list, and log your food in your tracking app. You can take this tour again in ☰ More → Settings." }}
+        />
+      )}
+      <div data-tour="n-tracking">
+        <TrackingApps guideId={findGuide(await listResources(true).catch(() => []), /track(ing)?\s+(your\s+)?calories/i)?.id} />
+      </div>
     </>
   );
 }

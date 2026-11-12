@@ -797,3 +797,4 @@ p .cg { padding: 0 6px; margin: 0 2px 0 8px; }
 .risk-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .pill-risk { background: #3a1c1f; color: #ff9a9a; border: 1px solid #6b2c31; }
 .pill-watch { background: #33290f; color: #f0c35a; border: 1px solid #5f4c1b; }
+.new-part-link { border-color: #2f5f45; background: linear-gradient(180deg, #14261c, var(--card)); }

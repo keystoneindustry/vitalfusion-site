@@ -49,6 +49,15 @@ export default async function SettingsPage() {
           Take the app tour again
         </Link>
         <div className="spacer" />
+        <div className="grid-2">
+          <Link className="btn btn-ghost" href="/nutrition?tour=1">
+            Nutrition tour
+          </Link>
+          <Link className="btn btn-ghost" href="/train?tour=1">
+            Training tour
+          </Link>
+        </div>
+        <div className="spacer" />
         <Link className="btn btn-ghost btn-wide" href="/install">
           How to add the app to your home screen
         </Link>

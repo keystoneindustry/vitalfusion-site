@@ -7,14 +7,16 @@ import { todayIn } from "@/lib/dates";
 import { weekDates } from "@/lib/calendar";
 import { loadDays } from "@/lib/client-days";
 import { demosFor } from "@/lib/exercises";
+import FeatureTour from "../FeatureTour";
+import { TRAINING_TOUR } from "../tour-steps";
 
 const GOAL_LABEL: Record<string, string> = { lose: "Fat loss", muscle: "Build muscle", maintain: "Get fitter" };
 
 export const metadata = { title: "Training · Vital Fusion" };
 
-export default async function TrainPage({ searchParams }: { searchParams: Promise<{ day?: string }> }) {
+export default async function TrainPage({ searchParams }: { searchParams: Promise<{ day?: string; tour?: string }> }) {
   const { client } = await requireClient("/train");
-  const { day } = await searchParams;
+  const { day, tour } = await searchParams;
   const published = await getPublishedPlan(client.id);
   if (!hasContent(published) || published.content.training.days.length === 0) {
     return (
@@ -45,7 +47,7 @@ export default async function TrainPage({ searchParams }: { searchParams: Promis
   return (
     <>
       <h1 className="h1">Your training</h1>
-      <p className="lead" style={{ marginTop: -4 }}>
+      <p className="lead" style={{ marginTop: -4 }} data-tour="t-meta">
         {perWeek}× a week · ~{minutes} min · {GOAL_LABEL[published.targets.inputs.goal] ?? "Your goal"}
       </p>
 
@@ -57,6 +59,14 @@ export default async function TrainPage({ searchParams }: { searchParams: Promis
 
       {training.overview && <p className="program-intro">{training.overview.split(/(?<=\.)\s+/).slice(0, 2).join(" ")}</p>}
       <TrainingProgram training={training} openDay={openDay} demos={demos} />
+      {(!client.training_tour_seen_at || tour === "1") && (
+        <FeatureTour
+          tour="training"
+          label="Training tour"
+          steps={TRAINING_TOUR}
+          finish={{ title: "💪 Let's get to work", text: "Open today's workout (or your first one), warm up, and follow it top to bottom. You can take this tour again in ☰ More → Settings." }}
+        />
+      )}
       {!scheduled && <p className="small muted" style={{ marginTop: 14 }}>Do the workouts in order. Rest a day between them when you can.</p>}
     </>
   );

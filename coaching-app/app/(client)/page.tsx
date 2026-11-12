@@ -30,6 +30,13 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
   const published = onboarding ? null : await getPublishedPlan(client.id);
   const live = hasContent(published) ? published : null;
   const plan = live && live.content.meals.length > 0 ? live : null;
+  // A new meal plan or program: invite them to the tab's quick tour (once).
+  const newParts = [
+    plan && !client.nutrition_tour_seen_at ? { href: "/nutrition", icon: "🍽️", title: "Your meal plan is ready!", text: "Take a 1-minute tour of your Nutrition tab" } : null,
+    live && live.content.training.days.length > 0 && !client.training_tour_seen_at
+      ? { href: "/train", icon: "🏋️", title: "Your training program is ready!", text: "Take a 1-minute tour of your Training tab" }
+      : null,
+  ].filter((x): x is NonNullable<typeof x> => !!x);
   const foodLog = !onboarding && !plan ? logStats(await listMeals(client.id), client.timezone, today) : null;
   const recent = [addDays(today, -3), addDays(today, -2), addDays(today, -1), today];
   const [{ days }, subs] = onboarding
@@ -87,6 +94,17 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
           <span className="chev" aria-hidden="true">›</span>
         </Link>
       )}
+
+      {newParts.map((p) => (
+        <Link key={p.href} href={p.href} className="task-link new-part-link">
+          <span className="task-icon">{p.icon}</span>
+          <span className="task-text">
+            <b>{p.title}</b>
+            <span className="small">{p.text}</span>
+          </span>
+          <span className="chev" aria-hidden="true">›</span>
+        </Link>
+      ))}
 
       {wins && <WinsCelebration wins={wins.unseen.map(({ key, title, emoji }) => ({ key, title, emoji }))} />}
 
