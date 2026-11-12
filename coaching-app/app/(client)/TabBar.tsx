@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import SignOutButton from "@/app/components/SignOutButton";
 import { useTyping } from "@/app/components/useTyping";
+import { useBottomBarFix } from "@/app/components/useBottomBarFix";
 
 const TABS = [
   { href: "/", label: "Today", icon: "M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z" },
@@ -45,6 +46,7 @@ export default function TabBar() {
   const [open, setOpen] = useState(false);
   // Hide the bar while typing so it doesn't float above the phone keyboard.
   const typing = useTyping();
+  useBottomBarFix();
   // Hide "Add to home screen" once they're using the installed app.
   const [installed, setInstalled] = useState(false);
   useEffect(() => {
