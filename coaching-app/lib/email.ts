@@ -311,16 +311,6 @@ export function checkinReplyClientEmail(firstName: string, link: string) {
   };
 }
 
-/** To the client when Tyler sends their monthly progress report. */
-export function progressReportClientEmail(firstName: string, headline: string, link: string) {
-  const subject = "Your monthly progress report is ready 📊";
-  return {
-    subject,
-    html: card(`${firstName}, here's your month`, `${headline ? `<p style="margin:0 0 10px;font-size:18px;font-weight:700;color:#f4f5f7">${esc(headline)}</p>` : ""}<p style="margin:0">Tyler put together your progress report: your numbers, your wins, and what to focus on next.</p>${button("See your report", link)}`),
-    text: `${firstName}, your monthly progress report is ready.${headline ? `\n\n${headline}` : ""}\n\nSee it in the app: ${link}`,
-  };
-}
-
 /** Reminder when push notifications aren't set up: today's plan (morning) or what's still open (evening). */
 export function reminderEmail(firstName: string, kind: "morning" | "evening", lines: string[], link: string) {
   const subject = kind === "morning" ? "Your plan for today" : "Still to do today";

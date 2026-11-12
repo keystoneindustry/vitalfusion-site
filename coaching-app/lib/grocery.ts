@@ -80,14 +80,11 @@ export function shopName(food: string): string {
     .trim();
 }
 
+/** Weights in grams (the same unit as the meal plan), rounded up to a tidy number. */
 export function formatWeight(grams: number): string {
-  if (grams >= 454) {
-    const lb = grams / 453.6;
-    return `${lb >= 10 ? Math.round(lb) : Math.round(lb * 10) / 10} lb`;
-  }
-  const oz = grams / 28.35;
-  if (oz < 1) return `${Math.max(1, Math.round(grams / 5) * 5)} g`;
-  return `${oz >= 4 ? Math.round(oz) : Math.round(oz * 2) / 2} oz`;
+  const step = grams >= 1000 ? 50 : grams >= 200 ? 10 : 5;
+  const g = Math.max(step, Math.ceil(grams / step) * step);
+  return `${g.toLocaleString("en-US")} g`;
 }
 
 function plural(n: number, one: string): string {

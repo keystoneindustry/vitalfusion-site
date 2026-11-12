@@ -16,10 +16,11 @@ assert.deepEqual(unitGrams("3 large", 150), { each: 50, unit: "" });
 assert.deepEqual(unitGrams("2 slices", 60), { each: 30, unit: "slices" });
 assert.equal(unitGrams("1 cup", 180), null);
 assert.equal(unitGrams("", 180), null);
-assert.equal(formatWeight(1000), "2.2 lb");
-assert.equal(formatWeight(150), "5 oz");
-assert.equal(formatWeight(80), "3 oz");
-assert.equal(formatWeight(20), "20 g");
+assert.equal(formatWeight(1000), "1,000 g");
+assert.equal(formatWeight(1012), "1,050 g");
+assert.equal(formatWeight(152), "155 g");
+assert.equal(formatWeight(203), "210 g");
+assert.equal(formatWeight(2), "5 g");
 
 const n = {
   meals: [
@@ -34,12 +35,13 @@ const get = (name: string) => list.find((i) => i.name === name)!;
 assert.equal(get("Eggs").amount, "21 (2 dozen)");
 assert.equal(get("Whole wheat bread").amount, "14 slices");
 assert.equal(get("Apple").amount, "7");
-// 150 g cooked × 7 = 1050 g cooked chicken → about 1397 g raw ≈ 3.1 lb.
-assert.equal(get("Chicken breast").amount, "3.1 lb");
-assert.match(get("Chicken breast").note, /cooked = about 3\.1 lb raw/);
-// 180 g cooked rice × 7 = 1260 g cooked → 420 g dry ≈ 15 oz.
-assert.equal(get("White rice").amount, "15 oz");
-assert.equal(get("Broccoli").amount, "1.5 lb");
+// 150 g cooked × 7 = 1050 g cooked chicken → about 1397 g raw.
+assert.equal(get("Chicken breast").amount, "1,400 g");
+assert.match(get("Chicken breast").note, /1,050 g cooked = about 1,400 g raw/);
+// 180 g cooked rice × 7 = 1260 g cooked → 420 g dry.
+assert.equal(get("White rice").amount, "420 g");
+assert.equal(get("Broccoli").amount, "700 g");
+assert.ok(!list.some((i) => /\b(lb|oz)\b/.test(i.amount + i.note)), "no pounds or ounces");
 assert.equal(list[0].aisle, "Produce", "sorted by store section");
 assert.equal(groceryList(n, 3).find((i) => i.name === "Eggs")!.amount, "9 eggs");
 

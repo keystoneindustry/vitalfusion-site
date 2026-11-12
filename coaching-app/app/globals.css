@@ -773,27 +773,6 @@ p .cg { padding: 0 6px; margin: 0 2px 0 8px; }
 .grocery-item.on .grocery-text b, .grocery-item.on .grocery-amount { text-decoration: line-through; color: var(--muted); }
 .grocery-item.on .tick-box { background: var(--good); border-color: var(--good); color: #0b0d12; }
 
-/* ───────── Monthly progress report ───────── */
-.report { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 18px; margin: 0 0 14px; }
-.report-headline { font-size: 24px; line-height: 1.2; margin: 0 0 16px; font-weight: 800; }
-.report-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 6px; }
-.report-stat { background: var(--card-2); border: 1px solid var(--card-border); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 2px; }
-.report-stat b { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; }
-.report-stat b.good { color: var(--good); }
-.report-stat span { color: var(--muted); font-size: 13px; }
-.report-block { margin-top: 18px; }
-.report-block h3 { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
-.report-line { width: 100%; height: auto; display: block; background: var(--card-2); border-radius: 12px; }
-.report-photos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.report-photos figure { margin: 0; }
-.report-photos img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 12px; display: block; background: var(--card-2); }
-.report-photos figcaption { color: var(--muted); font-size: 13px; margin-top: 4px; text-align: center; }
-.report-list { list-style: none; margin: 0; padding: 0; }
-.report-list li { padding: 5px 0; line-height: 1.45; }
-.report-message p { white-space: pre-line; line-height: 1.6; margin: 0; color: var(--text-2); }
-.report-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--card-border); color: var(--text); text-decoration: none; }
-.report-row:last-child { border-bottom: 0; }
-@media (min-width: 860px) { .report-stats { grid-template-columns: repeat(4, 1fr); } }
 
 /* ───────── Share card maker (coach) ───────── */
 .share-grid { display: grid; gap: 14px; }

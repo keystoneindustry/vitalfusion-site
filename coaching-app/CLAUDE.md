@@ -171,15 +171,8 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   adds up the perfect day's ingredients × servings × 3/5/7 days, converts cooked rice/pasta/oats/meat/beans to dry/raw
   buying weight, counts countable items (eggs → dozens, slices, "1 medium" apple), groups by store section. Ticks are
   saved on the phone (localStorage `vf-grocery-<planId>`).
-- Monthly progress reports (Nov 12): table `progress_reports` (draft → sent; stats jsonb, headline, message, highlights,
-  focus, photo_before/after paths). `lib/reports.ts`: `buildStats` (last 28 days ending yesterday: weight start/end from
-  first/last week averages, weekly averages, change since first weigh-in, habit adherence + perfect days + best streak,
-  check-ins sent/due, milestones reached, photo days; before = first front photo ever, after = latest front photo),
-  `draftWithAi` (schema `progress_report`, Tyler's voice) with `fallbackDraft`, `reportDue`. Coach client tab **Reports**
-  (`/coach/clients/[id]/reports`, actions in `report-actions.ts`): create (AI writes via `after()`, page auto-refreshes),
-  edit, send (email `progressReportClientEmail` + push), redraft, delete draft. Coach Home flags a report due every 28 days
-  for active clients. Client: Progress → 📊 Reports (`/progress/reports`, marks seen) and a Today card for a new one.
-  Shared view `app/components/ReportView.tsx`.
+- Monthly progress reports were built and then removed at Tyler's request (Nov 12, "too much clutter"). The empty-ish
+  `progress_reports` table is left in the database, unused.
 - Before/after share card (Nov 12, coach only): Progress tab → "✨ Share card" → `/coach/clients/[id]/share`
   (`ShareCardMaker.tsx` draws a branded 1080×1350 post or 1080×1920 story on a canvas; pick pose and two photo days,
   headline auto "Down X lb in N weeks" from weigh-ins, optional dates/first name; download, or the share sheet on phones).

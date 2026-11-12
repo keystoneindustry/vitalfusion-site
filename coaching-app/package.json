@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "tsx tests/dates.test.ts && tsx tests/clients.test.ts && tsx tests/email.test.ts && tsx tests/onboarding.test.ts && tsx tests/plan.test.ts && tsx tests/calendar.test.ts && tsx tests/resources.test.ts && tsx tests/forms.test.ts && tsx tests/resources-start.test.ts && tsx tests/push.test.ts && tsx tests/reminders.test.ts && tsx tests/exercise-match.test.ts && tsx tests/fit.test.ts && tsx tests/assistant.test.ts && tsx tests/milestones.test.ts && tsx tests/grocery.test.ts && tsx tests/reports.test.ts"
+    "test": "tsx tests/dates.test.ts && tsx tests/clients.test.ts && tsx tests/email.test.ts && tsx tests/onboarding.test.ts && tsx tests/plan.test.ts && tsx tests/calendar.test.ts && tsx tests/resources.test.ts && tsx tests/forms.test.ts && tsx tests/resources-start.test.ts && tsx tests/push.test.ts && tsx tests/reminders.test.ts && tsx tests/exercise-match.test.ts && tsx tests/fit.test.ts && tsx tests/assistant.test.ts && tsx tests/milestones.test.ts && tsx tests/grocery.test.ts"
   },
   "dependencies": {
     "next": "^16.0.0",

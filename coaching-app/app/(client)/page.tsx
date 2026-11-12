@@ -17,7 +17,6 @@ import AppTour from "./AppTour";
 import { vapidPublicKey } from "@/lib/push";
 import { listResources, startHere } from "@/lib/resources";
 import { loadWins } from "@/lib/wins";
-import { listReports } from "@/lib/reports";
 import WinsCelebration from "./WinsCelebration";
 
 export const metadata = { title: "Today · Vital Fusion" };
@@ -37,7 +36,6 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
     ? [{ days: [] }, []]
     : await Promise.all([loadDays(client.id, recent), listSubmissions(client.id, 5)]);
   const day = days[days.length - 1];
-  const newReport = onboarding ? null : (await listReports(client.id, true).catch(() => [])).find((r) => !r.seen_at) ?? null;
   const wins = onboarding ? null : await loadWins(client, today).catch((err) => (console.error("Wins failed", err), null));
   // Forms due today, plus check-ins from the last 3 days that weren't sent yet.
   const formsDue = days.flatMap((d) => d.forms.filter((f) => d.date === today || !f.submitted).map((f) => ({ ...f, date: d.date })));
@@ -73,17 +71,6 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
           <span className="task-text">
             <b>Tyler replied to your check-in</b>
             <span className="small">Tap to read it</span>
-          </span>
-          <span className="chev" aria-hidden="true">›</span>
-        </Link>
-      )}
-
-      {newReport && (
-        <Link href={`/progress/reports/${newReport.id}`} className="task-link reply-link">
-          <span className="task-icon">📊</span>
-          <span className="task-text">
-            <b>Your monthly progress report is ready</b>
-            <span className="small">{newReport.headline || "Tap to see your month"}</span>
           </span>
           <span className="chev" aria-hidden="true">›</span>
         </Link>
