@@ -191,13 +191,14 @@ export function workoutTitle(name: string, index: number): string {
   return name.replace(/^Day\s*\d+\s*[–—:-]\s*/i, "").trim() || `Workout ${index + 1}`;
 }
 
-/** "3 × 8–12" / "3 × 30–45 s" / "3 sets · As many as you can". */
-function setsReps(e: { sets: string; reps: string }): string {
+/** "3 sets · 8–12 reps" / "3 sets · 8–10 per leg" / "1 set · 30–45 sec": spelled out for people new to the gym. */
+export function setsReps(e: { sets: string; reps: string }): string {
   const sets = e.sets.trim();
   const reps = e.reps.trim();
-  if (!reps) return /^\d+$/.test(sets) ? `${sets} sets` : sets;
-  if (/^\d+$/.test(sets)) return /^[\d\s–—\-+/]+$/.test(reps) ? `${sets} × ${reps} reps` : `${sets} × ${reps}`;
-  return [sets, reps].filter(Boolean).join(" · ");
+  const setsText = /^\d+$/.test(sets) ? `${sets} ${sets === "1" ? "set" : "sets"}` : /^[\d\s–—\-]+$/.test(sets) ? `${sets} sets` : sets;
+  if (!reps) return setsText;
+  const repsText = /^[\d\s–—\-+/]+$/.test(reps) ? `${reps} ${reps === "1" ? "rep" : "reps"}` : reps;
+  return [setsText, repsText].filter(Boolean).join(" · ");
 }
 
 /** A training program, laid out to scan on a phone: workouts first, then one card of program notes. */
