@@ -128,8 +128,9 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
 - Client Training tab: meta line, this-week strip (from workout schedules), today's workout opens by default,
   exercises as "3 × 8–12 reps · rest 90 s", one "Program notes" card.
 - The hourly trigger is a Supabase pg_cron job `vf-hourly-reminders` ('0 * * * *') that calls
-  https://vitalfusion-app.vercel.app/api/cron/reminders through pg_net with the REMINDERS_SECRET bearer token.
-  **When the app moves to app.vitalfusioncoaching.com, update that URL** (cron.alter_job / reschedule).
+  https://app.vitalfusioncoaching.com/api/cron/reminders through pg_net with the REMINDERS_SECRET bearer token.
+- Custom domain (Nov 12): app.vitalfusioncoaching.com (GoDaddy CNAME `app` → Vercel). APP_URL is set to it in production,
+  so email links use it. The old https://vitalfusion-app.vercel.app still works (no redirect, so installed apps keep their sign-in).
 - Exercise library (Nov 11): table `exercises` (name unique, category, cue, video_url or uploaded video_path in the private
   `resources` bucket under `exercises/`), coach page `/coach/exercises` (☰ / top menu). Seeded with the builder's
   suggestion names, no videos. `matchExercise()` (`lib/exercise-match.ts`) links a program's exercise to the library
