@@ -560,3 +560,25 @@ body:has(.apply-lp) {
 @media (min-width: 860px) {
   .apply-card { padding: 30px 32px 34px; }
 }
+
+
+/* ───────── Macro calculator, in the homepage style (.macros-lp) ───────── */
+.macros-lp.macros-intro .kicker { margin-bottom: 14px; }
+.macros-lp .display em, .macros-lp .title em { color: var(--accent-hi, #8fbddf); font-size: 1.08em; }
+.macros-lp.macros-intro .lead { max-width: 30em; color: var(--text-2); }
+.macros-lp.macros-intro .btn-cta { max-width: 460px; }
+.macros-lp .badge { background: #6a9fc6; color: #08101a; }
+/* Results */
+.macros-results .title { font-size: clamp(32px, 8.6vw, 46px); line-height: 1.08; letter-spacing: -0.03em; }
+.macros-lp .m-cal { background: radial-gradient(120% 90% at 50% 0%, rgba(106,159,198,0.2), transparent 70%), #151922; border: 1px solid #2c3a52; border-radius: 22px; box-shadow: 0 0 60px -25px rgba(106,159,198,0.6); }
+.macros-lp .m-cal-num { color: #fff; text-shadow: 0 0 30px rgba(106,159,198,0.35); }
+.macros-lp .m-cal-goal { background: rgba(106,159,198,0.12); border-color: #2c3a52; color: #a9c6e4; }
+.macros-lp .m-macro, .macros-lp .m-tip, .macros-lp .m-meal, .macros-lp .m-date, .macros-lp .m-client { background: #151922; border: 1px solid #242a35; border-radius: 18px; }
+.macros-lp .m-date { border-left: 3px solid #6a9fc6; }
+.macros-lp .m-h2 { font-size: 26px; letter-spacing: -0.02em; }
+.macros-lp .m-tip-label, .macros-lp .m-client-label, .macros-lp .m-meal-num { color: #8fbddf; letter-spacing: 0.12em; text-transform: uppercase; font-size: 12px; font-weight: 800; }
+.macros-lp .m-meal ul li { color: var(--text-2); }
+.macros-lp .m-note { background: #12161e; border-color: #2c3a52; }
+.macros-lp .m-bridge { background: radial-gradient(90% 70% at 50% 0%, rgba(106,159,198,0.16), transparent 70%), #12161e; border: 1px solid #2c3a52; border-radius: 22px; box-shadow: 0 0 70px -30px rgba(106,159,198,0.6); }
+.macros-lp .m-bridge .btn-cta { margin-top: 6px; font-size: 16px; padding: 16px 14px; letter-spacing: 0.02em; }
+.macros-lp .m-reality { border-bottom-color: #242a35; }

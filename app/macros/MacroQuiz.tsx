@@ -2,6 +2,7 @@
 
 import { useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
+import Rich from "../components/Rich";
 import { site } from "@/content/site";
 import {
   ACTIVITY_LEVELS,
@@ -239,9 +240,9 @@ export default function MacroQuiz({ source }: { source: string }) {
     const pct = (g: number, cal: number) => Math.round(((g * cal) / total) * 100);
 
     return (
-      <main className="wrap macros" ref={topRef}>
-        <p className="pill">✓ Your plan is ready</p>
-        <h1 className="title">{first}, here are your numbers</h1>
+      <main className="wrap macros lp apply-lp macros-lp macros-results" ref={topRef}>
+        <p className="kicker">Your plan is ready</p>
+        <h1 className="title">{first}, here are your <em>numbers</em></h1>
 
         <section className="m-cal">
           <p className="m-cal-label">Eat about</p>
@@ -330,7 +331,7 @@ export default function MacroQuiz({ source }: { source: string }) {
               <span>{q.clientExample.text}</span>
             </figcaption>
           </figure>
-          <Link href="/apply?source=macro-quiz" className="btn btn-wide" onClick={() => prefillApplication(input)}>
+          <Link href="/apply?source=macro-quiz" className="btn-cta" onClick={() => prefillApplication(input)}>
             {q.bridgeButton}
           </Link>
           <p className="m-vary">{q.resultsVary}</p>
@@ -349,11 +350,11 @@ export default function MacroQuiz({ source }: { source: string }) {
   /* ───────── Intro ───────── */
   if (!started) {
     return (
-      <main className="wrap macros macros-intro">
-        <p className="pill">{site.brand}</p>
-        <h1 className="display">{q.title}</h1>
+      <main className="wrap macros macros-intro lp apply-lp macros-lp">
+        <p className="kicker">{site.brand}</p>
+        <h1 className="display"><Rich text={q.title} /></h1>
         <p className="lead">{q.intro}</p>
-        <button type="button" className="btn btn-wide btn-big" onClick={() => setStarted(true)}>
+        <button type="button" className="btn-cta" onClick={() => setStarted(true)}>
           {q.startButton}
         </button>
         <p className="hero-note">{q.note}</p>
@@ -386,11 +387,14 @@ export default function MacroQuiz({ source }: { source: string }) {
   );
 
   return (
-    <main className="wrap apply macros">
+    <main className="wrap apply macros lp apply-lp macros-lp">
       <div ref={topRef} />
       <header className="apply-head">
-        <h1 className="apply-title">{q.title}</h1>
+        <p className="kicker">{site.brand}</p>
+        <h1 className="apply-title"><Rich text={q.title} /></h1>
       </header>
+
+      <div className="apply-card card-lp">
       <div className="progress" aria-hidden>
         <div className="progress-bar" style={{ width: `${pctDone}%` }} />
       </div>
@@ -536,12 +540,13 @@ export default function MacroQuiz({ source }: { source: string }) {
         </div>
 
         {["age", "height", "weight", "goalWeight", "obstacles", "lead"].includes(stepId) && (
-          <button type="submit" className="btn submit" disabled={status === "sending"}>
+          <button type="submit" className="btn-cta submit" disabled={status === "sending"}>
             {isLast ? (status === "sending" ? "Calculating…" : q.resultsButton) : "Continue →"}
           </button>
         )}
         {isLast && <p className="privacy">No spam. Your info stays private.</p>}
       </form>
+      </div>
     </main>
   );
 }

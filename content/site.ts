@@ -200,7 +200,8 @@ export const site = {
 
   // Hidden macro calculator quiz at /macros (Instagram "comment MACROS" link).
   macroQuiz: {
-    title: "Free Macro Calculator",
+    // *Stars* = italic accent font.
+    title: "Free macro *calculator*",
     intro: "Answer a few quick questions and get your daily calories, protein, carbs and fat, plus my clients' favorite meals.",
     startButton: "Calculate My Macros →",
     note: "Takes about 60 seconds · 100% free",
