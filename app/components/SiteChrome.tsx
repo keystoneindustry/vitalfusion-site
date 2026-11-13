@@ -12,7 +12,7 @@ export function SiteHeader() {
         </Link>
         <nav className="nav-links">
           <Link href="/#results" className="hide-sm">Results</Link>
-          <Link href="/#method" className="hide-sm">Method</Link>
+          <Link href="/#how" className="hide-sm">How it works</Link>
           <Link href="/#about" className="hide-sm">About</Link>
         </nav>
       </div>

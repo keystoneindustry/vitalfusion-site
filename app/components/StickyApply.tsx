@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 
 // Phone-only "Apply" bar pinned to the bottom of the screen. It appears once
-// the hero question has scrolled out of view, so there's always a way to apply.
+// the hero button has scrolled out of view, so there's always a way to apply.
 export default function StickyApply({ label }: { label: string }) {
   const [show, setShow] = useState(false);
 
@@ -21,7 +21,7 @@ export default function StickyApply({ label }: { label: string }) {
 
   return (
     <div className={`sticky-apply ${show ? "show" : ""}`} aria-hidden={!show}>
-      <Link href="/apply" className="btn" tabIndex={show ? 0 : -1}>
+      <Link href="/apply" className="btn-cta" tabIndex={show ? 0 : -1}>
         {label} →
       </Link>
     </div>

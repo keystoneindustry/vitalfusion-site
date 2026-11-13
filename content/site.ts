@@ -13,20 +13,101 @@ export const site = {
   applyCta: "Start Now",
 
   hero: {
-    headline: "Ready to take your goals to the next level?",
-    sub: "1:1 online coaching that helps busy adults lose fat and build muscle, without crash diets.",
-    button: "Start Now →",
-    note: "Free application · Takes about 60 seconds",
-    resultsLink: "See client results",
+    eyebrow: "For busy professionals who can't stay consistent",
+    // Three lines; the middle one is shown in brand blue.
+    headline: ["Lose your first", "15+ lbs in 90 days", "without extreme diets."],
+    sub: "A real coach builds your plan around your schedule and checks in every week, so you finally stop starting over every Monday.",
+    button: "Start Now",
+    note: "60-second application",
+    // Holiday line under the button. Set to "" after New Year's to hide it.
+    holiday: "Start now and get a head start on the holidays, instead of starting over in January.",
     photo: "/images/coach-photo.webp",
+  },
+
+  // Homepage video (Vimeo). To swap the video, paste the new numbers from the
+  // player link: player.vimeo.com/video/<id>?h=<hash>
+  video: {
+    vimeoId: "1246680177",
+    vimeoHash: "4171130673",
+    poster: "/images/vsl-thumb.webp",
+    unmuteLabel: "Tap to watch with sound",
+  },
+
+  // Words wrapped in *stars* show in the italic accent font.
+  pillars: {
+    eyebrow: "Why this time is different",
+    headline: "It was never your *willpower.*",
+    sub: "Your last plan just wasn't built for your life. Mine is built on 3 pillars.",
+    items: [
+      {
+        icon: "plate",
+        label: "Pillar 1",
+        title: "Not a lose-it-fast diet.",
+        text: "No cutting carbs to zero or skipping meals. You eat foods you already like, in amounts that get you results.",
+      },
+      {
+        icon: "calendar",
+        label: "Pillar 2",
+        title: "Built around your life.",
+        text: "Long workdays, kids, travel and weekends are planned for, not ignored. The plan changes when your week does.",
+      },
+      {
+        icon: "infinity",
+        label: "Pillar 3",
+        title: "Sustainable for good.",
+        text: "You learn habits that keep the weight off after you lose it, so this is the last time you have to lose it.",
+      },
+    ],
+    closing: "You don't need a stricter diet. You need a plan you can stick to, with someone in your corner.",
+  },
+
+  how: {
+    eyebrow: "How it works",
+    headline: "From application to *results.*",
+    steps: [
+      { title: "Apply", text: "Fill out the 60-second application so I can see your goals." },
+      { title: "Quick call", text: "We hop on a short call to make sure it's a good fit." },
+      { title: "Your personalized plan", text: "Nutrition and training built around your schedule and the foods you like." },
+      { title: "Weekly check-ins", text: "We check in every week and adjust your plan as you go." },
+    ],
+  },
+
+  whatYouGet: {
+    eyebrow: "What you get",
+    headline: "Everything you need. *Nothing you don't.*",
+    items: [
+      { icon: "dumbbell", title: "Workouts built for your schedule", text: "Home, gym or on the road." },
+      { icon: "plate", title: "Real-life nutrition", text: "Foods you already like, with a plan for eating out." },
+      { icon: "chat", title: "Weekly 1:1 check-ins", text: "Plus messaging access whenever you have a question." },
+      { icon: "phone", title: "The Vital Fusion app", text: "Your plan, grocery list, meals and progress in one place." },
+    ],
+    appImage: "/images/app-home.webp",
+  },
+
+  fit: {
+    yesTitle: "This is *for you* if…",
+    yes: [
+      "You're busy and have tried diets that didn't stick",
+      "You have 15+ lbs to lose and want it gone for good",
+      "You want a real person checking in on you, not just an app",
+      "You're ready to commit and follow a plan",
+    ],
+    noTitle: "This is *not* for you if…",
+    no: [
+      "You want a crash diet or a quick fix before an event",
+      "You only want a PDF meal plan to do on your own",
+      "You aren't willing to track your food or train a few times a week",
+    ],
   },
 
   results: {
     eyebrow: "Client Results",
-    headline: "Real clients. Real results.",
+    headline: "Real clients. *Real results.*",
     featured: {
       name: "Charlie G.",
       headline: "Lost 16 lbs in 8 weeks",
+      image: "/images/graph2.webp",
+      quote: "So far everything's been great. I feel better and I am getting comments from my family about my weight loss",
       points: [
         "No extreme dieting",
         "Still enjoyed the foods he loves",
@@ -34,15 +115,11 @@ export const site = {
         "Family noticed the transformation",
       ],
     },
-    // Client check-ins (real quotes) with their weigh-in charts.
+    // Other client check-ins (real quotes) with their weigh-in charts.
+    // (Charlie's own quote and chart are in `featured` above.)
     cards: [
       {
         image: "/images/graph1.webp",
-        headline: "Family noticed the weight loss",
-        quote: "So far everything's been great. I feel better and I am getting comments from my family about my weight loss",
-      },
-      {
-        image: "/images/graph2.webp",
         headline: "Still eating chips. Still losing weight.",
         quote: "I didn't expect to still be able to eat chips and such and lose weight. But the macro plan and guides actually helped a lot with being able to include things like that.",
       },
@@ -78,8 +155,9 @@ export const site = {
   },
 
   closing: {
-    headline: "Your next level starts today.",
-    sub: "Answer 6 quick questions. I'll personally review your application and reach out to set up a free call.",
+    headline: "90 days will pass *either way.*",
+    sub: "Start now and you could walk into the holidays already down, not starting over in January.",
+    disclaimer: "Results vary and depend on your starting point, effort and consistency.",
   },
 
   // Email the applicant gets right after applying.

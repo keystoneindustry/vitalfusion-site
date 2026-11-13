@@ -6,11 +6,17 @@ is not a developer; explain changes plainly and keep the site simple.
 - Stack: Next.js (App Router, TypeScript), plain CSS in `app/globals.css` (no Tailwind),
   hosted on Vercel. Email via Resend REST API (`lib/email.ts`), optional Supabase via
   REST (`lib/store.ts`). Avoid adding dependencies unless they clearly earn their place.
-- The homepage is deliberately simple and only sells the coaching application (no free
-  resources / blueprint / FAQ). Order: full-screen hero ("Start Now" + "See client results ↓")
-  → client results → V.I.T.A.L. Method → your coach → closing Start Now. Every CTA goes to
-  `/apply` (`/apply?age=…` pre-fills question 1). A phone-only sticky Start Now bar
-  (`app/components/StickyApply.tsx`) appears after the hero scrolls away.
+- The homepage is a video landing page (styled after a reference VSL page, in Vital Fusion colors) that only
+  sells the coaching application. Order: hero (eyebrow, "Lose your first 15+ lbs in 90 days without extreme
+  diets.", Vimeo video autoplaying muted with a "Tap to watch with sound" button, Start Now, holiday line)
+  → 3 pillars → how it works (4 steps) → client results (Charlie featured with his family quote, 2 other
+  quote cards) → what you get (+ app phone mockup) → your coach → for you / not for you → closing
+  ("90 days will pass either way"). Every CTA goes to `/apply`. No price, no guarantee on the page.
+  "90 days" is the hook only (clients sign up for different lengths). The Vimeo id/hash live in
+  `content/site.ts` → `video`. Words in *stars* in headings render in the italic accent font (Instrument
+  Serif via next/font; body font Inter). Pieces: `app/components/VideoHero.tsx`, `Reveal.tsx` (scroll fade-in),
+  `Icon.tsx`, `Rich.tsx`. A phone-only sticky Start Now bar (`StickyApply.tsx`) appears after the hero button
+  scrolls away. The holiday line (`hero.holiday`) can be set to "" after New Year's.
 - All homepage copy lives in `content/site.ts`; layout in `app/page.tsx`; promo landing page in
   `app/vital-method/`. Images are in `public/images/`. Only add real client results and testimonials.
 - CSS is phone-first: base rules are for phones, `@media (min-width: 860px)` for desktop.
