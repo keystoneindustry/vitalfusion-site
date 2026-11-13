@@ -151,17 +151,18 @@ export default function ApplyForm({ source, initialAge = "" }: { source: string;
 
   if (status === "done") {
     return (
-      <main className="wrap center">
+      <main className="wrap center lp apply-lp apply-done">
         <div className="check" aria-hidden>✓</div>
-        <h1 className="title">Application Submitted!</h1>
-        <div className="card">
+        <p className="kicker">Thank you</p>
+        <h1 className="title">Application <em>received.</em></h1>
+        <div className="card card-lp">
           <p className="thanks">
             Thank you for applying. We&apos;ll review your information and see if one-on-one coaching
             is the right fit for your goals. We&apos;ll reach out soon to schedule your consultation call.
           </p>
           <p className="thanks thanks-email">Check your email for additional information.</p>
         </div>
-        <Link href="/" className="btn">← Back to Home</Link>
+        <Link href="/" className="btn-ghost">← Back to Home</Link>
       </main>
     );
   }
@@ -171,12 +172,15 @@ export default function ApplyForm({ source, initialAge = "" }: { source: string;
   const pct = Math.round(((step + 1) / STEPS.length) * 100);
 
   return (
-    <main className="wrap apply">
+    <main className="wrap apply lp apply-lp">
       <div ref={topRef} />
       <header className="apply-head">
-        <h1 className="apply-title">Apply for Coaching</h1>
+        <p className="kicker">Coaching application</p>
+        <h1 className="apply-title">Apply for <em>1:1 coaching</em></h1>
         <p className="apply-sub">Takes about 60 seconds</p>
       </header>
+
+      <div className="apply-card card-lp">
 
       <div className="progress" aria-hidden>
         <div className="progress-bar" style={{ width: `${pct}%` }} />
@@ -339,12 +343,13 @@ export default function ApplyForm({ source, initialAge = "" }: { source: string;
         {formError && <p className="err form-err" role="alert">{formError}</p>}
 
         {step >= 2 && (
-          <button type="submit" className="btn submit" disabled={status === "sending"}>
-            {step === LAST ? (status === "sending" ? "Submitting…" : "Submit Application") : "Continue →"}
+          <button type="submit" className="btn-cta submit" disabled={status === "sending"}>
+            {step === LAST ? (status === "sending" ? "Submitting…" : "Submit Application") : <>Continue <span aria-hidden>→</span></>}
           </button>
         )}
         {step === LAST && <p className="privacy">Your info stays private and is only used to contact you about coaching.</p>}
       </form>
+      </div>
     </main>
   );
 }

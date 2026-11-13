@@ -517,3 +517,46 @@ input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px
   .unmute { animation: none; }
   .btn-cta { transition: none; }
 }
+
+
+/* ───────── Application form, in the homepage style (scoped to .apply-lp so the macro quiz is unchanged) ───────── */
+body:has(.apply-lp) {
+  background:
+    radial-gradient(640px 380px at 50% -40px, rgba(106, 159, 198, 0.2), transparent 70%),
+    linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px) 0 0 / 44px 44px,
+    linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px) 0 0 / 44px 44px,
+    #0b0d12;
+}
+.apply-lp.apply { padding-top: 34px; max-width: 620px; }
+.apply-lp .apply-head { margin-bottom: 22px; }
+.apply-lp .kicker { margin-bottom: 10px; }
+.apply-lp .apply-title { font-size: clamp(34px, 9vw, 48px); line-height: 1.05; letter-spacing: -0.03em; margin: 0 0 8px; }
+.apply-lp .apply-title em, .apply-lp .title em { color: var(--accent-hi, #8fbddf); font-size: 1.08em; }
+.apply-lp .apply-sub { color: var(--text-3); font-weight: 500; font-size: 15px; }
+.apply-card { padding: 20px 18px 24px; box-shadow: 0 30px 80px -40px rgba(0, 0, 0, 0.9), 0 0 0 6px rgba(106, 159, 198, 0.05); }
+.apply-lp .progress { height: 6px; background: #1f2530; }
+.apply-lp .progress-bar { background: linear-gradient(90deg, #5a8bb3, #8fbddf); box-shadow: 0 0 14px rgba(106, 159, 198, 0.7); }
+.apply-lp .progress-label { font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.apply-lp .step .q { font-size: clamp(22px, 5.8vw, 27px); font-weight: 800; letter-spacing: -0.02em; }
+.apply-lp .choice { background: #11151c; border: 1px solid var(--lp-line, #242a35); border-radius: 16px; }
+.apply-lp .choice:hover { border-color: #3a4d68; background: #141a23; }
+.apply-lp .choice.on { border-color: #6a9fc6; background: rgba(106, 159, 198, 0.12); box-shadow: 0 0 0 1px rgba(106, 159, 198, 0.45) inset, 0 8px 24px -12px rgba(106, 159, 198, 0.6); }
+.apply-lp .tick { border-radius: 50%; border-color: #4a5468; }
+.apply-lp .choice.on .tick { background: #6a9fc6; border-color: #6a9fc6; color: #08101a; font-weight: 900; }
+.apply-lp input, .apply-lp textarea { background: #11151c; border: 1px solid var(--lp-line, #242a35); border-radius: 14px; }
+.apply-lp input:focus, .apply-lp textarea:focus { border-color: #6a9fc6; box-shadow: 0 0 0 3px rgba(106, 159, 198, 0.22); }
+.apply-lp .other-box { background: #11151c; border-color: #3a4d68; }
+.apply-lp .btn-cta:disabled { opacity: 0.7; cursor: default; transform: none; }
+.apply-lp .step-form .submit { margin-top: 24px; }
+.apply-lp .back { color: var(--text-3); }
+.apply-lp .back:hover { color: #8fbddf; }
+/* Submitted screen */
+.apply-done .check { color: #08101a; background: linear-gradient(180deg, #8fbddf, #5a8bb3); border: 0; box-shadow: 0 0 60px -10px rgba(106, 159, 198, 0.8); margin-bottom: 18px; }
+.apply-done .title { font-size: clamp(40px, 11vw, 60px); letter-spacing: -0.035em; }
+.apply-done .card { padding: 24px 22px; }
+.apply-done .thanks-email { color: #8fbddf; }
+.btn-ghost { display: inline-flex; align-items: center; justify-content: center; min-height: 54px; padding: 0 26px; border-radius: 14px; border: 1px solid #2a3446; color: var(--text); font-weight: 700; text-decoration: none; }
+.btn-ghost:hover { border-color: #6a9fc6; color: #8fbddf; }
+@media (min-width: 860px) {
+  .apply-card { padding: 30px 32px 34px; }
+}
