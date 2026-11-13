@@ -413,10 +413,10 @@ input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px
 
 /* How it works */
 .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
-.step { display: flex; gap: 18px; align-items: flex-start; padding: 22px 20px; }
+.how-step { display: flex; gap: 18px; align-items: flex-start; padding: 22px 20px; }
 .step-num { font-family: var(--font-serif, Georgia), Georgia, serif; font-style: italic; font-size: 46px; line-height: 0.9; color: var(--accent-hi, #8fbddf); min-width: 34px; text-align: center; }
-.step h3 { margin: 2px 0 6px; font-size: 20px; letter-spacing: -0.01em; }
-.step p { margin: 0; color: var(--text-3); line-height: 1.55; font-size: 16px; }
+.how-step h3 { margin: 2px 0 6px; font-size: 20px; letter-spacing: -0.01em; }
+.how-step p { margin: 0; color: var(--text-3); line-height: 1.55; font-size: 16px; }
 
 /* Results */
 .feature { overflow: hidden; display: grid; }

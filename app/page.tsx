@@ -83,7 +83,7 @@ export default function Home() {
           </div>
           <ol className="steps">
             {how.steps.map((s, i) => (
-              <li key={s.title} className="step card-lp reveal">
+              <li key={s.title} className="how-step card-lp reveal">
                 <span className="step-num">{i + 1}</span>
                 <div>
                   <h3>{s.title}</h3>
