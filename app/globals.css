@@ -377,7 +377,7 @@ input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px
 .lp-hero::after { content: ""; position: absolute; inset: auto 0 0 0; height: 120px; background: linear-gradient(transparent, var(--lp-bg)); pointer-events: none; }
 .lp-hero .lp-inner { position: relative; z-index: 1; }
 .hero-eyebrow { margin: 0 0 16px; color: var(--text-2); font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
-.hero-title { font-size: clamp(36px, 10.4vw, 66px); line-height: 1.04; letter-spacing: -0.035em; font-weight: 800; margin: 0 0 16px; }
+.hero-title { font-size: clamp(36px, 10.4vw, 66px); line-height: 1.04; letter-spacing: -0.035em; font-weight: 800; margin: 0 0 26px; }
 .hero-title .accent { display: block; color: var(--accent-hi, #8fbddf); text-shadow: 0 0 40px rgba(106, 159, 198, 0.35); }
 .hero-sub { color: var(--text-2); font-size: 17px; line-height: 1.6; margin: 0 auto 26px; max-width: 32em; }
 .lp-hero .cta { margin-top: 22px; }
@@ -442,6 +442,23 @@ input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px
 .get-list p { margin: 0; color: var(--text-3); font-size: 15px; line-height: 1.5; }
 .phone { justify-self: center; width: min(280px, 72%); aspect-ratio: 9 / 18.5; border-radius: 38px; padding: 10px; background: #1a1d24; border: 1px solid #343944; box-shadow: 0 40px 80px -30px rgba(0,0,0,0.9), 0 0 80px -30px rgba(106,159,198,0.45); }
 .phone img { width: 100%; height: 100%; object-fit: cover; object-position: top; border-radius: 30px; display: block; }
+/* App tour: swipe the phone screens */
+.tour { display: grid; justify-items: center; gap: 16px; }
+.tour-stage { display: flex; align-items: center; gap: 10px; width: 100%; justify-content: center; }
+.tour .phone { width: min(280px, 70vw); flex: none; overflow: hidden; }
+.tour-track { display: flex; width: 100%; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; border-radius: 30px; scrollbar-width: none; overscroll-behavior-x: contain; }
+.tour-track::-webkit-scrollbar { display: none; }
+.tour-track img { flex: 0 0 100%; width: 100%; height: 100%; scroll-snap-align: center; scroll-snap-stop: always; border-radius: 0; }
+.tour-arrow { display: none; width: 44px; height: 44px; border-radius: 50%; border: 1px solid #2a3446; background: #151922; color: var(--text); font-size: 26px; line-height: 1; cursor: pointer; }
+.tour-arrow:hover { border-color: #6a9fc6; color: #8fbddf; }
+.tour-caption { text-align: center; max-width: 340px; min-height: 104px; }
+.tour-count { margin: 0 0 6px; color: #8fbddf; font-size: 12px; font-weight: 800; letter-spacing: 0.16em; }
+.tour-caption h3 { margin: 0 0 6px; font-size: 21px; letter-spacing: -0.01em; }
+.tour-caption p { margin: 0; color: var(--text-3); line-height: 1.5; font-size: 15px; }
+.tour-dots { display: flex; gap: 8px; }
+.tour-dots button { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 99px; background: #2f3745; cursor: pointer; transition: width 0.2s ease, background 0.2s ease; }
+.tour-dots button.on { width: 22px; background: #6a9fc6; }
+.tour-hint { margin: 0; color: var(--muted); font-size: 13px; }
 
 /* Coach */
 .coach { display: grid; gap: 26px; }
@@ -485,7 +502,9 @@ input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px
   .feature-body { padding: 36px 40px; }
   .quotes { display: grid; grid-template-columns: 1fr 1fr; overflow: visible; margin: 18px 0 0; padding: 0; gap: 18px; }
   .quote { flex: none; }
-  .get { grid-template-columns: 1.2fr 0.8fr; gap: 48px; }
+  .get { grid-template-columns: 1.1fr 0.9fr; gap: 48px; }
+  .tour-arrow { display: grid; place-items: center; }
+  .tour-hint { display: none; }
   .get-list { grid-template-columns: 1fr 1fr; gap: 16px; }
   .get-list li { flex-direction: column; align-items: flex-start; padding: 24px; }
   .coach { grid-template-columns: 0.85fr 1.15fr; gap: 56px; align-items: center; }

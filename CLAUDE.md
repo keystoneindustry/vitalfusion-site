@@ -8,15 +8,15 @@ is not a developer; explain changes plainly and keep the site simple.
   REST (`lib/store.ts`). Avoid adding dependencies unless they clearly earn their place.
 - The homepage is a video landing page (styled after a reference VSL page, in Vital Fusion colors) that only
   sells the coaching application. Order: hero (eyebrow, "Lose your first 15+ lbs in 90 days without extreme
-  diets.", Vimeo video autoplaying muted with a "Tap to watch with sound" button, Start Now, holiday line)
+  diets.", no sub-paragraph, Vimeo video autoplaying muted with a "Tap to watch with sound" button, Start Now, holiday line)
   → 3 pillars → how it works (4 steps) → client results (Charlie featured with his family quote, 2 other
-  quote cards) → what you get (+ app phone mockup) → your coach → for you / not for you → closing
+  quote cards) → what you get (+ swipeable phone `AppTour.tsx` with 8 app screenshots, caption per screen,
+  from `whatYouGet.appScreens`) → your coach → for you / not for you → closing
   ("90 days will pass either way"). Every CTA goes to `/apply`. No price, no guarantee on the page.
   "90 days" is the hook only (clients sign up for different lengths). The Vimeo id/hash live in
   `content/site.ts` → `video`. Words in *stars* in headings render in the italic accent font (Instrument
   Serif via next/font; body font Inter). Pieces: `app/components/VideoHero.tsx`, `Reveal.tsx` (scroll fade-in),
-  `Icon.tsx`, `Rich.tsx`. A phone-only sticky Start Now bar (`StickyApply.tsx`) appears after the hero button
-  scrolls away. The holiday line (`hero.holiday`) can be set to "" after New Year's.
+  `Icon.tsx`, `Rich.tsx`. No sticky Start Now bar on the homepage (Tyler's call: Start Now already repeats). The holiday line (`hero.holiday`) can be set to "" after New Year's.
 - All homepage copy lives in `content/site.ts`; layout in `app/page.tsx`; promo landing page in
   `app/vital-method/`. Images are in `public/images/`. Only add real client results and testimonials.
 - CSS is phone-first: base rules are for phones, `@media (min-width: 860px)` for desktop.

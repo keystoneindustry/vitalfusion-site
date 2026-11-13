@@ -16,7 +16,6 @@ export const site = {
     eyebrow: "For busy professionals who can't stay consistent",
     // Three lines; the middle one is shown in brand blue.
     headline: ["Lose your first", "15+ lbs in 90 days", "without extreme diets."],
-    sub: "A real coach builds your plan around your schedule and checks in every week, so you finally stop starting over every Monday.",
     button: "Start Now",
     note: "60-second application",
     // Holiday line under the button. Set to "" after New Year's to hide it.
@@ -81,7 +80,17 @@ export const site = {
       { icon: "chat", title: "Weekly 1:1 check-ins", text: "Plus messaging access whenever you have a question." },
       { icon: "phone", title: "The Vital Fusion app", text: "Your plan, grocery list, meals and progress in one place." },
     ],
-    appImage: "/images/app-home.webp",
+    // Swipe-through app screens (images in public/images).
+    appScreens: [
+      { image: "/images/app-home.webp", title: "Your daily dashboard", text: "Today's to-dos, your why and your latest wins, all on one screen." },
+      { image: "/images/app-grocery.webp", title: "Built-in grocery list", text: "Planned around your meal plan, so shopping is easier than ever." },
+      { image: "/images/app-training.webp", title: "Your workouts", text: "A program built for your schedule, with notes on how to progress." },
+      { image: "/images/app-meals.webp", title: "Meal library", text: "Recipes that fit your numbers. Swap any meal for another in the same group." },
+      { image: "/images/app-ai.webp", title: "AI nutrition assistant", text: "Find the best options at fast food spots when you're eating on the go." },
+      { image: "/images/app-habits.webp", title: "Habit tracking", text: "Steps, water and streaks that keep you consistent day to day." },
+      { image: "/images/app-progress.webp", title: "Progress + check-ins", text: "Your weight graph, progress photos and weekly check-ins in one place." },
+      { image: "/images/app-more.webp", title: "Everything in one app", text: "Check-ins, resources, food log and more, always one tap away." },
+    ],
   },
 
   fit: {

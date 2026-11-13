@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { site } from "@/content/site";
-import StickyApply from "./components/StickyApply";
+import AppTour from "./components/AppTour";
 import VideoHero from "./components/VideoHero";
 import Reveal from "./components/Reveal";
 import Icon from "./components/Icon";
@@ -9,7 +9,7 @@ import Rich from "./components/Rich";
 
 // Homepage: one goal — start the application.
 // Order: video hero → 3 pillars → how it works → client results → what you get
-// → your coach → is this for you? → closing. All text comes from content/site.ts.
+// → your coach → is this for you? → closing. (No sticky button bar; Start Now repeats in the page.) All text comes from content/site.ts.
 
 function Cta({ label, note }: { label: string; note?: string }) {
   return (
@@ -41,7 +41,6 @@ export default function Home() {
             {hero.headline[0]}
             <span className="accent"> {hero.headline[1]}</span> {hero.headline[2]}
           </h1>
-          <p className="hero-sub">{hero.sub}</p>
           <VideoHero {...video} />
           <div id="hero-form">
             <Cta label={hero.button} note={hero.note} />
@@ -152,8 +151,8 @@ export default function Home() {
                 </li>
               ))}
             </ul>
-            <div className="phone reveal">
-              <img src={whatYouGet.appImage} alt="The Vital Fusion coaching app" loading="lazy" />
+            <div className="reveal">
+              <AppTour screens={whatYouGet.appScreens} />
             </div>
           </div>
         </div>
@@ -211,7 +210,6 @@ export default function Home() {
         </div>
       </section>
 
-      <StickyApply label={applyCta} />
     </main>
   );
 }
