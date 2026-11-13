@@ -3,63 +3,57 @@
 import { useRef, useState } from "react";
 import Icon from "./Icon";
 
-// Homepage video: autoplays muted (browsers only allow that), with a big
-// "Tap to watch with sound" button that restarts it from the beginning with sound.
-// Uses Vimeo's player messages, so no extra code library is needed.
+// Homepage video, served from this site (public/video) with the phone's own player.
+// It autoplays muted on a loop (browsers only allow muted autoplay). Tapping
+// "Tap to watch with sound" restarts it from the beginning with sound and shows
+// the normal controls, including one-tap full screen.
 export default function VideoHero({
-  vimeoId,
-  vimeoHash,
+  src,
   poster,
   unmuteLabel,
 }: {
-  vimeoId: string;
-  vimeoHash: string;
+  src: string;
   poster: string;
   unmuteLabel: string;
 }) {
-  const frame = useRef<HTMLIFrameElement>(null);
+  const video = useRef<HTMLVideoElement>(null);
   const [muted, setMuted] = useState(true);
 
-  const params = new URLSearchParams({
-    h: vimeoHash,
-    autoplay: "1",
-    muted: "1",
-    loop: "0",
-    playsinline: "1",
-    title: "0",
-    byline: "0",
-    portrait: "0",
-    dnt: "1",
-  });
-  const src = `https://player.vimeo.com/video/${vimeoId}?${params}`;
-
-  function send(method: string, value?: unknown) {
-    frame.current?.contentWindow?.postMessage(JSON.stringify(value === undefined ? { method } : { method, value }), "https://player.vimeo.com");
-  }
-
   function unmute() {
-    send("setCurrentTime", 0);
-    send("setMuted", false);
-    send("setVolume", 1);
-    send("play");
+    const v = video.current;
+    if (!v) return;
+    v.loop = false;
+    v.currentTime = 0;
+    v.muted = false;
+    v.volume = 1;
+    v.controls = true;
     setMuted(false);
+    void v.play().catch(() => {
+      // If the browser still blocks it, the controls are showing so they can press play.
+    });
   }
 
   return (
-    <div className="video" style={{ backgroundImage: `url(${poster})` }}>
-      <iframe
-        ref={frame}
+    <div className="video">
+      <video
+        ref={video}
         src={src}
-        title="Watch: how Vital Fusion coaching works"
-        allow="autoplay; fullscreen; picture-in-picture"
-        allowFullScreen
+        poster={poster}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        aria-label="Watch: how Vital Fusion coaching works"
       />
       {muted && (
-        <button type="button" className="unmute" onClick={unmute}>
-          <span className="unmute-icon">
-            <Icon name="sound" size={26} />
+        <button type="button" className="unmute-layer" onClick={unmute} aria-label={unmuteLabel}>
+          <span className="unmute">
+            <span className="unmute-icon">
+              <Icon name="sound" size={26} />
+            </span>
+            <span>{unmuteLabel}</span>
           </span>
-          <span>{unmuteLabel}</span>
         </button>
       )}
     </div>

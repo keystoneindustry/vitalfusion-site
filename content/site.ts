@@ -23,11 +23,10 @@ export const site = {
     photo: "/images/coach-photo.webp",
   },
 
-  // Homepage video (Vimeo). To swap the video, paste the new numbers from the
-  // player link: player.vimeo.com/video/<id>?h=<hash>
+  // Homepage video, stored on this site at public/video/vsl.mp4 (720p, ~24 MB).
+  // To swap it, replace that file (keep the same name) and the poster image.
   video: {
-    vimeoId: "1246680177",
-    vimeoHash: "4171130673",
+    src: "/video/vsl.mp4",
     poster: "/images/vsl-thumb.webp",
     unmuteLabel: "Tap to watch with sound",
   },

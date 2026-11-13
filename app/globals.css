@@ -222,7 +222,8 @@ input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px
 .mission-card { background: var(--card); border: 1px solid var(--card-border); border-left: 4px solid var(--gold); border-radius: 14px; padding: 18px 20px; }
 .mission-card p { margin: 0; color: var(--text-2); line-height: 1.65; font-size: 16px; }
 .video { position: relative; aspect-ratio: 16 / 9; margin: 24px 0 8px; border-radius: 16px; overflow: hidden; border: 1px solid var(--card-border); background: #000; }
-.video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.video video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #000; display: block; }
+.unmute-layer { position: absolute; inset: 0; border: 0; padding: 0; margin: 0; background: transparent; cursor: pointer; }
 .sign { margin-top: 26px; font-size: 17px; line-height: 1.6; color: var(--text-2); }
 .sign strong { color: var(--gold); }
 
@@ -389,7 +390,8 @@ input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px
   background: #000 center / cover no-repeat; border: 1px solid #2a3446;
   box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.9), 0 0 0 6px rgba(106, 159, 198, 0.08);
 }
-.video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.video video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #000; display: block; }
+.unmute-layer { position: absolute; inset: 0; border: 0; padding: 0; margin: 0; background: transparent; cursor: pointer; }
 .unmute {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
   display: inline-flex; flex-direction: column; align-items: center; gap: 6px;
