@@ -5,7 +5,7 @@ import { site } from "../content/site";
 import { saveApplication } from "../lib/store";
 
 const good = {
-  ageRange: "22-25", fitnessLevel: "intermediate", helpAreas: ["diet", "training", "diet", "bogus"], otherArea: "should be dropped",
+  ageRange: "23-29", fitnessLevel: "intermediate", helpAreas: ["diet", "training", "diet", "bogus"], otherArea: "should be dropped",
   goal: "Lose 15 lbs <script>alert(1)</script>", whyNow: "New year, new me",
   fullName: "Tyler Kendrick", email: "TKendrick1802@Gmail.com ", phone: "(443) 800-4593",
   instagram: "@@tyler.k", source: "Instagram",

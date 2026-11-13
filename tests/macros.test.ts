@@ -93,7 +93,7 @@ const stepOnly = validateQuiz({ age: 30 }, ["age"]);
 assert.ok(stepOnly.ok || !("email" in stepOnly.errors));
 assert.equal(validateQuiz({ ...good, goal: "maintain", pace: "aggressive" }).ok && (validateQuiz({ ...good, goal: "maintain", pace: "aggressive" }) as any).data.pace, "");
 
-assert.equal(ageRangeFor(24), "22-25"); assert.equal(ageRangeFor(40), "30+"); assert.equal(ageRangeFor(14), "");
+assert.equal(ageRangeFor(24), "23-29"); assert.equal(ageRangeFor(40), "30-40"); assert.equal(ageRangeFor(41), "40+"); assert.equal(ageRangeFor(18), "18-22"); assert.equal(ageRangeFor(17), "");
 assert.equal(formatDate(goalDate(14, new Date("2026-11-09T12:00:00Z"))), "February 15, 2027");
 // Goal-weight direction + maintain skips goal weight
 {

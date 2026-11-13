@@ -415,10 +415,10 @@ export function validateQuiz(
 
 /** Maps an exact age onto the application's age-range buttons. */
 export function ageRangeFor(age: number): string {
-  if (age >= 30) return "30+";
-  if (age >= 26) return "26-29";
-  if (age >= 22) return "22-25";
-  if (age >= 16) return "16-21";
+  if (age > 40) return "40+";
+  if (age >= 30) return "30-40";
+  if (age >= 23) return "23-29";
+  if (age >= 18) return "18-22";
   return "";
 }
 

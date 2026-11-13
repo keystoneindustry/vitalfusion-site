@@ -18,7 +18,7 @@ export default async function ApplyPage({
 }) {
   const { source, age } = await searchParams;
   const tag = Array.isArray(source) ? source[0] : source;
-  // ?age=22-25 comes from tapping an age on the homepage: skip to question 2.
+  // ?age=23-29 comes from tapping an age on the homepage: skip to question 2.
   const ageParam = Array.isArray(age) ? age[0] : age;
   const initialAge = (AGE_RANGES as readonly string[]).includes(ageParam ?? "") ? ageParam! : "";
   return <ApplyForm source={sourceLabel(tag)} initialAge={initialAge} />;

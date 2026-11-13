@@ -2,7 +2,7 @@
 // allowed answers, and server-side validation. The form, the API route and the
 // email all read from here, so a question only needs editing in one place.
 
-export const AGE_RANGES = ["16-21", "22-25", "26-29", "30+"] as const;
+export const AGE_RANGES = ["18-22", "23-29", "30-40", "40+"] as const;
 
 export const FITNESS_LEVELS = [
   {
