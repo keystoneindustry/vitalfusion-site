@@ -26,7 +26,7 @@ export const site = {
     headline: "Real clients. Real results.",
     featured: {
       name: "Charlie G.",
-      headline: "Lost 14 lbs in 12 weeks",
+      headline: "Lost 16 lbs in 8 weeks",
       points: [
         "No extreme dieting",
         "Still enjoyed the foods he loves",
@@ -199,7 +199,7 @@ export const site = {
     clientExample: {
       label: "Real client example",
       image: "/images/graph2.webp",
-      headline: "Charlie G. lost 14 lbs in 12 weeks",
+      headline: "Charlie G. lost 16 lbs in 8 weeks",
       text: "No extreme dieting, and he still ate the foods he loves.",
     },
     bridgeButton: "Apply for 1:1 Coaching →",

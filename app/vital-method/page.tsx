@@ -42,7 +42,7 @@ export default function VitalMethodPage() {
       <section className="block narrow">
         <h2 className="h2 center-text">Real Client Transformation</h2>
         <article className="featured-result">
-          <p className="result-name">{results.featured.name}&apos;s 12-Week Journey</p>
+          <p className="result-name">{results.featured.name}&apos;s 8-Week Journey</p>
           <p className="result-headline">{results.featured.headline}</p>
           <ul>
             {results.featured.points.map((p) => (
