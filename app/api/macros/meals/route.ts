@@ -12,6 +12,16 @@ export const maxDuration = 60;
 // browser, and sends the person their results email with the sample day in it. If the AI is not set
 // up, is busy, or fails, the email still goes out with the 3 favourite meals instead.
 
+// The browser sends a random requestId and retries if the connection drops (phones do this during the
+// ~20 s wait). Finished days are kept briefly so a retry gets the same day the email has, and the email
+// uses the requestId as its idempotency key so a retry never sends it twice.
+const recentDays = new Map<string, { at: number; day: SampleDay | null; reason: string; emailed: boolean }>();
+function remember(id: string, v: { day: SampleDay | null; reason: string; emailed: boolean }) {
+  const now = Date.now();
+  for (const [k, x] of recentDays) if (now - x.at > 15 * 60 * 1000) recentDays.delete(k);
+  recentDays.set(id, { at: now, ...v });
+}
+
 // Light abuse protection: a few builds per person per hour, and a daily cap per server.
 const perIp = new Map<string, number[]>();
 let day = { date: "", count: 0 };
@@ -39,6 +49,11 @@ export async function POST(req: Request) {
   }
   if (body && typeof body === "object" && (body as Record<string, unknown>).company) return NextResponse.json({ ok: true, day: null });
 
+  const raw = body as Record<string, unknown>;
+  const requestId = typeof raw.requestId === "string" && /^[\w-]{8,64}$/.test(raw.requestId) ? raw.requestId : "";
+  const cached = requestId ? recentDays.get(requestId) : undefined;
+  if (cached) return NextResponse.json({ ok: true, day: cached.day, reason: cached.reason, emailed: cached.emailed });
+
   const v = validateQuiz(body);
   if (!v.ok) return NextResponse.json({ error: "Invalid quiz answers.", errors: v.errors }, { status: 422 });
   const q = v.data;
@@ -65,12 +80,18 @@ export async function POST(req: Request) {
   let emailed = false;
   if (from && !from.includes("resend.dev")) {
     try {
-      await sendEmail({ to: q.email, replyTo: process.env.NOTIFY_EMAIL, ...macroResultsEmail(q, r, siteUrl, sampleDay) });
+      await sendEmail({
+        to: q.email,
+        replyTo: process.env.NOTIFY_EMAIL,
+        idempotencyKey: requestId ? `nutrition-plan-${requestId}` : undefined,
+        ...macroResultsEmail(q, r, siteUrl, sampleDay),
+      });
       emailed = true;
     } catch (err) {
       console.error("Macro results email failed:", err);
     }
   }
 
+  if (requestId) remember(requestId, { day: sampleDay, reason, emailed });
   return NextResponse.json({ ok: true, day: sampleDay, reason, emailed });
 }

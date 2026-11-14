@@ -140,14 +140,20 @@ export async function sendEmail(opts: {
   html: string;
   text: string;
   replyTo?: string;
-}): Promise<void> {
+  /** Same key = Resend sends it only once (for 24 h), so a retried request can't send a duplicate. */
+  idempotencyKey?: string;
+}): Promise<"sent" | "duplicate"> {
   const key = process.env.RESEND_API_KEY;
   if (!key) throw new Error("RESEND_API_KEY is not set");
   const from = process.env.FROM_EMAIL || "Vital Fusion Coaching <onboarding@resend.dev>";
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+    headers: {
+      Authorization: `Bearer ${key}`,
+      "Content-Type": "application/json",
+      ...(opts.idempotencyKey ? { "Idempotency-Key": opts.idempotencyKey } : {}),
+    },
     body: JSON.stringify({
       from,
       to: [opts.to],
@@ -157,7 +163,10 @@ export async function sendEmail(opts: {
       ...(opts.replyTo ? { reply_to: opts.replyTo } : {}),
     }),
   });
+  // 409 with an idempotency key means this email was already sent (or is being sent) by an earlier try.
+  if (res.status === 409 && opts.idempotencyKey) return "duplicate";
   if (!res.ok) {
     throw new Error(`Resend error ${res.status}: ${await res.text()}`);
   }
+  return "sent";
 }

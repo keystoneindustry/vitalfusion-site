@@ -100,6 +100,28 @@ const TRYING_Q: Record<string, string> = {
   maintain: "How long have you been working on your health and fitness?",
 };
 
+function newRequestId(): string {
+  try {
+    return crypto.randomUUID();
+  } catch {
+    return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+  }
+}
+
+/** Resolves once the page is on screen (phones pause requests while the page is in the background). */
+function whenVisible(): Promise<void> {
+  if (typeof document === "undefined" || document.visibilityState === "visible") return Promise.resolve();
+  return new Promise((ok) => {
+    const on = () => {
+      if (document.visibilityState === "visible") {
+        document.removeEventListener("visibilitychange", on);
+        ok();
+      }
+    };
+    document.addEventListener("visibilitychange", on);
+  });
+}
+
 export default function MacroQuiz({ source }: { source: string }) {
   const q = site.macroQuiz;
   const [started, setStarted] = useState(false);
@@ -188,20 +210,37 @@ export default function MacroQuiz({ source }: { source: string }) {
     const r = calculate(input);
     setStatus("sending");
     // Ask for the AI sample day straight away (it takes ~10-20 s and also sends the results email).
-    // keepalive lets the request finish even if they close the page.
+    // Phones can drop a long request (screen locks, app switch), so retry a couple of times with the
+    // same requestId: the server hands back the same day and never sends the email twice.
     setDay("loading");
-    fetch("/api/macros/meals", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...payload(), company }),
-      keepalive: true,
-    })
-      .then((x) => x.json())
-      .then((json: { day?: SampleDay | null; emailed?: boolean }) => {
-        setDay(json.day ?? "fallback");
-        if (json.emailed === false) setEmailFailed(true);
-      })
-      .catch(() => setDay("fallback"));
+    const mealsBody = JSON.stringify({ ...payload(), company, requestId: newRequestId() });
+    (async () => {
+      for (let attempt = 0; attempt < 3; attempt++) {
+        if (attempt > 0) {
+          await whenVisible();
+          await new Promise((ok) => setTimeout(ok, 1500));
+        }
+        try {
+          const ctrl = new AbortController();
+          const timer = setTimeout(() => ctrl.abort(), 75000);
+          const x = await fetch("/api/macros/meals", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: mealsBody,
+            signal: ctrl.signal,
+          });
+          clearTimeout(timer);
+          if (!x.ok && x.status >= 500) continue;
+          const json: { day?: SampleDay | null; emailed?: boolean } = await x.json();
+          setDay(json.day ?? "fallback");
+          if (json.emailed === false) setEmailFailed(true);
+          return;
+        } catch {
+          // network drop or timeout: try again
+        }
+      }
+      setDay("fallback");
+    })();
     try {
       const resp = await fetch("/api/macros", {
         method: "POST",
