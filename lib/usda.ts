@@ -31,15 +31,21 @@ export function per100FromFdc(f: FdcFood): Macros | null {
   return { calories: kcal, protein: protein ?? 0, carbs: carbs ?? 0, fat: fat ?? 0, fiber: nutrient(f, NUTRIENTS.fiber) ?? 0 };
 }
 
-/** True when the USDA numbers are believable next to the AI's estimate for the same food. */
+/**
+ * True when the USDA numbers are believable next to the AI's estimate for the same food: calories
+ * within about ±40% (or 60 kcal), and protein, carbs and fat each within 6 g or ±45% per 100 g.
+ * Stricter than calories alone, so e.g. "chicken breast, cooked" can't match a low-protein entry.
+ */
 export function plausible(usda: Macros, estimate: Macros | null): boolean {
   if (!estimate) return true;
   const a = usda.calories;
   const b = estimate.calories;
-  if (Math.abs(a - b) <= 60) return true;
-  if (a <= 0 || b <= 0) return false;
-  const ratio = a / b;
-  return ratio >= 0.6 && ratio <= 1.6;
+  const calOk = Math.abs(a - b) <= 60 || (a > 0 && b > 0 && a / b >= 0.6 && a / b <= 1.6);
+  if (!calOk) return false;
+  return (["protein", "carbs", "fat"] as const).every((k) => {
+    const d = Math.abs(usda[k] - estimate[k]);
+    return d <= 6 || d <= 0.45 * Math.max(usda[k], estimate[k]);
+  });
 }
 
 const cacheKey = (food: string) => food.trim().toLowerCase().replace(/\s+/g, " ").slice(0, 120);

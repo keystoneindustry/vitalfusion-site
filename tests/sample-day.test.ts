@@ -40,6 +40,14 @@ assert.equal(roundGrams(13.4), 13);
 assert.equal(roundGrams(147), 145);
 assert.equal(scaleHousehold("1 cup", 1.5), "1½ cup");
 assert.equal(scaleHousehold("2 large", 1.6), "3 large");
+assert.equal(scaleHousehold("1/2 cup", 2), "1 cup");
+assert.equal(scaleHousehold("1 1/2 cups", 1.5), "2¼ cups");
+assert.equal(scaleHousehold("1/3 cup", 1.5), "½ cup");
+{ const { tidyHousehold } = await import("../lib/portion-fit"); assert.equal(tidyHousehold("1/2 cup"), "½ cup"); assert.equal(tidyHousehold("1 1/2 cups"), "1½ cups"); }
+{ const { plausible } = await import("../lib/usda");
+  const est = { calories: 165, protein: 31, carbs: 0, fat: 3.6, fiber: 0 };
+  assert.ok(plausible({ calories: 170, protein: 30, carbs: 0, fat: 4, fiber: 0 }, est));
+  assert.ok(!plausible({ calories: 190, protein: 15, carbs: 10, fat: 9, fiber: 0 }, est), "low-protein match rejected"); }
 const per = (cal: number, p: number, c: number, f: number) => ({ calories: cal, protein: p, carbs: c, fat: f, fiber: 0 });
 const meals: DayMeal[] = [
   { category: "breakfast", name: "Oats", time: "7 AM", instructions: "", why: "", ingredients: [

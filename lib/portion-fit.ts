@@ -2,7 +2,7 @@
  * Portion fitting, copied from the coaching app (coaching-app/lib/fit.ts): after the AI writes the
  * sample day, ingredient amounts (not the foods) are adjusted so the day lands on the person's
  * calorie, protein, carb and fat targets. Least squares on relative error per macro, with a small
- * pull toward the AI's amounts (so recipes stay sensible) and bounds of 0.35×–3× per ingredient.
+ * pull toward the AI's amounts (so recipes stay sensible) and bounds of 0.5×–2× per ingredient.
  * Amounts are then rounded to kitchen-friendly grams and household measures are rescaled.
  */
 
@@ -31,8 +31,8 @@ export const ZERO: Macros = { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 
 const KEYS = ["calories", "protein", "carbs", "fat"] as const;
 const WEIGHT: Record<(typeof KEYS)[number], number> = { calories: 1.2, protein: 1.5, carbs: 1, fat: 1 };
 const LAMBDA = 0.004;
-const MIN = 0.35;
-const MAX = 3;
+const MIN = 0.5;
+const MAX = 2;
 
 export function ingredientMacros(i: Ingredient): Macros {
   if (!i.per100) return { ...ZERO };
@@ -124,20 +124,37 @@ function nice(n: number, countable: boolean): string {
   return whole ? `${whole}${f}` : f || "¼";
 }
 
-/** "1 cup" × 1.5 → "1½ cup"; "3 large" × 1.3 → "4 large". Unreadable measures are dropped (grams show instead). */
+/** Reads the number at the start of a household measure: "1/2 cup", "1 1/2 cups", "1½ cup", "2 large". */
+function parseQty(t: string): { n: number; rest: string } | null {
+  let m = t.match(/^(?:(\d+)\s+)?(\d+)\s*\/\s*(\d+)\s*(.*)$/);
+  if (m) {
+    const den = parseInt(m[3], 10);
+    if (!den) return null;
+    return { n: (m[1] ? parseInt(m[1], 10) : 0) + parseInt(m[2], 10) / den, rest: m[4] };
+  }
+  m = t.match(/^(\d+(?:\.\d+)?)?\s*([¼½¾⅓⅔⅛])?\s*(.*)$/);
+  if (!m || (!m[1] && !m[2])) return null;
+  return { n: (m[1] ? parseFloat(m[1]) : 0) + (m[2] ? FRACTIONS[m[2]] : 0), rest: m[3] };
+}
+
+/** "1 cup" × 1.5 → "1½ cup"; "1/2 cup" × 2 → "1 cup"; "3 large" × 1.3 → "4 large". Unreadable measures are dropped. */
 export function scaleHousehold(text: string, factor: number): string {
   const t = text.trim();
   if (!t || Math.abs(factor - 1) < 0.07) return t;
-  const m = t.match(/^(\d+(?:\.\d+)?)?\s*(?:(\d+)\/(\d+))?\s*([¼½¾⅓⅔⅛])?\s*(.*)$/);
-  if (!m || (!m[1] && !m[2] && !m[4])) return "";
-  let n = 0;
-  if (m[1]) n += parseFloat(m[1]);
-  if (m[2] && m[3]) n += parseInt(m[2], 10) / parseInt(m[3], 10);
-  if (m[4]) n += FRACTIONS[m[4]];
-  if (!n) return "";
-  const rest = m[5].trim();
+  const q = parseQty(t);
+  if (!q || !q.n) return "";
+  const rest = q.rest.trim();
   const countable = !/^(cups?|tbsp|tablespoons?|tsp|teaspoons?|oz|ounces?|lbs?|pounds?|ml|l|g|scoops?|handfuls?|fl)\b/i.test(rest);
-  return `${nice(n * factor, countable)}${rest ? ` ${rest}` : ""}`;
+  return `${nice(q.n * factor, countable)}${rest ? ` ${rest}` : ""}`;
+}
+
+/** Shows "1/2 cup" as "½ cup" even when an amount wasn't resized. */
+export function tidyHousehold(text: string): string {
+  return text
+    .replace(/(\d+)\s+1\/2(?!\d)/g, "$1½").replace(/(\d+)\s+1\/4(?!\d)/g, "$1¼").replace(/(\d+)\s+3\/4(?!\d)/g, "$1¾")
+    .replace(/(\d+)\s+1\/3(?!\d)/g, "$1⅓").replace(/(\d+)\s+2\/3(?!\d)/g, "$1⅔")
+    .replace(/(?<!\d)1\/2(?!\d)/g, "½").replace(/(?<!\d)1\/4(?!\d)/g, "¼").replace(/(?<!\d)3\/4(?!\d)/g, "¾")
+    .replace(/(?<!\d)1\/3(?!\d)/g, "⅓").replace(/(?<!\d)2\/3(?!\d)/g, "⅔").replace(/(?<!\d)1\/8(?!\d)/g, "⅛");
 }
 
 function applyMult(meals: DayMeal[], mult: number[][]): DayMeal[] {

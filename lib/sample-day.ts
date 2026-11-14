@@ -9,7 +9,7 @@
  */
 import { askForJson, type JsonSpec } from "./ai";
 import { applyUsda } from "./usda";
-import { dayMacros, fitDay, mealMacros, type DayMeal, type Ingredient } from "./portion-fit";
+import { dayMacros, fitDay, mealMacros, tidyHousehold, type DayMeal, type Ingredient } from "./portion-fit";
 import { avoidClashes, foodsLine } from "./foods";
 import type { MacroResults, QuizInput } from "./macros";
 
@@ -142,7 +142,7 @@ function present(meals: DayMeal[]): SampleDay {
       instructions: m.instructions.split("\n").map((s) => s.replace(/^\s*(\d+[.)]|[-•])\s*/, "").trim()).filter(Boolean).slice(0, 5),
       items: m.ingredients
         .filter((i) => i.grams > 0)
-        .map((i) => ({ food: cap(i.food), amount: i.household ? `${i.household} (${i.grams} g)` : `${i.grams} g` })),
+        .map((i) => ({ food: cap(i.food), amount: i.household ? `${tidyHousehold(i.household)} (${i.grams} g)` : `${i.grams} g` })),
       macros: round(mealMacros(m)),
     })),
     totals: round(dayMacros(meals)),
