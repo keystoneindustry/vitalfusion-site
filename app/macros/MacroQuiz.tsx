@@ -3,6 +3,9 @@
 import { useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import Rich from "../components/Rich";
+import SampleDayCard from "./SampleDayCard";
+import { AVOID_OPTIONS, FOOD_GROUPS } from "@/lib/foods";
+import type { SampleDay } from "@/lib/sample-day";
 import { site } from "@/content/site";
 import {
   ACTIVITY_LEVELS,
@@ -17,7 +20,6 @@ import {
   formatDate,
   goalDate,
   labelOf,
-  mealName,
   REALITY_PUNCH,
   realityContext,
   tipsFor,
@@ -42,6 +44,10 @@ type Answers = {
   pace: string;
   tryingFor: string;
   obstacles: string[];
+  likes: string[];
+  likesOther: string;
+  avoid: string[];
+  avoidOther: string;
   name: string;
   email: string;
 };
@@ -49,10 +55,11 @@ type Answers = {
 const EMPTY: Answers = {
   sex: "", age: "", heightFt: "", heightIn: "", weightLb: "", goalWeightLb: "",
   activity: "", goal: "", pace: "", tryingFor: "", obstacles: [],
+  likes: [], likesOther: "", avoid: [], avoidOther: "",
   name: "", email: "",
 };
 
-type StepId = "sex" | "age" | "height" | "weight" | "goalWeight" | "activity" | "goal" | "pace" | "trying" | "obstacles" | "lead";
+type StepId = "sex" | "age" | "height" | "weight" | "goalWeight" | "activity" | "goal" | "pace" | "trying" | "obstacles" | "likes" | "avoid" | "lead";
 
 const FIELDS: Record<StepId, (keyof QuizInput)[]> = {
   sex: ["sex"],
@@ -65,6 +72,8 @@ const FIELDS: Record<StepId, (keyof QuizInput)[]> = {
   pace: ["pace"],
   trying: ["tryingFor"],
   obstacles: ["obstacles"],
+  likes: ["likes"],
+  avoid: ["avoid"],
   lead: ["name", "email"],
 };
 
@@ -76,7 +85,7 @@ function stepsFor(goal: string): StepId[] {
   if (goal === "lose") s.push("pace"); // speed question is only for fat loss
   s.push("sex", "age", "height", "weight");
   if (goal !== "maintain") s.push("goalWeight"); // maintain has no goal weight
-  s.push("activity", "trying", "obstacles", "lead");
+  s.push("activity", "trying", "obstacles", "likes", "avoid", "lead");
   return s;
 }
 
@@ -100,6 +109,7 @@ export default function MacroQuiz({ source }: { source: string }) {
   const [status, setStatus] = useState<"idle" | "sending" | "done">("idle");
   const [emailFailed, setEmailFailed] = useState(false);
   const [result, setResult] = useState<{ input: QuizInput; r: MacroResults } | null>(null);
+  const [day, setDay] = useState<SampleDay | "loading" | "fallback">("loading");
   const [company, setCompany] = useState(""); // honeypot
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const topRef = useRef<HTMLDivElement>(null);
@@ -156,6 +166,10 @@ export default function MacroQuiz({ source }: { source: string }) {
     timer.current = setTimeout(() => goTo(here + 1), 260);
   }
 
+  function toggleIn(k: "likes" | "avoid", v: string) {
+    set(k, a[k].includes(v) ? a[k].filter((x) => x !== v) : [...a[k], v]);
+  }
+
   function toggleObstacle(v: string) {
     set("obstacles", a.obstacles.includes(v) ? a.obstacles.filter((x) => x !== v) : [...a.obstacles, v]);
   }
@@ -173,11 +187,26 @@ export default function MacroQuiz({ source }: { source: string }) {
     const input = res.data;
     const r = calculate(input);
     setStatus("sending");
+    // Ask for the AI sample day straight away (it takes ~10-20 s and also sends the results email).
+    // keepalive lets the request finish even if they close the page.
+    setDay("loading");
+    fetch("/api/macros/meals", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...payload(), company }),
+      keepalive: true,
+    })
+      .then((x) => x.json())
+      .then((json: { day?: SampleDay | null; emailed?: boolean }) => {
+        setDay(json.day ?? "fallback");
+        if (json.emailed === false) setEmailFailed(true);
+      })
+      .catch(() => setDay("fallback"));
     try {
       const resp = await fetch("/api/macros", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...payload(), company }),
+        body: JSON.stringify({ ...payload(), company, mealsPending: true }),
       });
       if (resp.status === 422) {
         const json = await resp.json().catch(() => ({}));
@@ -296,24 +325,7 @@ export default function MacroQuiz({ source }: { source: string }) {
           </section>
         )}
 
-        <section className="m-section">
-          <h2 className="m-h2">{q.mealsTitle[input.goal]}</h2>
-          <p className="m-sub">{q.mealsSub}</p>
-          <div className="m-meals">
-            {q.meals.map((m, i) => (
-              <article key={i} className="m-meal">
-                <p className="m-meal-num">Meal {i + 1}</p>
-                <h3>{mealName(m, input.goal)}</h3>
-                {"detail" in m && m.detail && <p className="m-meal-detail">{m.detail}</p>}
-                <ul>
-                  {m.why[input.goal].map((w) => (
-                    <li key={w}>✓ {w}</li>
-                  ))}
-                </ul>
-              </article>
-            ))}
-          </div>
-        </section>
+        <SampleDayCard day={day} input={input} />
 
         <section className="m-bridge">
           <div className="m-reality">
@@ -517,6 +529,55 @@ export default function MacroQuiz({ source }: { source: string }) {
             </fieldset>
           )}
 
+          {stepId === "likes" && (
+            <fieldset>
+              <legend className="q">Which foods do you love?</legend>
+              <p className="hint">Tap all you like. I&apos;ll build your sample day around them.</p>
+              {FOOD_GROUPS.map((g) => (
+                <div key={g.label} className="food-group">
+                  <p className="food-group-label">{g.label}</p>
+                  <div className="food-chips">
+                    {g.foods.map((f) => {
+                      const on = a.likes.includes(f);
+                      return (
+                        <button type="button" key={f} className={`food-chip ${on ? "on" : ""}`} aria-pressed={on} onClick={() => toggleIn("likes", f)}>
+                          {on && <span aria-hidden>✓ </span>}
+                          {f}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+              <div className="field food-other">
+                <label htmlFor="likesOther">Anything else you love? <span className="muted">(Optional)</span></label>
+                <input id="likesOther" maxLength={200} value={a.likesOther} onChange={(e) => set("likesOther", e.target.value)} placeholder="e.g. sushi, burrito bowls, pancakes" />
+              </div>
+            </fieldset>
+          )}
+
+          {stepId === "avoid" && (
+            <fieldset>
+              <legend className="q">Anything you don&apos;t eat?</legend>
+              <p className="hint">Tap any that apply, or skip if you eat everything.</p>
+              <div className="food-chips">
+                {AVOID_OPTIONS.map((f) => {
+                  const on = a.avoid.includes(f);
+                  return (
+                    <button type="button" key={f} className={`food-chip avoid ${on ? "on" : ""}`} aria-pressed={on} onClick={() => toggleIn("avoid", f)}>
+                      {on && <span aria-hidden>✕ </span>}
+                      {f}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="field food-other">
+                <label htmlFor="avoidOther">Allergies or other foods you don&apos;t like? <span className="muted">(Optional)</span></label>
+                <input id="avoidOther" maxLength={200} value={a.avoidOther} onChange={(e) => set("avoidOther", e.target.value)} placeholder="e.g. mushrooms, shellfish allergy" />
+              </div>
+            </fieldset>
+          )}
+
           {stepId === "lead" && (
             <div>
               <p className="q">{q.leadTitle}</p>
@@ -539,9 +600,13 @@ export default function MacroQuiz({ source }: { source: string }) {
           )}
         </div>
 
-        {["age", "height", "weight", "goalWeight", "obstacles", "lead"].includes(stepId) && (
+        {["age", "height", "weight", "goalWeight", "obstacles", "likes", "avoid", "lead"].includes(stepId) && (
           <button type="submit" className="btn-cta submit" disabled={status === "sending"}>
-            {isLast ? (status === "sending" ? "Calculating…" : q.resultsButton) : "Continue →"}
+            {isLast
+              ? status === "sending" ? "Calculating…" : q.resultsButton
+              : (stepId === "likes" && a.likes.length === 0 && !a.likesOther.trim()) || (stepId === "avoid" && a.avoid.length === 0 && !a.avoidOther.trim())
+                ? "Skip →"
+                : "Continue →"}
           </button>
         )}
         {isLast && <p className="privacy">No spam. Your info stays private.</p>}

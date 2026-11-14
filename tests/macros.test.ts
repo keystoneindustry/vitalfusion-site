@@ -9,9 +9,9 @@ const r = calculate(base);
 assert.equal(r.bmr, 1783);
 assert.equal(r.maintenance, 2760);
 assert.equal(r.calories, 2210);                // 2760 − 20% = 2208 → 2210
-assert.equal(r.protein, 144);                  // 0.8 × 180
+assert.equal(r.protein, 162);                  // 0.9 × 180
 assert.equal(r.fat, 63);                       // 0.35 × 180
-assert.equal(r.carbs, Math.floor((2210 - 144 * 4 - 63 * 9) / 4)); // 266
+assert.equal(r.carbs, Math.floor((2210 - 162 * 4 - 63 * 9) / 4)); // 248
 assert.equal(r.fiber, 31);                     // 14 per 1000
 assert.equal(r.weeklyChangeLb, -1.1);          // 550 × 7 / 3500
 assert.equal(r.weeksToGoal, 14);               // 15 lb / 1.1 → 14 weeks
@@ -27,7 +27,7 @@ assert.equal(bulk.weeklyChangeLb, 0.4);
 assert.equal(bulk.weeksToGoal, 25); // 10 lb / 0.4 lb a week
 assert.ok(bulk.carbs > r.carbs);
 assert.equal(bulk.fat, 76); // 0.42 × 180
-assert.equal(bulk.carbs, Math.floor((bulk.calories - 144 * 4 - 76 * 9) / 4));
+assert.equal(bulk.carbs, Math.floor((bulk.calories - 162 * 4 - 76 * 9) / 4));
 console.log("180 lb man, build muscle to 190:", bulk);
 // teens can still build muscle (small surplus is fine)
 { const t = calculate({ ...base, age: 16, goal: "muscle", pace: "", goalWeightLb: 190 }); assert.equal(t.calories, t.maintenance + 200); }
@@ -139,7 +139,7 @@ import { macroResultsEmail, coachLeadEmail, leadRow, SHEET_COLUMNS } from "../li
       assert.ok(me.html.includes("Atlantic salmon, sweet potatoes &amp; veggies") && me.html.includes("93/7 ground beef, jasmine rice &amp; pineapple") && !me.html.includes("Sockeye"));
       assert.ok(!me.html.includes("fat-loss meals"));
     }
-    assert.ok(em.text.includes("Protein 144g"));
+    assert.ok(em.text.includes("Protein 162g"));
     assert.ok(!em.html.includes("Charlie") && !em.text.includes("Charlie"), "no Charlie in email");
     const row = leadRow(v2.data, res);
     assert.deepEqual(Object.keys(row), [...SHEET_COLUMNS], "row matches sheet columns");
@@ -183,3 +183,10 @@ import { sequencePayload, OBSTACLE_STEPS, MISTAKES } from "../lib/sequence";
   if (kv.ok) assert.ok(sequencePayload(kv.data, calculate(kv.data)).payoff.startsWith("Picture this: a few months"));
 }
 console.log("Sequence tests passed");
+
+// Fat never below 40 g, even for a light person (110 lb × 0.35 = 38.5 g)
+{
+  const light = calculate({ sex: "female", age: 25, heightFt: 5, heightIn: 1, weightLb: 110, goalWeightLb: 100, activity: "sedentary", goal: "lose", pace: "aggressive" } as any);
+  assert.ok(light.fat >= 40, `fat ${light.fat} should be >= 40`);
+  assert.equal(light.protein, 99); // 0.9 × 110
+}

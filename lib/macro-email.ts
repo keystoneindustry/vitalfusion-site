@@ -17,6 +17,9 @@ import {
   type MacroResults,
   type QuizInput,
 } from "./macros";
+import type { SampleDay } from "./sample-day";
+import { safeFallbackMeals } from "./fallback-meals";
+import { foodsLine } from "./foods";
 
 function esc(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
@@ -39,8 +42,15 @@ export function goalDateText(r: MacroResults, now: Date = new Date()): string {
 const P = "margin:0 0 12px;font-size:16px;line-height:1.6;color:#d4d7dd";
 
 /** Email to the person who took the quiz: their numbers, tips, meals, and the soft coaching bridge. */
-export function macroResultsEmail(q: QuizInput, r: MacroResults, siteUrl: string): { subject: string; html: string; text: string } {
+export function macroResultsEmail(
+  q: QuizInput,
+  r: MacroResults,
+  siteUrl: string,
+  day?: SampleDay | null,
+): { subject: string; html: string; text: string } {
   const c = site.macroQuiz;
+  // Without an AI sample day, fall back to the 3 favourite meals, minus any with foods they avoid.
+  const fallbackMeals = safeFallbackMeals(q);
   const base = siteUrl.replace(/\/$/, "");
   const first = q.name.split(/\s+/)[0];
   const date = goalDateText(r);
@@ -76,9 +86,9 @@ export function macroResultsEmail(q: QuizInput, r: MacroResults, siteUrl: string
             .join("")}`
         : ""
     }
-    <h2 style="font-size:18px;margin:22px 0 6px">${esc(c.mealsTitle[q.goal])}</h2>
-    <p style="${P};font-size:14px;color:#a9aeb8">${esc(c.mealsSub)}</p>
-    ${c.meals
+    ${day ? sampleDayHtml(day) : fallbackMeals.length ? `<h2 style="font-size:18px;margin:22px 0 6px">${esc(c.mealsTitle[q.goal])}</h2>
+    <p style="${P};font-size:14px;color:#a9aeb8">${esc(c.mealsSub)}</p>` : ""}
+    ${(day ? [] : fallbackMeals)
       .map(
         (m, i) => `<div style="background:#1b1f27;border-radius:12px;padding:14px 16px;margin:0 0 10px">
       <div style="font-size:12px;font-weight:700;color:#6a9fc6;letter-spacing:.08em;text-transform:uppercase">Meal ${i + 1}</div>
@@ -110,8 +120,8 @@ export function macroResultsEmail(q: QuizInput, r: MacroResults, siteUrl: string
     ...(date ? [``, `At this pace you could reach ${q.goalWeightLb} lbs by ${date} (about ${r.weeksToGoal} weeks).`] : []),
     ...(tips.length ? [``, `Based on what gets in your way:`, ...tips.map((t) => `- ${t.label}: ${t.tip}`)] : []),
     ``,
-    `${c.mealsTitle[q.goal]}:`,
-    ...c.meals.map((m, i) => `${i + 1}. ${mealName(m, q.goal)}${"detail" in m && m.detail ? ` (${m.detail})` : ""}\n   ${m.why[q.goal].join(" · ")}`),
+    ...(day ? sampleDayText(day) : fallbackMeals.length ? [`${c.mealsTitle[q.goal]}:`] : []),
+    ...(day ? [] : fallbackMeals).map((m, i) => `${i + 1}. ${mealName(m, q.goal)}${"detail" in m && m.detail ? ` (${m.detail})` : ""}\n   ${m.why[q.goal].join(" · ")}`),
     ``,
     reality,
     ``,
@@ -146,6 +156,8 @@ export function leadRow(q: QuizInput, r: MacroResults, now: Date = new Date()): 
     Pace: q.pace ? labelOf(PACES, q.pace) : "",
     "Trying For": labelOf(TRYING_FOR, q.tryingFor),
     Obstacles: q.obstacles.map((o) => labelOf(OBSTACLES, o)).join(", "),
+    "Favorite Foods": foodsLine(q.likes, q.likesOther),
+    "Foods Avoided": foodsLine(q.avoid, q.avoidOther),
     Maintenance: r.maintenance,
     Calories: r.calories,
     "Protein (g)": r.protein,
@@ -159,6 +171,7 @@ export function leadRow(q: QuizInput, r: MacroResults, now: Date = new Date()): 
 export const SHEET_COLUMNS = [
   "Timestamp", "Name", "Email", "Lead Rating", "Source", "Sex", "Age", "Height",
   "Weight (lb)", "Goal Weight (lb)", "Activity", "Goal", "Pace", "Trying For", "Obstacles",
+  "Favorite Foods", "Foods Avoided",
   "Maintenance", "Calories", "Protein (g)", "Carbs (g)", "Fat (g)", "Fiber (g)", "Goal Date",
 ] as const;
 
@@ -184,4 +197,31 @@ export function coachLeadEmail(q: QuizInput, r: MacroResults): { subject: string
 </div></body></html>`;
   const text = Object.entries(row).map(([k, v]) => `${k}: ${v}`).join("\n");
   return { subject: `[Macro] ${emoji} New macro quiz signup (${rating}) — ${q.name}`, html, text };
+}
+
+
+const LABEL: Record<string, string> = { breakfast: "Breakfast", lunch: "Lunch", dinner: "Dinner", snack: "Snack" };
+
+function sampleDayHtml(day: SampleDay): string {
+  const t = day.totals;
+  return `<h2 style="font-size:18px;margin:22px 0 6px">Your sample day</h2>
+    <p style="${P};font-size:14px;color:#a9aeb8">Built around the foods you love and portioned to your numbers: <strong style="color:#fff">${t.calories.toLocaleString()} calories</strong> · ${t.protein}g protein · ${t.carbs}g carbs · ${t.fat}g fat.</p>
+    ${day.meals
+      .map(
+        (m) => `<div style="background:#1b1f27;border-radius:12px;padding:14px 16px;margin:0 0 10px">
+      <div style="font-size:12px;font-weight:700;color:#6a9fc6;letter-spacing:.08em;text-transform:uppercase">${esc(LABEL[m.category] ?? m.category)}${m.time ? ` · ${esc(m.time)}` : ""}</div>
+      <div style="font-size:16px;font-weight:700;margin:2px 0 6px">${esc(m.name)}</div>
+      <div style="font-size:14px;color:#d4d7dd;line-height:1.6">${m.items.map((i) => `• ${esc(i.amount)} ${esc(i.food)}`).join("<br>")}</div>
+      <div style="font-size:12px;color:#a9aeb8;margin-top:8px">${m.macros.calories} cal · ${m.macros.protein}g P · ${m.macros.carbs}g C · ${m.macros.fat}g F</div>
+    </div>`,
+      )
+      .join("")}`;
+}
+
+function sampleDayText(day: SampleDay): string[] {
+  const t = day.totals;
+  return [
+    `Your sample day (${t.calories} calories · ${t.protein}g protein · ${t.carbs}g carbs · ${t.fat}g fat):`,
+    ...day.meals.map((m) => `${LABEL[m.category] ?? m.category}${m.time ? ` (${m.time})` : ""}: ${m.name}\n${m.items.map((i) => `   - ${i.amount} ${i.food}`).join("\n")}`),
+  ];
 }

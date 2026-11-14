@@ -28,6 +28,9 @@ export async function POST(req: Request) {
   if (!v.ok) return NextResponse.json({ error: "Please fix the highlighted fields.", errors: v.errors }, { status: 422 });
   const q = v.data;
   const r = calculate(q);
+  // The browser asks /api/macros/meals for the AI sample day at the same time; that route sends the
+  // results email (with the sample day). Old clients without it still get the email from here.
+  const mealsPending = (body as Record<string, unknown>).mealsPending === true;
 
   const prod = process.env.VERCEL_PROJECT_PRODUCTION_URL;
   const siteUrl = process.env.SITE_URL || (prod ? `https://${prod}` : new URL(req.url).origin);
@@ -40,7 +43,7 @@ export async function POST(req: Request) {
     // Starts the day 2 / 4 / 7 follow-up emails in Resend Automations (content: lib/sequence.ts).
     sendResendEvent("macro_quiz.completed", q.email, sequencePayload(q, r)),
     notifyTo ? sendEmail({ to: notifyTo, replyTo: q.email, ...coachLeadEmail(q, r) }) : Promise.resolve(),
-    canEmailLead ? sendEmail({ to: q.email, replyTo: notifyTo, ...macroResultsEmail(q, r, siteUrl) }) : Promise.resolve(),
+    canEmailLead && !mealsPending ? sendEmail({ to: q.email, replyTo: notifyTo, ...macroResultsEmail(q, r, siteUrl) }) : Promise.resolve(),
   ];
   const [sheet, sequence, coach, lead] = await Promise.allSettled(tasks);
   if (sequence.status === "rejected") console.error("Macro lead: sequence event failed:", sequence.reason);
@@ -48,6 +51,6 @@ export async function POST(req: Request) {
   if (coach.status === "rejected") console.error("Macro lead: coach email failed:", coach.reason);
   if (lead.status === "rejected") console.error("Macro lead: results email failed:", lead.reason);
 
-  const emailed = canEmailLead && lead.status === "fulfilled";
+  const emailed = mealsPending ? true : canEmailLead && lead.status === "fulfilled";
   return NextResponse.json({ ok: true, emailed, results: r }, { status: emailed ? 200 : 202 });
 }

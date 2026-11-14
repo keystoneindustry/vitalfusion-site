@@ -1,3 +1,4 @@
+import { ALL_FOODS, AVOID_OPTIONS, cleanFoodText } from "./foods";
 // Macro quiz: the questions' answer options, input validation, and the
 // calorie/macro math. Pure functions only, so the browser (instant results)
 // and the server (emails + Google Sheet) compute exactly the same numbers.
@@ -136,6 +137,10 @@ export interface QuizInput {
   pace: Pace | ""; // only for "lose"
   tryingFor: TryingFor;
   obstacles: Obstacle[];
+  likes: string[]; // tapped favourite foods (see lib/foods.ts)
+  likesOther: string; // anything else they love, typed
+  avoid: string[]; // tapped foods they don't eat
+  avoidOther: string; // allergies or anything else, typed
   name: string;
   email: string;
   source: string;
@@ -145,7 +150,7 @@ export type QuizErrors = Partial<Record<keyof QuizInput, string>>;
 
 // Rules agreed with the coach.
 export const RULES = {
-  proteinPerLb: 0.8,
+  proteinPerLb: 0.9,
   proteinMax: 180,
   fatPerLb: 0.35,
   fatPerLbMuscle: 0.42, // build-muscle plans get a little more fat
@@ -153,7 +158,7 @@ export const RULES = {
   fatMaxHeavier: 100, // only allowed if carbs stay at or above carbMin
   carbMin: 100,
   fatFloorPerLb: 0.25, // how low fat may go to protect the carb minimum
-  fatFloorMin: 40,
+  fatFloorMin: 40, // fat never goes below this, under any circumstances
   fiberPer1000: 14,
   calorieFloor: { male: 1500, female: 1200 },
   maxDailyDeficit: 1000,
@@ -235,6 +240,8 @@ export function calculate(q: Pick<QuizInput, "sex" | "age" | "heightFt" | "heigh
     const fatForMinCarbs = Math.floor((calories - protein * 4 - RULES.carbMin * 4) / 9);
     fat = Math.max(fatFloor, Math.min(fat, fatForMinCarbs));
   }
+  // Hard floor: fat is never below 40 g (e.g. lighter people whose 0.35 g/lb is under 40).
+  fat = Math.max(fat, RULES.fatFloorMin);
   const carbs = Math.max(0, carbsFor(protein, fat));
   const fiber = Math.round((calories / 1000) * RULES.fiberPer1000);
 
@@ -382,6 +389,14 @@ export function validateQuiz(
   ) as Obstacle[];
   if (check("obstacles") && obstacles.length === 0) errors.obstacles = "Pick at least one.";
 
+  // Food preferences are optional: unknown values are dropped, typed notes are trimmed.
+  const likes = (Array.isArray(raw.likes) ? [...new Set(raw.likes.map(str))] : []).filter((f) => ALL_FOODS.includes(f));
+  const avoid = (Array.isArray(raw.avoid) ? [...new Set(raw.avoid.map(str))] : []).filter((f) =>
+    (AVOID_OPTIONS as readonly string[]).includes(f),
+  );
+  const likesOther = cleanFoodText(raw.likesOther);
+  const avoidOther = cleanFoodText(raw.avoidOther);
+
   const name = str(raw.name);
   if (check("name") && (name.length < 2 || name.length > 120)) errors.name = "Please enter your name.";
 
@@ -406,6 +421,10 @@ export function validateQuiz(
       pace,
       tryingFor,
       obstacles,
+      likes,
+      likesOther,
+      avoid,
+      avoidOther,
       name,
       email,
       source,

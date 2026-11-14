@@ -582,3 +582,32 @@ body:has(.apply-lp) {
 .macros-lp .m-bridge { background: radial-gradient(90% 70% at 50% 0%, rgba(106,159,198,0.16), transparent 70%), #12161e; border: 1px solid #2c3a52; border-radius: 22px; box-shadow: 0 0 70px -30px rgba(106,159,198,0.6); }
 .macros-lp .m-bridge .btn-cta { margin-top: 6px; font-size: 16px; padding: 16px 14px; letter-spacing: 0.02em; }
 .macros-lp .m-reality { border-bottom-color: #242a35; }
+
+/* ───────── Macro calculator: food questions + AI sample day ───────── */
+.food-group { margin: 0 0 14px; }
+.food-group-label { margin: 0 0 8px; color: #8fbddf; font-size: 12px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
+.food-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.food-chip { min-height: 44px; padding: 10px 14px; border-radius: 999px; border: 1px solid #2a3240; background: #11151c; color: var(--text); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.15s ease, border-color 0.15s ease; }
+.food-chip:hover { border-color: #3a4d68; }
+.food-chip.on { background: rgba(106, 159, 198, 0.16); border-color: #6a9fc6; color: #cfe3f3; box-shadow: 0 0 0 1px rgba(106, 159, 198, 0.4) inset; }
+.food-chip.avoid.on { background: rgba(214, 69, 65, 0.12); border-color: #b4524d; color: #ffb3ae; box-shadow: 0 0 0 1px rgba(214, 69, 65, 0.35) inset; }
+.food-other { margin-top: 18px; }
+.day-loading { display: flex; gap: 14px; align-items: center; padding: 16px; border-radius: 18px; border: 1px solid #2c3a52; background: radial-gradient(120% 120% at 0% 0%, rgba(106,159,198,0.16), transparent 60%), #151922; }
+.day-loading-title { margin: 0 0 2px; font-weight: 800; font-size: 17px; }
+.day-loading-sub { margin: 0; color: var(--text-3); font-size: 14px; line-height: 1.5; }
+.day-spinner { flex: none; width: 28px; height: 28px; border-radius: 50%; border: 3px solid rgba(106,159,198,0.25); border-top-color: #8fbddf; animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.day-skeleton { display: grid; gap: 10px; margin-top: 12px; }
+.day-skel-card { height: 112px; border-radius: 18px; border: 1px solid #1f2530; background: linear-gradient(90deg, #13171e 0%, #1a1f28 50%, #13171e 100%); background-size: 200% 100%; animation: shimmer 1.4s ease-in-out infinite; }
+@keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+.day-totals { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 0 0 12px; }
+.day-totals span { text-align: center; padding: 10px 4px; border-radius: 12px; background: #151922; border: 1px solid #242a35; color: var(--text-3); font-size: 12px; }
+.day-totals strong { display: block; color: var(--text); font-size: 17px; }
+.day-items { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 6px; color: var(--text-2); font-size: 15px; line-height: 1.4; }
+.day-amt { color: #8fbddf; font-weight: 700; }
+.day-how { margin-top: 10px; }
+.day-how summary { cursor: pointer; color: var(--text-3); font-size: 14px; font-weight: 600; }
+.day-how ol { margin: 8px 0 0; padding-left: 20px; color: var(--text-2); font-size: 14px; line-height: 1.55; }
+.day-macros { margin: 10px 0 0; padding-top: 10px; border-top: 1px solid #242a35; color: var(--muted); font-size: 13px; }
+.day-note { margin-top: 10px; }
+@media (prefers-reduced-motion: reduce) { .day-spinner, .day-skel-card { animation: none; } }
