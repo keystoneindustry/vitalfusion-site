@@ -325,7 +325,7 @@ export default function MacroQuiz({ source }: { source: string }) {
           </section>
         )}
 
-        <SampleDayCard day={day} input={input} />
+        <SampleDayCard day={day} input={input} r={r} />
 
         <section className="m-bridge">
           <div className="m-reality">

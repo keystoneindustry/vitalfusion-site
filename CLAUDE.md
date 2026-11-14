@@ -38,7 +38,10 @@ is not a developer; explain changes plainly and keep the site simple.
   and sends the results email (with the sample day, or the 3 favourite meals minus avoided foods as fallback);
   the browser calls it with keepalive while `/api/macros` (mealsPending) does sheet/coach/sequence. Limits:
   4 builds per IP per hour, MEAL_AI_DAILY_CAP (default 300) per server per day. Sheet has "Favorite Foods" and
-  "Foods Avoided" columns. Obstacles (`obstaclesFor`) and meal
+  "Foods Avoided" columns. Under the sample day: "Download my meal plan (PDF)" (`lib/nutrition-pdf.ts`, browser-only):
+  pages drawn on canvas in Inter, styled like Tyler's coaching guides (dark cover + gold title line, white pages
+  with logo header, blue labels, dark callouts with gold labels), embedded as JPEGs in a hand-built PDF with a
+  clickable Apply link. Worded as a free sample plan, not a client document. Obstacles (`obstaclesFor`) and meal
   explanations (`content/site.ts` → `macroQuiz.meals[].why[goal]`) differ by goal. Emails in `lib/macro-email.ts`,
   API `app/api/macros/route.ts`, copy/meals in `content/site.ts` → `macroQuiz`. Leads go to the
   coach's email and a Google Sheet via an Apps Script webhook (`lib/sheets.ts`,

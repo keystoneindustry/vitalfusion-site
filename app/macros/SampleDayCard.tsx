@@ -1,7 +1,8 @@
 "use client";
 
 import { site } from "@/content/site";
-import { mealName, type QuizInput } from "@/lib/macros";
+import { useState } from "react";
+import { mealName, type MacroResults, type QuizInput } from "@/lib/macros";
 import { foodsLine } from "@/lib/foods";
 import { safeFallbackMeals } from "@/lib/fallback-meals";
 import type { SampleDay } from "@/lib/sample-day";
@@ -10,7 +11,7 @@ const LABEL: Record<string, string> = { breakfast: "Breakfast", lunch: "Lunch", 
 
 // Results-page card: "Building your sample day…" while the AI works, then the day itself.
 // If the AI isn't available, it shows the 3 favourite meals (minus any with foods they avoid).
-export default function SampleDayCard({ day, input }: { day: SampleDay | "loading" | "fallback"; input: QuizInput }) {
+export default function SampleDayCard({ day, input, r }: { day: SampleDay | "loading" | "fallback"; input: QuizInput; r: MacroResults }) {
   const q = site.macroQuiz;
 
   if (day === "loading") {
@@ -105,6 +106,32 @@ export default function SampleDayCard({ day, input }: { day: SampleDay | "loadin
         ))}
       </div>
       <p className="m-fine day-note">A sample to show what your numbers look like as real food. Swap foods you like for similar ones.</p>
+      <PdfButton input={input} r={r} day={day} />
     </section>
+  );
+}
+
+// "Download my meal plan (PDF)": builds a branded PDF in the browser from what's on screen.
+function PdfButton({ input, r, day }: { input: QuizInput; r: MacroResults; day: SampleDay }) {
+  const [state, setState] = useState<"idle" | "busy" | "error">("idle");
+  async function go() {
+    setState("busy");
+    try {
+      const { downloadNutritionPdf } = await import("@/lib/nutrition-pdf");
+      await downloadNutritionPdf(input, r, day);
+      setState("idle");
+    } catch (err) {
+      console.error(err);
+      setState("error");
+    }
+  }
+  return (
+    <div className="pdf-dl">
+      <button type="button" className="btn-pdf" onClick={go} disabled={state === "busy"}>
+        <span aria-hidden className="pdf-icon">↓</span>
+        {state === "busy" ? "Making your PDF…" : "Download my meal plan (PDF)"}
+      </button>
+      {state === "error" && <p className="m-fine">Couldn&apos;t make the PDF on this device. Your plan is also in your email.</p>}
+    </div>
   );
 }

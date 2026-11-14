@@ -611,3 +611,10 @@ body:has(.apply-lp) {
 .day-macros { margin: 10px 0 0; padding-top: 10px; border-top: 1px solid #242a35; color: var(--muted); font-size: 13px; }
 .day-note { margin-top: 10px; }
 @media (prefers-reduced-motion: reduce) { .day-spinner, .day-skel-card { animation: none; } }
+
+/* Download PDF button under the sample day */
+.pdf-dl { margin-top: 16px; text-align: center; }
+.btn-pdf { display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 56px; padding: 14px 18px; border-radius: 14px; border: 1px solid #3a4d68; background: #121722; color: #e6eef6; font: inherit; font-size: 16px; font-weight: 800; cursor: pointer; transition: border-color 0.15s ease, background 0.15s ease; }
+.btn-pdf:hover { border-color: #6a9fc6; background: #151c28; }
+.btn-pdf:disabled { opacity: 0.7; cursor: default; }
+.pdf-icon { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: #6a9fc6; color: #08101a; font-weight: 900; }
