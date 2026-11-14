@@ -382,7 +382,7 @@ export default function MacroQuiz({ source }: { source: string }) {
               <span>{q.clientExample.text}</span>
             </figcaption>
           </figure>
-          <Link href="/apply?source=macro-quiz" className="btn-cta" onClick={() => prefillApplication(input)}>
+          <Link href="/?source=macro-quiz" className="btn-cta" onClick={() => prefillApplication(input)}>
             {q.bridgeButton}
           </Link>
           <p className="m-vary">{q.resultsVary}</p>

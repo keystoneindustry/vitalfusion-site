@@ -130,7 +130,7 @@ import { macroResultsEmail, coachLeadEmail, leadRow, SHEET_COLUMNS } from "../li
     const em = macroResultsEmail(v2.data, res, "https://vitalfusioncoaching.com/");
     assert.ok(!em.html.includes("<b>Smith"), "escaped");
     assert.ok(em.html.includes("2,210") && em.html.includes("144g") && em.html.includes("by February") === false || true);
-    assert.ok(em.html.includes("https://vitalfusioncoaching.com/apply?source=macro-email"));
+    assert.ok(em.html.includes("https://vitalfusioncoaching.com/?source=macro-email"));
     assert.ok(em.html.includes("Sockeye salmon") && em.html.includes("93/7 ground beef") && em.html.includes("My top 3 fat-loss meals"));
     const mv = validateQuiz({ ...good, goal: "muscle", goalWeightLb: 190, obstacles: ["protein"] });
     if (mv.ok) {

@@ -1,11 +1,11 @@
 /* eslint-disable @next/next/no-img-element */
-import Link from "next/link";
 import { site } from "@/content/site";
 import AppTour from "./components/AppTour";
 import VideoHero from "./components/VideoHero";
 import Reveal from "./components/Reveal";
 import Icon from "./components/Icon";
 import Rich from "./components/Rich";
+import ApplyLink from "./components/ApplyLink";
 
 // Homepage: one goal — start the application.
 // Order: video hero → 3 pillars → how it works → client results → what you get
@@ -14,9 +14,9 @@ import Rich from "./components/Rich";
 function Cta({ label, note }: { label: string; note?: string }) {
   return (
     <div className="cta">
-      <Link href="/apply" className="btn-cta">
+      <ApplyLink className="btn-cta">
         {label} <span aria-hidden>→</span>
-      </Link>
+      </ApplyLink>
       {note && <p className="cta-note">{note}</p>}
     </div>
   );

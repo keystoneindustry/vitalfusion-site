@@ -395,7 +395,7 @@ function dayPages(img: HTMLImageElement | null, q: QuizInput, day: SampleDay, st
   text(p.ctx, "Want this done for you?", M + 100, y + 25, { w: 800, s: 13, c: "#ffffff" });
   lines.forEach((ln, i) => text(p.ctx, ln, M + 100, y + 44 + i * 14.5, { s: 10, c: "#c3c8cf" }));
   const ly = y + 44 + lines.length * 14.5 + 6;
-  text(p.ctx, "Apply for 1:1 coaching at vitalfusioncoaching.com/apply →", M + 100, ly, { w: 700, s: 10, c: C.blueHi });
+  text(p.ctx, "See how 1:1 coaching works at vitalfusioncoaching.com →", M + 100, ly, { w: 700, s: 10, c: C.blueHi });
   p.links.push({ x: M, y, w: CW, h, url: applyUrl });
   pages.push(p);
   pages.forEach((pg, i) => footer(pg, startNum + i));
@@ -481,7 +481,7 @@ export async function buildNutritionPdf(q: QuizInput, r: MacroResults, day: Samp
   }
   const img = await loadImage("/images/vf-logo.png");
   const first = q.name.trim().split(/\s+/)[0] ?? "";
-  const applyUrl = `${siteUrl.replace(/\/$/, "")}/apply?source=nutrition-plan-pdf`;
+  const applyUrl = `${siteUrl.replace(/\/$/, "")}/?source=nutrition-plan-pdf`;
   const pages = [cover(img, first, r), numbersPage(img, q, r), ...dayPages(img, q, day, 3, applyUrl)];
   footer(pages[1], 2);
   const out = [];

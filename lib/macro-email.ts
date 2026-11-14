@@ -57,7 +57,8 @@ export function macroResultsEmail(
   const tips = tipsFor(q.obstacles, q.avoid);
   const context = realityContext(q);
   const reality = [context, REALITY_PUNCH].filter(Boolean).join(" ");
-  const applyUrl = `${base}/apply?source=macro-email`;
+  // Goes to the homepage first so they watch the video, then "Start Now" opens the application.
+  const applyUrl = `${base}/?source=macro-email`;
 
   const stat = (label: string, value: string, color: string) =>
     `<td align="center" style="padding:12px 4px;background:#1b1f27;border-radius:12px"><div style="font-size:24px;font-weight:800;color:${color}">${value}</div><div style="font-size:13px;color:#a9aeb8;font-weight:600">${label}</div></td>`;
@@ -126,7 +127,7 @@ export function macroResultsEmail(
     reality,
     ``,
     `${c.bridgeTitle} ${c.bridge}`,
-    `Apply for 1:1 coaching: ${applyUrl}`,
+    `Watch my video and apply for 1:1 coaching: ${applyUrl}`,
     ``,
     `Talk soon,`,
     site.coachName,
