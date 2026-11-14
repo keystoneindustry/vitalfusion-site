@@ -1,4 +1,4 @@
-// Food preference options for the macro calculator. People tap the foods they
+// Food preference options for the nutrition plan calculator. People tap the foods they
 // like and the ones they don't eat; the AI builds their sample day around them.
 
 export const FOOD_GROUPS = [
@@ -62,7 +62,7 @@ const AVOID_WORDS: Record<string, RegExp> = {
   Eggs: /\b(eggs?|egg whites?)\b/i,
   Nuts: /\b(nuts?|almonds?|peanuts?|cashews?|walnuts?|pecans?|pistachios?|hazelnuts?|macadamia)\b/i,
   "Vegetarian (no meat)":
-    /\b(chicken|turkey|beef|steak|pork|bacon|ham|lamb|veal|bison|sausage|fish|salmon|tuna|cod|tilapia|shrimp|crab|seafood|jerky)\b/i,
+    /\b(meat|chicken|turkey|beef|steak|pork|bacon|ham|lamb|veal|bison|sausage|fish|salmon|tuna|cod|tilapia|shrimp|crab|seafood|jerky)\b/i,
 };
 
 /** Foods in this meal that clash with what they said they don't eat (empty = fine). */
@@ -77,3 +77,31 @@ export function avoidClashes(texts: string[], avoid: string[]): string[] {
   });
 }
 
+
+
+// ───────── Example foods in tips (results page + follow-up emails) ─────────
+// Tip text uses tokens like {protein:4}; each person sees only examples they eat.
+const POOLS: Record<string, string[]> = {
+  protein: ["Greek yogurt", "eggs", "lean meat", "rotisserie chicken", "a protein shake", "cottage cheese", "tofu", "lentils", "edamame"],
+  calories: ["milk", "oats", "rice", "nut butter", "granola", "dried fruit", "olive oil", "bagels"],
+  bulk: ["chicken", "ground beef", "salmon", "ground turkey", "tofu", "beans"],
+  shake: ["milk", "oats", "a banana", "peanut butter", "protein powder", "Greek yogurt", "frozen berries"],
+  grab: ["a protein shake", "Greek yogurt", "a protein bar", "beef jerky", "roasted chickpeas"],
+};
+
+function joinAnd(items: string[]): string {
+  if (items.length <= 1) return items[0] ?? "";
+  if (items.length === 2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
+}
+
+/** Replaces {pool:n} tokens with n example foods that don't clash with what they avoid. */
+export function fillFoods(text: string, avoid: readonly string[] = []): string {
+  const out = text.replace(/\{(\w+):(\d)\}/g, (_m: string, pool: string, n: string, offset: number) => {
+    const safe = (POOLS[pool] ?? []).filter((f) => avoidClashes([f], [...avoid]).length === 0).slice(0, Number(n));
+    const list = joinAnd(safe);
+    // Capitalize when the list starts a sentence.
+    return offset === 0 || /[.!?]\s*$/.test(text.slice(0, offset)) ? list.charAt(0).toUpperCase() + list.slice(1) : list;
+  });
+  return out;
+}

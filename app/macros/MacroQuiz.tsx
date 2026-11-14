@@ -29,7 +29,7 @@ import {
   type QuizInput,
 } from "@/lib/macros";
 
-// Hidden macro calculator (vitalfusioncoaching.com/macros). One question per
+// Hidden nutrition plan calculator (vitalfusioncoaching.com/macros). One question per
 // screen; single-choice questions advance on tap. Name + email come last.
 
 type Answers = {
@@ -254,7 +254,7 @@ export default function MacroQuiz({ source }: { source: string }) {
     const first = input.name.split(/\s+/)[0];
     const paceLabel = labelOf(PACES, input.pace);
     const weekly = Math.abs(r.weeklyChangeLb);
-    const tips = tipsFor(input.obstacles);
+    const tips = tipsFor(input.obstacles, input.avoid);
     const date = r.weeksToGoal ? formatDate(goalDate(r.weeksToGoal)) : null;
     const months = r.weeksToGoal ? Math.round(r.weeksToGoal / 4.345) : 0;
     const goalLine =

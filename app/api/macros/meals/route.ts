@@ -8,7 +8,7 @@ import { sendEmail } from "@/lib/email";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-// Builds the AI sample day for the macro calculator (see lib/sample-day.ts), returns it to the
+// Builds the AI sample day for the nutrition plan calculator (see lib/sample-day.ts), returns it to the
 // browser, and sends the person their results email with the sample day in it. If the AI is not set
 // up, is busy, or fails, the email still goes out with the 3 favourite meals instead.
 

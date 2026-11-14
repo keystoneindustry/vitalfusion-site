@@ -198,12 +198,12 @@ export const site = {
     videoUrl: "",
   },
 
-  // Hidden macro calculator quiz at /macros (Instagram "comment MACROS" link).
+  // Hidden nutrition plan calculator at /macros (Instagram "comment MACROS" link; the URL stays /macros).
   macroQuiz: {
     // *Stars* = italic accent font.
-    title: "Free macro *calculator*",
-    intro: "Answer a few quick questions and get your daily calories, protein, carbs and fat, plus my clients' favorite meals.",
-    startButton: "Calculate My Macros →",
+    title: "Free nutrition plan *calculator*",
+    intro: "Answer a few quick questions and get your daily calories, protein, carbs and fat, plus a sample day of meals built around foods you love.",
+    startButton: "Build My Nutrition Plan →",
     note: "Takes about 60 seconds · 100% free",
     leadTitle: "Where should I send your plan?",
     leadNote: "Your results show on the next screen, and I'll email you a copy.",
@@ -292,7 +292,7 @@ export const site = {
     bridgeButton: "Apply for 1:1 Coaching →",
     resultsVary: "Individual results vary.",
     disclaimer: "These numbers are estimates based on the Mifflin-St Jeor formula and are not medical advice. Check with your doctor before changing your diet, especially if you have a medical condition, are pregnant, or are under 18.",
-    emailSubject: "Your macro plan 💪",
+    emailSubject: "Your nutrition plan 💪",
   },
 
   // The /vital-method promo page (used for ads / bio links)

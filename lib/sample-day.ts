@@ -1,5 +1,5 @@
 /**
- * AI sample day for the macro calculator, built the same way the coaching app builds a client's
+ * AI sample day for the nutrition plan calculator, built the same way the coaching app builds a client's
  * "perfect day" (coaching-app/lib/plan-draft.ts):
  *   1. Claude writes breakfast, lunch, dinner and a snack around the foods they love, with grams,
  *      household measures and its own nutrition estimates.
@@ -28,7 +28,7 @@ export type SampleDay = { meals: SampleDayMeal[]; totals: { calories: number; pr
 
 // ───────── Prompt ─────────
 
-const SYSTEM = `You write a one-day sample meal plan for someone who just used the free macro calculator from Tyler Kendrick, coach at Vital Fusion Coaching.
+const SYSTEM = `You write a one-day sample meal plan for someone who just used the free nutrition plan calculator from Tyler Kendrick, coach at Vital Fusion Coaching.
 
 Rules:
 - Exactly 4 meals, in this order: breakfast, lunch, dinner, snack. Give each a typical time (e.g. "7:30 AM").

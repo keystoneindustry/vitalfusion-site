@@ -4,6 +4,7 @@
 // the day 2 / day 4 templates. Edit wording here.
 
 import { formatDate, goalDate, GOALS, labelOf, leadRating, OBSTACLES, TRYING_FOR, type MacroResults, type Obstacle, type QuizInput } from "./macros";
+import { fillFoods } from "./foods";
 
 /** Three practical steps per obstacle (day 2 email). */
 export const OBSTACLE_STEPS: Record<Obstacle, string[]> = {
@@ -25,17 +26,17 @@ export const OBSTACLE_STEPS: Record<Obstacle, string[]> = {
   food: [
     "Build every plate the same way: a palm of protein, a fist of carbs, and half the plate vegetables.",
     "Rotate 3 or 4 go-to meals (like the ones in your plan) instead of reinventing every day.",
-    "Keep easy protein on hand: Greek yogurt, eggs, rotisserie chicken, protein shakes.",
+    "Keep easy protein on hand: {protein:4}.",
   ],
   protein: [
     "Get 30–50 grams of protein at every meal instead of cramming it all in at dinner.",
-    "Lean on easy wins: Greek yogurt, eggs, lean meat, and a protein shake.",
+    "Lean on easy wins: {protein:4}.",
     "Plan your protein first, then build the rest of the meal around it.",
   ],
   eatingEnough: [
-    "Add calories you don't have to chew much: milk, oats, rice, nut butter.",
+    "Add calories you don't have to chew much: {calories:4}.",
     "Eat every 3–4 hours instead of 2 big meals.",
-    "A shake with milk, oats, a banana, peanut butter and protein powder adds 500+ calories in two minutes.",
+    "A shake with {shake:5} adds 500+ calories in two minutes.",
   ],
   gym: [
     "Pick 3 set training days and treat them like appointments.",
@@ -49,7 +50,7 @@ export const OBSTACLE_STEPS: Record<Obstacle, string[]> = {
   ],
   busy: [
     "Cook protein in bulk twice a week so a good meal is 5 minutes away, not 45.",
-    "Keep 2 grab-and-go options ready (a protein shake, Greek yogurt) for chaotic days.",
+    "Keep 2 grab-and-go options ready ({grab:2}) for chaotic days.",
     "Three 45-minute workouts a week is enough. Put them in your calendar like meetings.",
   ],
   accountability: [
@@ -128,7 +129,7 @@ export function sequencePayload(q: QuizInput, r: MacroResults, now: Date = new D
   const tipsHtml = picked
     .map(
       (o) =>
-        `<p style="margin-top:20px;margin-bottom:8px;font-family:Arial, Helvetica, sans-serif;font-size:17px;line-height:24px;font-weight:bold;color:#1f2328;">${esc(o.label)}</p><table width="100%" cellpadding="0" cellspacing="0" border="0">${bullets(OBSTACLE_STEPS[o.value])}</table>`,
+        `<p style="margin-top:20px;margin-bottom:8px;font-family:Arial, Helvetica, sans-serif;font-size:17px;line-height:24px;font-weight:bold;color:#1f2328;">${esc(o.label)}</p><table width="100%" cellpadding="0" cellspacing="0" border="0">${bullets(OBSTACLE_STEPS[o.value].map((t) => fillFoods(t, q.avoid)))}</table>`,
     )
     .join("");
 
@@ -146,6 +147,12 @@ export function sequencePayload(q: QuizInput, r: MacroResults, now: Date = new D
     ? `But here's the honest part. You've been working on this for ${time}. You probably knew some of these tips already. The problem was never information. It's doing it week after week, when work gets busy, the weekend comes, and motivation fades. That's really hard to do alone.`
     : "But here's the honest part. Most people start strong and fade around week three, when motivation runs out and life gets busy. Knowing what to do isn't the problem. Doing it when you don't feel like it is.";
 
+  // Their favourite foods (from the calculator), for a personal line in the day 2 email.
+  const loves = [...q.likes.map((f) => f.toLowerCase()), ...(q.likesOther ? [q.likesOther] : [])].slice(0, 4);
+  const foodsLine = loves.length
+    ? `One more thing: you told me you love ${joinList(loves)}. Use that. The easiest plan to stick to is the one built from foods you already enjoy, so make them the base of 3 or 4 go-to meals this week, like the sample day I sent you.`
+    : "One more thing: the easiest plan to stick to is the one built from foods you already enjoy. Pick 3 or 4 meals you actually like and rotate them this week.";
+
   const m = MISTAKES[q.goal];
   const mistakeHtml =
     m.paragraphs.map((p) => `<p style="${P}">${esc(p)}</p>`).join("") +
@@ -161,5 +168,6 @@ export function sequencePayload(q: QuizInput, r: MacroResults, now: Date = new D
     reality: esc(reality),
     mistake_title: esc(m.title),
     mistake_html: mistakeHtml,
+    foods_line: esc(foodsLine),
   };
 }

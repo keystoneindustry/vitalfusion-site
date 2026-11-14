@@ -23,7 +23,7 @@ is not a developer; explain changes plainly and keep the site simple.
   Keep the page lean (short copy, proof early, one repeated CTA).
 - `/next-steps` is a hidden (noindex, not in nav) page linked only from the applicant
   confirmation email (`applicantEmail` in `lib/email.ts`). Copy in `content/site.ts` → `nextSteps`.
-- `/macros` is a hidden (noindex) macro-calculator lead magnet for Instagram ("comment MACROS"
+- `/macros` is a hidden (noindex) lead magnet called the **Nutrition Plan Calculator** (never "macro calculator" in anything people see; the URL stays /macros, event name stays macro_quiz.completed) for Instagram ("comment MACROS"
   via ManyChat → `/macros?source=macros`). Math + rules in `lib/macros.ts` (Mifflin-St Jeor;
   protein 0.9 g/lb max 180; fat 0.35 g/lb (0.42 for build muscle) max 80, up to 100 if carbs ≥100, NEVER below 40 g; carbs ≥100 g;
   fiber 14 g/1000 kcal; calorie floors; under-18 = maintenance for fat loss). Goal is the first
@@ -45,7 +45,7 @@ is not a developer; explain changes plainly and keep the site simple.
   `docs/google-sheet-setup.md`). Follow-up emails: Resend Automation "Macro quiz follow-up (day 2, 4, 7)" (ENABLED
   Nov 9, 2026), triggered by the `macro_quiz.completed` event (`lib/resend-events.ts`);
   `/api/apply` sends `coaching.applied`, which stops it. Day 2 = their obstacles + steps, payoff
-  (goal date), reality, soft CTA; day 4 = biggest mistake for their goal; day 7 = check-in.
+  (goal date), reality, their favourite foods (`foods_line` → template var FOODS_LINE), soft CTA; day 4 = biggest mistake for their goal; day 7 = check-in.
   Personalized pieces are built in `lib/sequence.ts` and sent in the event payload; templates
   macro-seq-1/2/3 live in Resend (copies in `docs/email-templates/`). Subjects: "👀 I found the problem in
   your quiz answers" / "❌ Stop doing this (it's why you're stuck)" / "🤔 Be honest with me…". Duplicate guard: the automation
@@ -62,3 +62,5 @@ is not a developer; explain changes plainly and keep the site simple.
   Supabase auth + storage so purchased PDFs are only downloadable by buyers.
 - Design: dark theme, accent #6a9fc6 with gold #ffe7ab, large mobile-friendly tap targets. Most visitors
   are on phones.
+- Example foods in tips (results page + day 2 email) use tokens like `{protein:4}` filled by `fillFoods()`
+  in `lib/foods.ts`, so nobody is shown a food they said they don't eat.

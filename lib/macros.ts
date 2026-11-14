@@ -1,4 +1,4 @@
-import { ALL_FOODS, AVOID_OPTIONS, cleanFoodText } from "./foods";
+import { ALL_FOODS, AVOID_OPTIONS, cleanFoodText, fillFoods } from "./foods";
 // Macro quiz: the questions' answer options, input validation, and the
 // calorie/macro math. Pure functions only, so the browser (instant results)
 // and the server (emails + Google Sheet) compute exactly the same numbers.
@@ -67,21 +67,21 @@ export const OBSTACLES = [
     label: "Not knowing what to eat",
     phrase: "knowing what to eat",
     goals: CUT,
-    tip: "Build every meal the same way: a palm-size protein, a fist-size carb, and a big handful of fruit or vegetables. Start with the 3 meals below.",
+    tip: "Build every meal the same way: a palm-size protein, a fist-size carb, and a big handful of fruit or vegetables. Start with the meals below.",
   },
   {
     value: "protein",
     label: "Not getting enough protein",
     phrase: "getting enough protein",
     goals: BULK,
-    tip: "Get 30–50g of protein at every meal. Greek yogurt, lean meat, eggs and a protein shake make your daily target easy.",
+    tip: "Get 30–50g of protein at every meal. {protein:4} make your daily target easy.",
   },
   {
     value: "eatingEnough",
     label: "Not eating enough",
     phrase: "eating enough",
     goals: BULK,
-    tip: "Add easy calories you don't have to chew much: milk, oats, rice, nut butter, and a shake between meals.",
+    tip: "Add easy calories you don't have to chew much: {calories:4}, plus a shake between meals.",
   },
   {
     value: "gym",
@@ -102,7 +102,7 @@ export const OBSTACLES = [
     label: "Busy schedule",
     phrase: "a busy schedule",
     goals: ALL,
-    tip: "Cook protein in bulk twice a week (chicken, ground beef, salmon) so a good meal is 5 minutes away, not 45.",
+    tip: "Cook protein in bulk twice a week ({bulk:3}) so a good meal is 5 minutes away, not 45.",
   },
   {
     value: "accountability",
@@ -313,10 +313,10 @@ export function realityMessage(q: Pick<QuizInput, "tryingFor" | "obstacles">): s
 }
 
 /** Tips for the obstacles they picked (max 2). */
-export function tipsFor(obstacles: Obstacle[]): { label: string; tip: string }[] {
+export function tipsFor(obstacles: Obstacle[], avoid: readonly string[] = []): { label: string; tip: string }[] {
   return OBSTACLES.filter((o) => obstacles.includes(o.value))
     .slice(0, 2)
-    .map((o) => ({ label: o.label, tip: o.tip }));
+    .map((o) => ({ label: o.label, tip: fillFoods(o.tip, avoid) }));
 }
 
 function str(v: unknown): string {
@@ -404,7 +404,7 @@ export function validateQuiz(
   if (check("email") && (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || email.length > 254))
     errors.email = "Please enter a valid email address.";
 
-  const source = str(raw.source).slice(0, 60) || "Macro Quiz";
+  const source = str(raw.source).slice(0, 60) || "Nutrition Plan Calculator";
 
   if (Object.keys(errors).length) return { ok: false, errors };
   return {
@@ -453,5 +453,5 @@ export function mealName(m: { name: string; nameFor?: Partial<Record<string, str
 /** The first obstacle they picked, for the follow-up email that addresses it. */
 export function primaryObstacle(obstacles: Obstacle[]): { phrase: string; tip: string } | null {
   const o = OBSTACLES.find((x) => obstacles.includes(x.value));
-  return o ? { phrase: o.phrase, tip: o.tip } : null;
+  return o ? { phrase: o.phrase, tip: fillFoods(o.tip) } : null;
 }

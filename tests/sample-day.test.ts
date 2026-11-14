@@ -122,3 +122,24 @@ assert.deepEqual(Object.keys(row), [...SHEET_COLUMNS]);
 assert.equal(row["Favorite Foods"], "Chicken, Rice, Berries, sushi rolls");
 assert.equal(row["Foods Avoided"], "Fish & seafood, mushrooms");
 console.log("Sample day tests passed");
+
+// ── Follow-up emails: favourite foods line + no avoided foods in examples
+{
+  const { sequencePayload } = await import("../lib/sequence");
+  const { tipsFor } = await import("../lib/macros");
+  const { fillFoods } = await import("../lib/foods");
+  const veg = validateQuiz({ ...{ goal: "muscle", sex: "female", age: 28, heightFt: 5, heightIn: 5, weightLb: 140, goalWeightLb: 150, activity: "moderate", tryingFor: "1to3y" },
+    obstacles: ["protein", "eatingEnough", "busy"], likes: ["Rice", "Bananas"], likesOther: "burritos", avoid: ["Vegetarian (no meat)", "Dairy"], name: "Amy Lee", email: "amy@example.com" });
+  assert.ok(veg.ok);
+  if (veg.ok) {
+    const pl = sequencePayload(veg.data, calculate(veg.data));
+    assert.ok(pl.foods_line.includes("you love rice, bananas, and burritos"), pl.foods_line);
+    assert.ok(!/chicken|lean meat|Greek yogurt|milk|jerky|beef/i.test(pl.tips_html), pl.tips_html);
+    const tips = tipsFor(veg.data.obstacles, veg.data.avoid).map((t) => t.tip).join(" ");
+    assert.ok(!/yogurt|lean meat|milk|chicken/i.test(tips), tips);
+    console.log("Veg/dairy-free tips:", tips);
+  }
+  assert.equal(fillFoods("Lean on easy wins: {protein:4}."), "Lean on easy wins: Greek yogurt, eggs, lean meat and rotisserie chicken.");
+  assert.ok(sequencePayload(q, r).foods_line.includes("chicken, rice, berries"));
+  console.log("Sequence food tests passed");
+}

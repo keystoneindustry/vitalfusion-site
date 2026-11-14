@@ -54,7 +54,7 @@ export function macroResultsEmail(
   const base = siteUrl.replace(/\/$/, "");
   const first = q.name.split(/\s+/)[0];
   const date = goalDateText(r);
-  const tips = tipsFor(q.obstacles);
+  const tips = tipsFor(q.obstacles, q.avoid);
   const context = realityContext(q);
   const reality = [context, REALITY_PUNCH].filter(Boolean).join(" ");
   const applyUrl = `${base}/apply?source=macro-email`;
@@ -66,7 +66,7 @@ export function macroResultsEmail(
 <div style="max-width:540px;margin:0 auto;padding:28px 14px">
   <div style="text-align:center;margin-bottom:18px"><img src="${base}/images/vf-logo.png" width="52" height="52" alt="${esc(site.brand)}" style="border-radius:12px"></div>
   <div style="background:#15171d;border:1px solid #2a2d35;border-radius:18px;padding:26px 20px;color:#f4f5f7">
-    <h1 style="margin:0 0 14px;font-size:24px;line-height:1.25">${esc(first)}, here's your macro plan</h1>
+    <h1 style="margin:0 0 14px;font-size:24px;line-height:1.25">${esc(first)}, here's your nutrition plan</h1>
     <div style="text-align:center;background:#18212f;border:1px solid #2c3a52;border-radius:16px;padding:20px 12px;margin:0 0 12px">
       <div style="font-size:14px;color:#a9aeb8">Eat about</div>
       <div style="font-size:48px;font-weight:900;line-height:1.1">${r.calories.toLocaleString()}</div>
@@ -108,13 +108,13 @@ export function macroResultsEmail(
     <p style="margin:24px 0 0;font-size:16px;line-height:1.6;color:#d4d7dd">Talk soon,<br><strong style="color:#ffe7ab">${esc(site.coachName)}</strong><br>${esc(site.brand)}</p>
   </div>
   <p style="text-align:center;color:#6b707b;font-size:11px;line-height:1.5;margin:16px 6px 0">${esc(c.disclaimer)}</p>
-  <p style="text-align:center;color:#6b707b;font-size:11px;margin:8px 0 0">You're receiving this because you used the macro calculator at ${esc(base.replace(/^https?:\/\//, ""))}.</p>
+  <p style="text-align:center;color:#6b707b;font-size:11px;margin:8px 0 0">You're receiving this because you used the nutrition plan calculator at ${esc(base.replace(/^https?:\/\//, ""))}.</p>
 </div></body></html>`;
 
   const text = [
     `Hi ${first},`,
     ``,
-    `Your macro plan: ${r.calories} calories a day (${goalSummary(q, r)})`,
+    `Your nutrition plan: ${r.calories} calories a day (${goalSummary(q, r)})`,
     `Protein ${r.protein}g · Carbs ${r.carbs}g · Fat ${r.fat}g · Fiber ${r.fiber}g+`,
     `Maintenance: about ${r.maintenance} calories`,
     ...(date ? [``, `At this pace you could reach ${q.goalWeightLb} lbs by ${date} (about ${r.weeksToGoal} weeks).`] : []),
@@ -187,7 +187,7 @@ export function coachLeadEmail(q: QuizInput, r: MacroResults): { subject: string
   const html = `<!doctype html><html><body style="margin:0;background:#111;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif">
 <div style="max-width:560px;margin:0 auto;padding:24px 12px">
   <div style="border-radius:16px 16px 0 0;padding:24px;text-align:center;background:linear-gradient(135deg,#6a9fc6,#b9c8bd 55%,#f6e0a8)">
-    <h1 style="margin:0;font-size:26px;color:#1a1a1a">🥗 New Macro Quiz Lead</h1>
+    <h1 style="margin:0;font-size:26px;color:#1a1a1a">🥗 New Nutrition Plan Lead</h1>
     <p style="margin:10px 0 0;font-size:16px;color:#222;font-weight:700">${emoji} ${esc(rating)} lead · ${esc(q.source)}</p>
   </div>
   <div style="background:#26282d;border-radius:0 0 16px 16px;padding:12px 8px 20px">
@@ -196,7 +196,7 @@ export function coachLeadEmail(q: QuizInput, r: MacroResults): { subject: string
   </div>
 </div></body></html>`;
   const text = Object.entries(row).map(([k, v]) => `${k}: ${v}`).join("\n");
-  return { subject: `[Macro] ${emoji} New macro quiz signup (${rating}) — ${q.name}`, html, text };
+  return { subject: `[Nutrition Plan] ${emoji} New nutrition plan calculator signup (${rating}) — ${q.name}`, html, text };
 }
 
 
