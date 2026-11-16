@@ -26,7 +26,7 @@ is not a developer; explain changes plainly and keep the site simple.
 - `/macros` is a hidden (noindex) lead magnet called the **Nutrition Plan Calculator** (never "macro calculator" in anything people see; the URL stays /macros, event name stays macro_quiz.completed) for Instagram ("comment MACROS"
   via ManyChat → `/macros?source=macros`). Math + rules in `lib/macros.ts` (Mifflin-St Jeor;
   protein 0.9 g/lb max 180; fat 0.35 g/lb (0.42 for build muscle) max 80, up to 100 if carbs ≥100, NEVER below 40 g; carbs ≥100 g;
-  fiber 14 g/1000 kcal; calorie floors; under-18 = maintenance for fat loss). Goal is the first
+  fiber 14 g/1000 kcal; calorie floors; fat loss: under 16 = maintenance, 16–17 = normal deficit at their chosen pace plus an under-18 note). Goal is the first
   question and branches the funnel: Lose fat → pace question + deficit; Build muscle → +200 kcal;
   Maintain → maintenance, no goal-weight question. After obstacles come two optional food screens
   ("Which foods do you love?" chips + text, "Anything you don't eat?" chips + text; options in `lib/foods.ts`).
