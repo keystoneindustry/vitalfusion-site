@@ -214,7 +214,7 @@ export function calculate(q: Pick<QuizInput, "sex" | "age" | "heightFt" | "heigh
   if (q.goal === "muscle") {
     calories = maintenance + RULES.muscleSurplus;
   } else if (wantsLoss && !minorAtMaintenance) {
-    let pct = PACES.find((p) => p.value === q.pace)?.deficit ?? PACES[1].deficit;
+    let pct: number = PACES.find((p) => p.value === q.pace)?.deficit ?? PACES[1].deficit;
     if (teenGentle) pct = Math.min(pct, PACES[0].deficit);
     const deficit = Math.min(maintenance * pct, RULES.maxDailyDeficit);
     calories = round10(maintenance - deficit);
