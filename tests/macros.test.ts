@@ -63,13 +63,12 @@ assert.equal(kid.calories, kid.maintenance);
 assert.equal(kid.minorAtMaintenance, true);
 assert.equal(kid.teenGentle, false);
 assert.equal(kid.weeksToGoal, null);
-// 7b) 16–17 asking for fat loss → gentle deficit, capped at the Steady pace even if they pick Aggressive
+// 7b) 16–17 asking for fat loss → normal deficit at the pace they pick
 const teen = calculate({ ...base, age: 17, pace: "aggressive" });
-const steadyAdult = calculate({ ...base, age: 17, pace: "steady" });
+const teenSteady = calculate({ ...base, age: 17, pace: "steady" });
 assert.equal(teen.minorAtMaintenance, false);
 assert.equal(teen.teenGentle, true);
-assert.ok(teen.calories < teen.maintenance);
-assert.equal(teen.calories, steadyAdult.calories);
+assert.ok(teen.calories < teenSteady.calories && teenSteady.calories < teen.maintenance);
 assert.ok(teen.weeksToGoal !== null && teen.weeksToGoal > 0);
 // The example from Nov 15: 17, 5'8", 157 → 150, lightly active
 const kilo = calculate({ sex: "male", age: 17, heightFt: 5, heightIn: 8, weightLb: 157, goalWeightLb: 150, activity: "light", goal: "lose", pace: "balanced" });

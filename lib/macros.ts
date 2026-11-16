@@ -165,8 +165,7 @@ export const RULES = {
   muscleSurplus: 200,
   minAge: 13,
   adultAge: 18,
-  // 16–17-year-olds who want fat loss get a gentle deficit (capped at the Steady pace, ~0.5 lb a week).
-  // Under 16 stays at maintenance.
+  // 16–17-year-olds who want fat loss get a normal deficit at the pace they pick. Under 16 stays at maintenance.
   teenDeficitAge: 16,
 };
 
@@ -188,7 +187,7 @@ export interface MacroResults {
   weeksToGoal: number | null;
   /** True when someone under 16 asked for fat loss and was kept at maintenance. */
   minorAtMaintenance: boolean;
-  /** True when a 16–17-year-old asked for fat loss and got a gentle (Steady-pace) deficit. */
+  /** True when a 16–17-year-old asked for fat loss (they get a deficit, plus a note to not go lower). */
   teenGentle: boolean;
   /** True when the calorie floor raised the target. */
   floorApplied: boolean;
@@ -214,8 +213,7 @@ export function calculate(q: Pick<QuizInput, "sex" | "age" | "heightFt" | "heigh
   if (q.goal === "muscle") {
     calories = maintenance + RULES.muscleSurplus;
   } else if (wantsLoss && !minorAtMaintenance) {
-    let pct: number = PACES.find((p) => p.value === q.pace)?.deficit ?? PACES[1].deficit;
-    if (teenGentle) pct = Math.min(pct, PACES[0].deficit);
+    const pct = PACES.find((p) => p.value === q.pace)?.deficit ?? PACES[1].deficit;
     const deficit = Math.min(maintenance * pct, RULES.maxDailyDeficit);
     calories = round10(maintenance - deficit);
     const floor = RULES.calorieFloor[q.sex];

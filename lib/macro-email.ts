@@ -28,7 +28,6 @@ function esc(s: string): string {
 export function goalSummary(q: QuizInput, r: MacroResults): string {
   if (q.goal === "lose") {
     if (r.minorAtMaintenance) return "Maintenance calories + high protein";
-    if (r.teenGentle) return `Gentle fat loss · about ${Math.abs(r.weeklyChangeLb).toFixed(1)} lb a week`;
     return `${labelOf(PACES, q.pace)} fat loss · about ${Math.abs(r.weeklyChangeLb).toFixed(1)} lb a week`;
   }
   return q.goal === "muscle"
@@ -80,7 +79,7 @@ export function macroResultsEmail(
     </tr></table>
     <p style="${P};font-size:14px;color:#a9aeb8">Plus <strong style="color:#fff">${r.fiber}g+ of fiber</strong> a day. Your maintenance is about ${r.maintenance.toLocaleString()} calories.</p>
     ${r.minorAtMaintenance ? `<p style="${P};font-size:14px">Because you're under 18, I've kept you at maintenance calories. Focus on protein, training and healthy habits instead of dieting.</p>` : ""}
-    ${r.teenGentle ? `<p style="${P};font-size:14px">Because you're under 18, I've kept your deficit small (about half a pound a week). Focus on protein, training and healthy habits, and don't eat less than this.</p>` : ""}
+    ${r.teenGentle ? `<p style="${P};font-size:14px">Because you're under 18, don't eat less than this. Your body is still growing, so focus on protein, training and healthy habits, not just the scale.</p>` : ""}
     ${date ? `<div style="border-left:4px solid #ffe7ab;background:#1b1f27;border-radius:12px;padding:14px 16px;margin:6px 0 18px"><div style="font-size:13px;color:#a9aeb8">At this pace, you could reach</div><div style="font-size:19px;font-weight:800;margin-top:2px">${q.goalWeightLb} lbs by ${esc(date)}</div><div style="font-size:13px;color:#a9aeb8;margin-top:6px">About ${r.weeksToGoal} weeks. It's an estimate, but consistency gets you there.</div></div>` : ""}
     ${
       tips.length

@@ -300,9 +300,7 @@ export default function MacroQuiz({ source }: { source: string }) {
       input.goal === "lose"
         ? r.minorAtMaintenance
           ? "Maintenance calories + high protein"
-          : r.teenGentle
-            ? `Gentle fat loss · about ${weekly.toFixed(1)} lb a week`
-            : `${paceLabel} fat loss · about ${weekly.toFixed(1)} lb a week`
+          : `${paceLabel} fat loss · about ${weekly.toFixed(1)} lb a week`
         : input.goal === "muscle"
           ? `Build muscle · ${RULES.muscleSurplus} calories above maintenance`
           : "Maintain your weight · maintenance calories";
@@ -339,7 +337,7 @@ export default function MacroQuiz({ source }: { source: string }) {
           <p className="m-note">Because you&apos;re under 18, I&apos;ve kept you at maintenance calories. Your body is still growing, so focus on protein, training and healthy habits instead of dieting.</p>
         )}
         {r.teenGentle && (
-          <p className="m-note">Because you&apos;re under 18, I&apos;ve kept your deficit small (about half a pound a week). Your body is still growing, so focus on protein, training and healthy habits, and don&apos;t eat less than this.</p>
+          <p className="m-note">Because you&apos;re under 18, don&apos;t eat less than this. Your body is still growing, so focus on protein, training and healthy habits, not just the scale.</p>
         )}
         {r.floorApplied && (
           <p className="m-note">Your target is set at a safe minimum, so progress will be gradual. Adding daily walks or workouts is the best way to speed it up.</p>
