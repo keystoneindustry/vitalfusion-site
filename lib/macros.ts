@@ -165,6 +165,9 @@ export const RULES = {
   muscleSurplus: 200,
   minAge: 13,
   adultAge: 18,
+  // 16–17-year-olds who want fat loss get a gentle deficit (capped at the Steady pace, ~0.5 lb a week).
+  // Under 16 stays at maintenance.
+  teenDeficitAge: 16,
 };
 
 const lbToKg = (lb: number) => lb * 0.45359237;
@@ -183,8 +186,10 @@ export interface MacroResults {
   weeklyChangeLb: number;
   /** Weeks to reach goal weight; null when not applicable. */
   weeksToGoal: number | null;
-  /** True when someone under 18 asked for fat loss and was kept at maintenance. */
+  /** True when someone under 16 asked for fat loss and was kept at maintenance. */
   minorAtMaintenance: boolean;
+  /** True when a 16–17-year-old asked for fat loss and got a gentle (Steady-pace) deficit. */
+  teenGentle: boolean;
   /** True when the calorie floor raised the target. */
   floorApplied: boolean;
   bmi: number;
@@ -201,14 +206,16 @@ export function calculate(q: Pick<QuizInput, "sex" | "age" | "heightFt" | "heigh
 
   const isMinor = q.age < RULES.adultAge;
   const wantsLoss = q.goal === "lose";
-  const minorAtMaintenance = isMinor && wantsLoss;
+  const minorAtMaintenance = wantsLoss && q.age < RULES.teenDeficitAge;
+  const teenGentle = wantsLoss && isMinor && !minorAtMaintenance;
 
   let calories = maintenance;
   let floorApplied = false;
   if (q.goal === "muscle") {
     calories = maintenance + RULES.muscleSurplus;
-  } else if (wantsLoss && !isMinor) {
-    const pct = PACES.find((p) => p.value === q.pace)?.deficit ?? PACES[1].deficit;
+  } else if (wantsLoss && !minorAtMaintenance) {
+    let pct = PACES.find((p) => p.value === q.pace)?.deficit ?? PACES[1].deficit;
+    if (teenGentle) pct = Math.min(pct, PACES[0].deficit);
     const deficit = Math.min(maintenance * pct, RULES.maxDailyDeficit);
     calories = round10(maintenance - deficit);
     const floor = RULES.calorieFloor[q.sex];
@@ -247,7 +254,7 @@ export function calculate(q: Pick<QuizInput, "sex" | "age" | "heightFt" | "heigh
 
   const weeklyChangeLb = ((calories - maintenance) * 7) / 3500;
   let weeksToGoal: number | null = null;
-  if (wantsLoss && !isMinor && weeklyChangeLb < 0 && q.goalWeightLb < q.weightLb) {
+  if (wantsLoss && !minorAtMaintenance && weeklyChangeLb < 0 && q.goalWeightLb < q.weightLb) {
     weeksToGoal = Math.ceil((q.weightLb - q.goalWeightLb) / -weeklyChangeLb);
   } else if (q.goal === "muscle" && weeklyChangeLb > 0 && q.goalWeightLb > q.weightLb) {
     weeksToGoal = Math.ceil((q.goalWeightLb - q.weightLb) / weeklyChangeLb);
@@ -264,6 +271,7 @@ export function calculate(q: Pick<QuizInput, "sex" | "age" | "heightFt" | "heigh
     weeklyChangeLb: Math.round(weeklyChangeLb * 10) / 10,
     weeksToGoal,
     minorAtMaintenance,
+    teenGentle,
     floorApplied,
     bmi: Math.round(bmi * 10) / 10,
   };

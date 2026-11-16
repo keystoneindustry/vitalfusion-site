@@ -57,11 +57,23 @@ const small = calculate({ sex: "female", age: 45, heightFt: 4, heightIn: 11, wei
 console.log("small woman:", small);
 assert.ok(small.calories >= 1200 || small.calories === small.maintenance);
 
-// 7) Under 18 asking for fat loss → maintenance, no date
-const teen = calculate({ ...base, age: 16 });
-assert.equal(teen.calories, teen.maintenance);
-assert.equal(teen.minorAtMaintenance, true);
-assert.equal(teen.weeksToGoal, null);
+// 7) Under 16 asking for fat loss → maintenance, no date
+const kid = calculate({ ...base, age: 15 });
+assert.equal(kid.calories, kid.maintenance);
+assert.equal(kid.minorAtMaintenance, true);
+assert.equal(kid.teenGentle, false);
+assert.equal(kid.weeksToGoal, null);
+// 7b) 16–17 asking for fat loss → gentle deficit, capped at the Steady pace even if they pick Aggressive
+const teen = calculate({ ...base, age: 17, pace: "aggressive" });
+const steadyAdult = calculate({ ...base, age: 17, pace: "steady" });
+assert.equal(teen.minorAtMaintenance, false);
+assert.equal(teen.teenGentle, true);
+assert.ok(teen.calories < teen.maintenance);
+assert.equal(teen.calories, steadyAdult.calories);
+assert.ok(teen.weeksToGoal !== null && teen.weeksToGoal > 0);
+// The example from Nov 15: 17, 5'8", 157 → 150, lightly active
+const kilo = calculate({ sex: "male", age: 17, heightFt: 5, heightIn: 8, weightLb: 157, goalWeightLb: 150, activity: "light", goal: "lose", pace: "balanced" });
+console.log("17-year-old example:", kilo.maintenance, "→", kilo.calories, kilo.protein, kilo.carbs, kilo.fat, "weeks", kilo.weeksToGoal);
 
 // 8) Goal weight above current with "lose" → no date
 assert.equal(calculate({ ...base, goalWeightLb: 190 }).weeksToGoal, null);
