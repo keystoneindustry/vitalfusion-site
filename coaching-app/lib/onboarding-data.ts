@@ -15,6 +15,7 @@ export type AgreementRow = {
   id: string;
   client_id: string;
   version: string;
+  billing?: "package" | "monthly";
   coaching_weeks: number | null;
   start_date: string | null;
   end_date: string | null;

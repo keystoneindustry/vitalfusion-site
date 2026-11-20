@@ -32,6 +32,7 @@ export default async function ClientDetails({ params, searchParams }: { params: 
               fullName: client.full_name,
               email: client.email,
               phone: client.phone,
+              billing: client.billing,
               coachingWeeks: client.coaching_weeks,
               startDate: client.start_date,
               endDate: client.end_date,

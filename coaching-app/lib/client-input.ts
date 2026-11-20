@@ -1,4 +1,4 @@
-import { endDateFromWeeks, isIsoDate } from "./dates";
+import { endDateFromWeeks, formatDate, isIsoDate } from "./dates";
 
 /** Stages a client moves through in the CRM. Matches the `client_stage` enum in Supabase. */
 export const STAGES = [
@@ -20,13 +20,19 @@ export function stageLabel(value: string): string {
   return STAGES.find((s) => s.value === value)?.label ?? value;
 }
 
+/** How a client pays: a set package paid up front, or month to month until they cancel. */
+export type Billing = "package" | "monthly";
+
 export type ClientInput = {
   fullName: string;
   email: string;
   phone: string | null;
-  coachingWeeks: number;
+  billing: Billing;
+  /** Null for monthly. */
+  coachingWeeks: number | null;
   startDate: string;
-  endDate: string;
+  /** Null for monthly until they cancel (then their last paid day). */
+  endDate: string | null;
   notes: string | null;
 };
 
@@ -45,6 +51,7 @@ export function parseClientForm(form: FormData): { input?: ClientInput; errors: 
   const fullName = text(form, "fullName").replace(/\s+/g, " ");
   const email = text(form, "email").toLowerCase();
   const phone = text(form, "phone");
+  const billing: Billing = text(form, "billing") === "monthly" ? "monthly" : "package";
   const weeksRaw = text(form, "coachingWeeks");
   const startDate = text(form, "startDate");
   let endDate = text(form, "endDate");
@@ -59,14 +66,17 @@ export function parseClientForm(form: FormData): { input?: ClientInput; errors: 
   if (phone && !/^[\d\s()+.-]{7,25}$/.test(phone)) errors.phone = "That phone number doesn't look right.";
 
   const coachingWeeks = Number(weeksRaw);
-  if (!weeksRaw) errors.coachingWeeks = "Enter how many weeks they paid for.";
-  else if (!Number.isInteger(coachingWeeks) || coachingWeeks < 1 || coachingWeeks > 260)
-    errors.coachingWeeks = "Use a whole number of weeks between 1 and 260.";
+  if (billing === "package") {
+    if (!weeksRaw) errors.coachingWeeks = "Enter how many weeks they paid for.";
+    else if (!Number.isInteger(coachingWeeks) || coachingWeeks < 1 || coachingWeeks > 260)
+      errors.coachingWeeks = "Use a whole number of weeks between 1 and 260.";
+  }
 
   if (!startDate) errors.startDate = "Pick a start date.";
   else if (!isIsoDate(startDate)) errors.startDate = "That start date isn't valid.";
 
-  if (!endDate && !errors.startDate && !errors.coachingWeeks) endDate = endDateFromWeeks(startDate, coachingWeeks);
+  // Packages get an end date from the weeks; monthly clients only get one when they cancel.
+  if (billing === "package" && !endDate && !errors.startDate && !errors.coachingWeeks) endDate = endDateFromWeeks(startDate, coachingWeeks);
   if (endDate && !isIsoDate(endDate)) errors.endDate = "That end date isn't valid.";
   else if (endDate && startDate && !errors.startDate && endDate < startDate)
     errors.endDate = "The end date has to be after the start date.";
@@ -78,12 +88,22 @@ export function parseClientForm(form: FormData): { input?: ClientInput; errors: 
       fullName,
       email,
       phone: phone || null,
-      coachingWeeks,
+      billing,
+      coachingWeeks: billing === "monthly" ? null : coachingWeeks,
       startDate,
-      endDate,
+      endDate: endDate || null,
       notes: notes || null,
     },
   };
+}
+
+/** "12-week package · Nov 23 – Feb 14, 2027" or "Monthly · since Nov 23, 2026" (+ "· ends …" once cancelled). */
+export function coachingSummary(c: { billing?: string | null; coaching_weeks: number | null; start_date: string | null; end_date: string | null }): string {
+  if (!c.start_date) return "No dates set";
+  if (c.billing === "monthly") {
+    return `Monthly · since ${formatDate(c.start_date)}${c.end_date ? ` · last day ${formatDate(c.end_date)}` : ""}`;
+  }
+  return `${c.coaching_weeks ? `${c.coaching_weeks}-week package · ` : ""}${formatDate(c.start_date, false)} – ${formatDate(c.end_date)}`;
 }
 
 export function firstName(fullName: string | null | undefined): string {

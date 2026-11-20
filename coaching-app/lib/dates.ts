@@ -48,13 +48,18 @@ export function formatDate(iso: string | null | undefined, withYear = true): str
 
 export type PackageStatus =
   | { kind: "no_dates" }
-  | { kind: "not_started"; daysUntilStart: number; totalWeeks: number }
-  | { kind: "in_progress"; week: number; totalWeeks: number; daysLeft: number }
+  | { kind: "not_started"; daysUntilStart: number; totalWeeks: number | null }
+  | { kind: "in_progress"; week: number; totalWeeks: number | null; daysLeft: number | null }
   | { kind: "ended"; daysSinceEnd: number; totalWeeks: number };
 
 /** Where a client is in their package on a given day. */
 export function packageStatus(start: string | null, end: string | null, today: string): PackageStatus {
-  if (!start || !end || !isIsoDate(start) || !isIsoDate(end)) return { kind: "no_dates" };
+  if (!start || !isIsoDate(start)) return { kind: "no_dates" };
+  // Monthly (ongoing) coaching: a start date and no end date until they cancel.
+  if (!end || !isIsoDate(end)) {
+    if (today < start) return { kind: "not_started", daysUntilStart: daysBetween(today, start), totalWeeks: null };
+    return { kind: "in_progress", week: Math.floor(daysBetween(start, today) / 7) + 1, totalWeeks: null, daysLeft: null };
+  }
   const totalWeeks = Math.max(1, Math.ceil((daysBetween(start, end) + 1) / 7));
   if (today < start) return { kind: "not_started", daysUntilStart: daysBetween(today, start), totalWeeks };
   if (today > end) return { kind: "ended", daysSinceEnd: daysBetween(end, today), totalWeeks };
@@ -71,7 +76,7 @@ export function packageLabel(start: string | null, end: string | null, today: st
     case "not_started":
       return s.daysUntilStart === 1 ? "Starts tomorrow" : `Starts in ${s.daysUntilStart} days`;
     case "in_progress":
-      return `Week ${s.week} of ${s.totalWeeks}`;
+      return s.totalWeeks ? `Week ${s.week} of ${s.totalWeeks}` : `Week ${s.week} · monthly`;
     case "ended":
       return `Ended ${formatDate(end, false)}`;
   }

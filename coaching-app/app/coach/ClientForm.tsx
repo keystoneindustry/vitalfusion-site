@@ -9,6 +9,7 @@ type Defaults = {
   fullName?: string;
   email?: string;
   phone?: string | null;
+  billing?: "package" | "monthly";
   coachingWeeks?: number | null;
   startDate?: string | null;
   endDate?: string | null;
@@ -31,6 +32,7 @@ export default function ClientForm({
   today: string;
 }) {
   const [state, formAction, pending] = useActionState<ClientFormState, FormData>(action, {});
+  const [billing, setBilling] = useState<"package" | "monthly">(defaults.billing ?? "package");
   const [weeks, setWeeks] = useState<string>(defaults.coachingWeeks ? String(defaults.coachingWeeks) : "12");
   const [start, setStart] = useState<string>(defaults.startDate || today);
   const [end, setEnd] = useState<string>(defaults.endDate || "");
@@ -76,70 +78,110 @@ export default function ClientForm({
       </div>
 
       <div className="field">
-        <label htmlFor="coachingWeeks">Length of coaching (weeks)</label>
-        <input
-          id="coachingWeeks"
-          name="coachingWeeks"
-          type="number"
-          inputMode="numeric"
-          min={1}
-          max={260}
-          required
-          value={weeks}
-          onChange={(e) => setWeeks(e.target.value)}
-        />
+        <span className="label">How are they paying?</span>
+        <input type="hidden" name="billing" value={billing} />
         <div className="chips">
-          {WEEK_PRESETS.map((w) => (
-            <button
-              key={w}
-              type="button"
-              className="chip"
-              aria-pressed={weeks === String(w)}
-              onClick={() => setWeeks(String(w))}
-            >
-              {w} weeks
-            </button>
-          ))}
+          <button type="button" className="chip" aria-pressed={billing === "package"} onClick={() => setBilling("package")}>
+            Package (paid in full)
+          </button>
+          <button type="button" className="chip" aria-pressed={billing === "monthly"} onClick={() => setBilling("monthly")}>
+            Monthly (cancel anytime)
+          </button>
         </div>
-        {fe.coachingWeeks && <p className="err">{fe.coachingWeeks}</p>}
       </div>
 
-      <div className="grid-2">
-        <div className="field">
-          <label htmlFor="startDate">Start date</label>
-          <input id="startDate" name="startDate" type="date" required value={start} onChange={(e) => setStart(e.target.value)} />
-          {fe.startDate && <p className="err">{fe.startDate}</p>}
-        </div>
-        <div className="field">
-          <label htmlFor="endDate">End date</label>
-          <input
-            id="endDate"
-            name="endDate"
-            type="date"
-            required
-            value={endValue}
-            onChange={(e) => {
-              setEndTouched(true);
-              setEnd(e.target.value);
-            }}
-          />
-          {fe.endDate && <p className="err">{fe.endDate}</p>}
-        </div>
-      </div>
-      <p className="muted small" style={{ margin: "-4px 0 14px" }}>
-        {endTouched && autoEnd && endValue !== autoEnd ? (
-          <>
-            End date set by hand.{" "}
-            <button type="button" className="btn-link" onClick={() => setEndTouched(false)}>
-              Use {formatDate(autoEnd)} instead
-            </button>
-          </>
-        ) : autoEnd ? (
-          `Ends ${formatDate(autoEnd)}, the last day of week ${weeksNum}. These dates go into their agreement.`
-        ) : (
-          "Pick a start date and length to fill in the end date."
-        )}
-      </p>
+      {billing === "package" ? (
+        <>
+          <div className="field">
+            <label htmlFor="coachingWeeks">Length of coaching (weeks)</label>
+            <input
+              id="coachingWeeks"
+              name="coachingWeeks"
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={260}
+              required
+              value={weeks}
+              onChange={(e) => setWeeks(e.target.value)}
+            />
+            <div className="chips">
+              {WEEK_PRESETS.map((w) => (
+                <button
+                  key={w}
+                  type="button"
+                  className="chip"
+                  aria-pressed={weeks === String(w)}
+                  onClick={() => setWeeks(String(w))}
+                >
+                  {w} weeks
+                </button>
+              ))}
+            </div>
+            {fe.coachingWeeks && <p className="err">{fe.coachingWeeks}</p>}
+          </div>
+
+          <div className="grid-2">
+            <div className="field">
+              <label htmlFor="startDate">Start date</label>
+              <input id="startDate" name="startDate" type="date" required value={start} onChange={(e) => setStart(e.target.value)} />
+              {fe.startDate && <p className="err">{fe.startDate}</p>}
+            </div>
+            <div className="field">
+              <label htmlFor="endDate">End date</label>
+              <input
+                id="endDate"
+                name="endDate"
+                type="date"
+                required
+                value={endValue}
+                onChange={(e) => {
+                  setEndTouched(true);
+                  setEnd(e.target.value);
+                }}
+              />
+              {fe.endDate && <p className="err">{fe.endDate}</p>}
+            </div>
+          </div>
+          <p className="muted small" style={{ margin: "-4px 0 14px" }}>
+            {endTouched && autoEnd && endValue !== autoEnd ? (
+              <>
+                End date set by hand.{" "}
+                <button type="button" className="btn-link" onClick={() => setEndTouched(false)}>
+                  Use {formatDate(autoEnd)} instead
+                </button>
+              </>
+            ) : autoEnd ? (
+              `Ends ${formatDate(autoEnd)}, the last day of week ${weeksNum}. These dates go into their agreement.`
+            ) : (
+              "Pick a start date and length to fill in the end date."
+            )}
+          </p>
+        </>
+      ) : (
+        <>
+          <div className="grid-2">
+            <div className="field">
+              <label htmlFor="startDate">Start date</label>
+              <input id="startDate" name="startDate" type="date" required value={start} onChange={(e) => setStart(e.target.value)} />
+              {fe.startDate && <p className="err">{fe.startDate}</p>}
+            </div>
+            {mode === "edit" && (
+              <div className="field">
+                <label htmlFor="endDate">
+                  Last day <span className="muted">(only if they cancel)</span>
+                </label>
+                <input id="endDate" name="endDate" type="date" defaultValue={defaults.billing === "monthly" ? defaults.endDate ?? "" : ""} />
+                {fe.endDate && <p className="err">{fe.endDate}</p>}
+              </div>
+            )}
+          </div>
+          <p className="muted small" style={{ margin: "-4px 0 14px" }}>
+            Billed every month from the start date, no end date. If they cancel, put their last paid day
+            {mode === "new" ? " here later (in Details)" : " in Last day"}: coaching continues until then.
+          </p>
+        </>
+      )}
 
       {mode === "edit" && (
         <div className="field">

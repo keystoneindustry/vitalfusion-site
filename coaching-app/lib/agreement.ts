@@ -7,7 +7,7 @@ import { formatDate } from "./dates";
  * Maryland governing law (Section VIII). Bump AGREEMENT_VERSION whenever the wording changes.
  * Have a lawyer review this wording before launch.
  */
-export const AGREEMENT_VERSION = "2026-11-10";
+export const AGREEMENT_VERSION = "2026-11-20";
 export const AGREEMENT_TITLE = "Client Onboarding, Informed Consent & Personal Training Agreement";
 export const COACH_SIGNATURE = { name: "Tyler Kendrick", title: "Owner", company: "Vital Fusion Coaching LLC" };
 
@@ -44,9 +44,13 @@ export const PARQ_STATEMENT =
 
 export type AgreementSection = { id: string; number: string; title: string; paragraphs: string[] };
 
-export type PackageTerms = { coachingWeeks: number | null; startDate: string | null; endDate: string | null };
+export type PackageTerms = { billing?: "package" | "monthly"; coachingWeeks: number | null; startDate: string | null; endDate: string | null };
 
 function packageParagraph(p: PackageTerms): string {
+  if (p.billing === "monthly") {
+    const start = p.startDate ? formatDate(p.startDate) : "the agreed start date";
+    return `The Client is purchasing online coaching on a month-to-month basis, beginning ${start}. Payment is due in advance at the start of each monthly billing period. There is no minimum commitment: the Client may cancel at any time by notifying the Coach in writing, including by email or in the coaching app, before their next billing date. After cancellation no further payments will be charged, and coaching services continue through the end of the billing period already paid for. Payments are non-refundable for a billing period that has already begun, unless otherwise stated in writing. Failure to maintain payment may result in suspension or termination of services. The Coach may also end the monthly arrangement by giving the Client written notice, in which case no further payments will be charged.`;
+  }
   const length = p.coachingWeeks ? `${p.coachingWeeks} week${p.coachingWeeks === 1 ? "" : "s"}` : "the agreed length";
   const start = p.startDate ? formatDate(p.startDate) : "the agreed start date";
   const end = p.endDate ? formatDate(p.endDate) : "the agreed end date";

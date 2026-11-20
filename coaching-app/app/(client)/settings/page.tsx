@@ -24,8 +24,11 @@ export default async function SettingsPage() {
           <dd>{email}</dd>
           <dt>Coaching</dt>
           <dd>
-            {client.start_date ? `${formatDate(client.start_date, false)} – ${formatDate(client.end_date)}` : "—"}
-            {client.coaching_weeks ? ` (${client.coaching_weeks} weeks)` : ""}
+            {client.billing === "monthly"
+              ? `Monthly, since ${formatDate(client.start_date)}${client.end_date ? ` (last day ${formatDate(client.end_date)})` : ""}`
+              : client.start_date
+                ? `${formatDate(client.start_date, false)} – ${formatDate(client.end_date)}${client.coaching_weeks ? ` (${client.coaching_weeks} weeks)` : ""}`
+                : "—"}
           </dd>
         </dl>
         <p className="small muted" style={{ marginBottom: 0 }}>

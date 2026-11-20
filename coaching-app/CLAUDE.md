@@ -206,3 +206,10 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   Eastern (`setKickoffAction`, `zonedTimeToIso` / `isoToZonedInput` in `lib/booking.ts`). Coach flag "stopped partway through
   setup" after 2 days. (4) Time zones: `TimezoneSync` (in the client and onboarding layouts) saves the phone's time zone to
   `clients.timezone` via `saveTimezoneAction` (before this every client was America/New_York). Welcome "What's next" lists starting photos.
+- Monthly coaching (Nov 20): `clients.billing` ('package' | 'monthly', also saved on `agreements`). Add/edit client form has
+  "How are they paying?": Package (weeks + end date, as before) or Monthly (start date only; "Last day" filled in only when
+  they cancel = their last paid day). Monthly = `coaching_weeks` null, `end_date` null → `packageStatus` returns in_progress
+  with totalWeeks/daysLeft null ("Week N · monthly", client sees "Week N of your coaching"); no halfway/program-done
+  milestones. `coachingSummary()` in lib/client-input.ts. Agreement: month-to-month payment paragraph (cancel anytime in
+  writing before the next billing date, service continues through the paid period, no refunds for a started period, coach can
+  end with written notice); AGREEMENT_VERSION 2026-11-20. Coach flag for a cancelled monthly client's last day.

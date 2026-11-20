@@ -48,7 +48,7 @@ export async function addClientAction(_prev: ClientFormState, form: FormData): P
   let client: ClientRow;
   try {
     client = await createClient(input);
-    await addEvent(client.id, "created", { weeks: input.coachingWeeks, start: input.startDate, end: input.endDate });
+    await addEvent(client.id, "created", { billing: input.billing, weeks: input.coachingWeeks, start: input.startDate, end: input.endDate });
   } catch (err) {
     console.error("Create client failed", err);
     return { error: "Couldn't save the client. Please try again." };
@@ -88,6 +88,7 @@ export async function updateClientAction(id: string, _prev: ClientFormState, for
       full_name: input.fullName,
       email: input.email,
       phone: input.phone,
+      billing: input.billing,
       coaching_weeks: input.coachingWeeks,
       start_date: input.startDate,
       end_date: input.endDate,
@@ -103,11 +104,12 @@ export async function updateClientAction(id: string, _prev: ClientFormState, for
     await addEvent(client.id, "stage_changed", { from: stageLabel(client.stage), to: stageLabel(stage) });
   }
   if (
+    input.billing !== client.billing ||
     input.coachingWeeks !== client.coaching_weeks ||
     input.startDate !== client.start_date ||
     input.endDate !== client.end_date
   ) {
-    await addEvent(client.id, "package_changed", { weeks: input.coachingWeeks, start: input.startDate, end: input.endDate });
+    await addEvent(client.id, "package_changed", { billing: input.billing, weeks: input.coachingWeeks, start: input.startDate, end: input.endDate });
   } else if (
     input.fullName !== client.full_name ||
     input.email !== client.email ||

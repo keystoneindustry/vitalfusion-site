@@ -62,11 +62,14 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
 
   let packageLine = "Your coaching dates will show here.";
   if (status.kind === "not_started")
-    packageLine = `Your ${status.totalWeeks}-week coaching starts ${formatDate(client.start_date, false)}${
+    packageLine = `Your ${status.totalWeeks ? `${status.totalWeeks}-week ` : ""}coaching starts ${formatDate(client.start_date, false)}${
       status.daysUntilStart === 1 ? " (tomorrow)" : ` (in ${status.daysUntilStart} days)`
     }.`;
   if (status.kind === "in_progress")
-    packageLine = `Week ${status.week} of ${status.totalWeeks} · ${status.daysLeft} day${status.daysLeft === 1 ? "" : "s"} left`;
+    packageLine =
+      status.totalWeeks && status.daysLeft !== null
+        ? `Week ${status.week} of ${status.totalWeeks} · ${status.daysLeft} day${status.daysLeft === 1 ? "" : "s"} left`
+        : `Week ${status.week} of your coaching`;
   if (status.kind === "ended") packageLine = `Your coaching package ended ${formatDate(client.end_date, false)}.`;
 
   return (

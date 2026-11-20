@@ -89,7 +89,7 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 
 /* ───────── Forms ───────── */
 .field { margin-bottom: 14px; }
-.field label { display: block; font-size: 15px; margin-bottom: 6px; color: var(--text-2); font-weight: 600; }
+.field label, .field .label { display: block; font-size: 15px; margin-bottom: 6px; color: var(--text-2); font-weight: 600; }
 .field .hint { display: block; color: var(--muted); font-size: 13.5px; margin-top: 6px; }
 input, textarea, select {
   width: 100%; display: block;

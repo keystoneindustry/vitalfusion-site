@@ -158,7 +158,7 @@ export async function signAgreement(input: AgreementInput): Promise<AgreementRes
   if (parqError) return { error: parqError, screen: "parq" };
   const answers = parq as boolean[];
 
-  const pkg = { coachingWeeks: client.coaching_weeks, startDate: client.start_date, endDate: client.end_date };
+  const pkg = { billing: client.billing, coachingWeeks: client.coaching_weeks, startDate: client.start_date, endDate: client.end_date };
   const required = ["parq", ...agreementSections(pkg).map((s) => s.id)];
   const agreed = new Set(Array.isArray(input?.agreed) ? input.agreed.map(String) : []);
   const missing = required.find((id) => !agreed.has(id));
@@ -176,6 +176,7 @@ export async function signAgreement(input: AgreementInput): Promise<AgreementRes
   const row = await insertAgreement({
     client_id: client.id,
     version: AGREEMENT_VERSION,
+    billing: client.billing,
     coaching_weeks: client.coaching_weeks,
     start_date: client.start_date,
     end_date: client.end_date,

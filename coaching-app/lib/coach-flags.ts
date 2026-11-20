@@ -66,7 +66,13 @@ export function coachFlags(
       });
     }
     if (renewalDue(c.end_date, today) && c.stage !== "paused") {
-      flags.push({ id: c.id, text: `${c.full_name}'s package ends ${formatDate(c.end_date, false)}: renewal coming up` });
+      flags.push({
+        id: c.id,
+        text:
+          c.billing === "monthly"
+            ? `${c.full_name} cancelled monthly coaching: last day ${formatDate(c.end_date, false)}`
+            : `${c.full_name}'s package ends ${formatDate(c.end_date, false)}: renewal coming up`,
+      });
     }
   }
 

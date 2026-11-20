@@ -66,7 +66,7 @@ export async function loadWins(client: ClientRow, today: string): Promise<Wins> 
     direction: goalDirection(goal),
     hasPhotos: photos.length > 0,
     week: status.kind === "in_progress" ? status.week : null,
-    totalWeeks: status.kind === "no_dates" ? null : status.totalWeeks,
+    totalWeeks: status.kind === "no_dates" || client.billing === "monthly" ? null : status.totalWeeks,
     finished: status.kind === "ended",
   });
 

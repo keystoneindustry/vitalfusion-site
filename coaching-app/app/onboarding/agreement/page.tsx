@@ -32,7 +32,7 @@ export default async function AgreementPage() {
     );
   }
 
-  const pkg = { coachingWeeks: client.coaching_weeks, startDate: client.start_date, endDate: client.end_date };
+  const pkg = { billing: client.billing, coachingWeeks: client.coaching_weeks, startDate: client.start_date, endDate: client.end_date };
   return (
     <>
       <StepHeader

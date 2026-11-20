@@ -9,6 +9,8 @@ export type ClientRow = {
   email: string;
   phone: string | null;
   stage: Stage;
+  /** "package" (paid up front for coaching_weeks) or "monthly" (ongoing; end_date set only when they cancel). */
+  billing: "package" | "monthly";
   coaching_weeks: number | null;
   start_date: string | null;
   end_date: string | null;
@@ -75,6 +77,7 @@ export async function createClient(input: ClientInput): Promise<ClientRow> {
       full_name: input.fullName,
       email: input.email,
       phone: input.phone,
+      billing: input.billing,
       coaching_weeks: input.coachingWeeks,
       start_date: input.startDate,
       end_date: input.endDate,
@@ -119,7 +122,9 @@ export function describeEvent(e: ClientEvent): string {
     case "stage_changed":
       return `Stage changed from ${String(d.from ?? "?")} to ${String(d.to ?? "?")}`;
     case "package_changed":
-      return `Package changed to ${String(d.weeks ?? "?")} weeks, ${String(d.start ?? "?")} to ${String(d.end ?? "?")}`;
+      return d.billing === "monthly"
+        ? `Coaching set to monthly from ${String(d.start ?? "?")}${d.end ? `, last day ${String(d.end)}` : ""}`
+        : `Package changed to ${String(d.weeks ?? "?")} weeks, ${String(d.start ?? "?")} to ${String(d.end ?? "?")}`;
     case "details_updated":
       return "Details updated";
     case "onboarding_step":

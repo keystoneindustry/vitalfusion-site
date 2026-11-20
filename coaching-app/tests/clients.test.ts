@@ -24,6 +24,7 @@ assert.deepEqual(ok.input, {
   fullName: "Jordan Kim",
   email: "jordan.kim@example.com",
   phone: "(410) 555-0199",
+  billing: "package",
   coachingWeeks: 12,
   startDate: "2026-12-01",
   endDate: "2027-02-22",
@@ -59,3 +60,26 @@ assert.equal(firstName("Jordan Kim"), "Jordan");
 assert.equal(firstName(""), "there");
 
 console.log("client form tests passed");
+
+// Monthly (cancel anytime): no weeks needed, no end date until they cancel.
+import { coachingSummary } from "../lib/client-input";
+import { packageLabel, packageStatus } from "../lib/dates";
+import { agreementSections } from "../lib/agreement";
+const monthly = parseClientForm(form({ fullName: "Sam Lee", email: "sam@example.com", billing: "monthly", coachingWeeks: "", startDate: "2026-11-23", endDate: "" }));
+assert.deepEqual(monthly.errors, {});
+assert.equal(monthly.input!.billing, "monthly");
+assert.equal(monthly.input!.coachingWeeks, null);
+assert.equal(monthly.input!.endDate, null);
+const cancelled = parseClientForm(form({ fullName: "Sam Lee", email: "sam@example.com", billing: "monthly", startDate: "2026-11-23", endDate: "2027-03-22" }));
+assert.equal(cancelled.input!.endDate, "2027-03-22");
+const pkg = parseClientForm(form({ fullName: "Sam Lee", email: "sam@example.com", coachingWeeks: "12", startDate: "2026-11-23", endDate: "" }));
+assert.equal(pkg.input!.billing, "package");
+assert.equal(pkg.input!.endDate, "2027-02-14");
+assert.deepEqual(packageStatus("2026-11-23", null, "2026-12-10"), { kind: "in_progress", week: 3, totalWeeks: null, daysLeft: null });
+assert.equal(packageLabel("2026-11-23", null, "2026-12-10"), "Week 3 · monthly");
+assert.equal(packageStatus("2026-11-23", null, "2026-11-20").kind, "not_started");
+assert.equal(coachingSummary({ billing: "monthly", coaching_weeks: null, start_date: "2026-11-23", end_date: null }), "Monthly · since Nov 23, 2026");
+assert.ok(coachingSummary({ billing: "package", coaching_weeks: 12, start_date: "2026-11-23", end_date: "2027-02-14" }).startsWith("12-week package"));
+const monthlyText = agreementSections({ billing: "monthly", coachingWeeks: null, startDate: "2026-11-23", endDate: null }).map((s) => s.paragraphs.join(" ")).join(" ");
+assert.ok(monthlyText.includes("month-to-month") && monthlyText.includes("cancel at any time") && !monthlyText.includes("the agreed end date"));
+console.log("monthly billing ok");

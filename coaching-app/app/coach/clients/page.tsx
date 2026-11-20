@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireCoach } from "@/lib/auth";
 import { listClients } from "@/lib/clients";
-import { STAGES, isStage, stageLabel } from "@/lib/client-input";
+import { STAGES, isStage, stageLabel, coachingSummary } from "@/lib/client-input";
 import { daysBetween, formatDate, packageLabel, renewalDue, timeAgo, todayIn } from "@/lib/dates";
 import { ONBOARDING_STEPS } from "@/lib/onboarding";
 import { formatCallTime } from "@/lib/booking";
@@ -77,10 +77,9 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
                   <span className={`pill pill-${c.stage}`}>{stageLabel(c.stage)}</span>
                 </div>
                 <div className="meta">
-                  {c.coaching_weeks ? `${c.coaching_weeks}-week package · ` : ""}
                   {packageLabel(c.start_date, c.end_date, today)}
                   <br />
-                  {c.start_date ? `${formatDate(c.start_date, false)} – ${formatDate(c.end_date)}` : "No dates set"}
+                  {coachingSummary(c)}
                   {" · "}
                   {c.last_seen_at ? `Last opened the app ${timeAgo(c.last_seen_at)}` : c.invited_at ? "Not signed in yet" : "Not invited yet"}
                   {(() => {

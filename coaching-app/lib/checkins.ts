@@ -119,7 +119,7 @@ async function aiReview(client: ClientRow, form: Form, sub: Submission, numbers:
   const res = await askForJson({
     system: SYSTEM,
     content: [
-      { type: "text", text: `Client: ${client.full_name}${client.coaching_weeks ? `, ${client.coaching_weeks}-week package` : ""}. Check-in date: ${sub.due_date}.` },
+      { type: "text", text: `Client: ${client.full_name}${client.billing === "monthly" ? ", monthly coaching (ongoing)" : client.coaching_weeks ? `, ${client.coaching_weeks}-week package` : ""}. Check-in date: ${sub.due_date}.` },
       { type: "text", text: `THIS WEEK'S NUMBERS\n${numberLines(numbers).join("\n")}` },
       { type: "text", text: `THEIR ANSWERS\n${lines.map((l) => `${l.section ? `[${l.section}]\n` : ""}- ${l.prompt}: ${l.answer}`).join("\n")}` },
       previous

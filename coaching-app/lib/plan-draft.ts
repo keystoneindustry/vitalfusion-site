@@ -60,7 +60,8 @@ export function defaultTargets(ctx: ClientContext): Targets {
 function profileText(ctx: ClientContext): string {
   const groups = summarize(ctx.answers);
   const lines = [`Name: ${ctx.client.full_name}`, `Age: ${ctx.age ?? "unknown"}`];
-  if (ctx.client.coaching_weeks) lines.push(`Coaching package: ${ctx.client.coaching_weeks} weeks`);
+  if (ctx.client.billing === "monthly") lines.push("Coaching: monthly, ongoing (no fixed end date)");
+  else if (ctx.client.coaching_weeks) lines.push(`Coaching package: ${ctx.client.coaching_weeks} weeks`);
   if (ctx.client.health_flag) lines.push(`HEALTH SCREENING: answered YES (coach has reviewed it). Their note: ${ctx.client.health_note ?? "—"}`);
   for (const g of groups) {
     lines.push(`\n## ${g.section}`);
