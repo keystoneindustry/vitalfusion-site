@@ -9,6 +9,8 @@ import { addEvent, createClient, getClient, getClientByEmail, updateClient, type
 import { firstName, isStage, parseClientForm, stageLabel, type FieldErrors } from "@/lib/client-input";
 import { appOrigin } from "@/lib/origin";
 import { emailSignInLink } from "@/lib/signin";
+import { formatCallTime, zonedTimeToIso } from "@/lib/booking";
+import { completeStep } from "@/lib/onboarding-data";
 
 export type ClientFormState = { error?: string; fieldErrors?: FieldErrors; saved?: boolean };
 
@@ -144,4 +146,26 @@ export async function deleteClientAction(id: string, form: FormData): Promise<vo
     redirect(`/coach/clients/${id}/details?error=${encodeURIComponent("Something went wrong while deleting. Try again.")}`);
   }
   redirect(`/coach/clients?deleted=${encodeURIComponent(client.full_name)}`);
+}
+
+/**
+ * Sets (or clears) a client's kickoff call time by hand, typed in Eastern time. A backup for when the
+ * Cal.com booking notice doesn't come through: the call shows in the app and the AI plan drafts the day before.
+ */
+export async function setKickoffAction(id: string, form: FormData): Promise<void> {
+  await requireCoach(`/coach/clients/${id}/details`);
+  const client = await getClient(id);
+  if (!client) redirect("/coach");
+  const raw = String(form.get("kickoff") || "").trim();
+  if (!raw) {
+    await updateClient(client.id, { kickoff_at: null });
+    await addEvent(client.id, "kickoff_cleared");
+  } else {
+    const iso = zonedTimeToIso(raw, "America/New_York");
+    if (!iso) redirect(`/coach/clients/${id}/details?kickoff=bad`);
+    await completeStep(client, "kickoff", { kickoff_at: iso });
+    await addEvent(client.id, "kickoff_booked", { when: formatCallTime(iso, client.timezone), by: "coach" });
+  }
+  revalidatePath(`/coach/clients/${id}`, "layout");
+  redirect(`/coach/clients/${id}/details?kickoff=saved`);
 }

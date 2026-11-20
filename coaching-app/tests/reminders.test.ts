@@ -53,3 +53,26 @@ console.log("reminder tests passed");
   assert.equal(r.push.url, "/progress/photos/new");
   assert.equal(mr(empty, null, false), null);
 }
+
+// Food-log days (before the plan is live)
+import { foodLogReminder, onboardingNudge, ONBOARDING_NUDGE_DAYS } from "../lib/reminders";
+const fm = foodLogReminder("morning", 0, null)!;
+assert.ok(fm.important && fm.push.url === "/food/new" && fm.lines.some((l) => l.includes("Photograph everything")));
+const fc = foodLogReminder("morning", 0, "2:00 PM EST", true)!;
+assert.ok(fc.push.title.includes("Kickoff call") && fc.lines[0].includes("Starting progress photos") && fc.push.url === "/progress/photos/new");
+assert.equal(foodLogReminder("evening", 2, null), null);
+const fe = foodLogReminder("evening", 0, null)!;
+assert.ok(fe.important && fe.push.url === "/food/new");
+assert.ok(onboardingNudge("Book your kickoff call").lines[0].includes("Book your kickoff call"));
+assert.ok(onboardingNudge(null).lines[0].includes("invite"));
+assert.deepEqual(ONBOARDING_NUDGE_DAYS, [1, 3, 6]);
+
+// Kickoff time typed in Eastern
+import { zonedTimeToIso, isoToZonedInput } from "../lib/booking";
+assert.equal(zonedTimeToIso("2026-11-24T14:30"), "2026-11-24T19:30:00.000Z"); // EST = UTC-5
+assert.equal(zonedTimeToIso("2026-07-01T09:00"), "2026-07-01T13:00:00.000Z"); // EDT = UTC-4
+assert.equal(zonedTimeToIso("2026-02-30T09:00"), null);
+assert.equal(zonedTimeToIso("nope"), null);
+assert.equal(isoToZonedInput("2026-11-24T19:30:00.000Z"), "2026-11-24T14:30");
+assert.equal(isoToZonedInput("2026-11-25T04:30:00.000Z"), "2026-11-24T23:30");
+console.log("reminders ok (incl. food-log, onboarding nudges, kickoff time)");

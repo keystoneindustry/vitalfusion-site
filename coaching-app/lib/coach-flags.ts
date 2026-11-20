@@ -4,6 +4,7 @@ import { daysBetween, formatDate, renewalDue, timeAgo } from "./dates";
 import type { ClientRow } from "./clients";
 import type { planSummaries } from "./plans";
 import type { awaitingReply } from "./forms";
+import { ONBOARDING_STEPS } from "./onboarding";
 
 export type Flag = { id: string; text: string; href?: string };
 
@@ -20,6 +21,23 @@ export function coachFlags(
     }
     if (c.stage === "invited" && c.invited_at && !c.first_signed_in_at && daysBetween(c.invited_at.slice(0, 10), today) >= 3) {
       flags.push({ id: c.id, text: `${c.full_name} hasn't opened their invite (sent ${timeAgo(c.invited_at)})` });
+    }
+    const stuckOn = ONBOARDING_STEPS.find((s) => s.id === c.onboarding_step);
+    if (stuckOn && c.first_signed_in_at && c.stage !== "paused" && c.stage !== "finished") {
+      const last = (c.last_seen_at ?? c.first_signed_in_at).slice(0, 10);
+      if (daysBetween(last, today) >= 2) {
+        flags.push({
+          id: c.id,
+          text: `⏸️ ${c.full_name} stopped partway through setup at “${stuckOn.label}” (last opened ${timeAgo(c.last_seen_at ?? c.first_signed_in_at)})`,
+        });
+      }
+    }
+    if (c.onboarding_step === "done" && !c.kickoff_at && !plans.some((p) => p.client_id === c.id && p.status === "published")) {
+      flags.push({
+        id: c.id,
+        text: `📞 ${c.full_name} finished setup but no kickoff call time came through from Cal.com: check your bookings, then set it in Details`,
+        href: `/coach/clients/${c.id}/details`,
+      });
     }
     if (c.stage === "invited" && !c.invited_at) {
       flags.push({ id: c.id, text: `${c.full_name} hasn't been sent an invite yet` });

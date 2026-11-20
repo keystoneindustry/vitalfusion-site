@@ -2,20 +2,22 @@ import { notFound } from "next/navigation";
 import { requireCoach } from "@/lib/auth";
 import { getClient } from "@/lib/clients";
 import { formatDate, timeAgo, todayIn } from "@/lib/dates";
-import { deleteClientAction, resendInviteAction, updateClientAction } from "../../../actions";
+import { deleteClientAction, resendInviteAction, setKickoffAction, updateClientAction } from "../../../actions";
+import { formatCallTime, isoToZonedInput } from "@/lib/booking";
 import ClientForm from "../../../ClientForm";
 import SubmitButton from "@/app/components/SubmitButton";
 
 export const metadata = { title: "Details · Vital Fusion Coach" };
 
-export default async function ClientDetails({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ error?: string }> }) {
+export default async function ClientDetails({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ error?: string; kickoff?: string }> }) {
   const { id } = await params;
-  const { error } = await searchParams;
+  const { error, kickoff } = await searchParams;
   await requireCoach(`/coach/clients/${id}/details`);
   const client = await getClient(id);
   if (!client) notFound();
   const update = updateClientAction.bind(null, client.id);
   const resend = resendInviteAction.bind(null, client.id);
+  const setKickoff = setKickoffAction.bind(null, client.id);
 
   return (
     <div className="detail-grid">
@@ -69,6 +71,27 @@ export default async function ClientDetails({ params, searchParams }: { params: 
               label={client.invited_at ? "Resend invite email" : "Send invite email"}
               pendingLabel="Sending…"
             />
+          </form>
+        </section>
+
+        <section className="card">
+          <h2 className="h2">Kickoff call</h2>
+          <p className="small muted" style={{ marginTop: -4 }}>
+            {client.kickoff_at
+              ? `Booked for ${formatCallTime(client.kickoff_at, "America/New_York")}.`
+              : "No call time yet. It fills in by itself when they book on Cal.com."}{" "}
+            If a booking didn't come through, set it here (Eastern time). The AI plan drafts the day before.
+          </p>
+          {kickoff === "saved" && <p className="notice notice-good">Saved. It now shows in their app and on your Home.</p>}
+          {kickoff === "bad" && <p className="err">That date and time didn't look right. Try again.</p>}
+          <form action={setKickoff} className="stack">
+            <input
+              type="datetime-local"
+              name="kickoff"
+              aria-label="Kickoff call date and time (Eastern)"
+              defaultValue={client.kickoff_at ? isoToZonedInput(client.kickoff_at, "America/New_York") : ""}
+            />
+            <SubmitButton className="btn btn-ghost btn-wide" label="Save call time" pendingLabel="Saving…" />
           </form>
         </section>
 

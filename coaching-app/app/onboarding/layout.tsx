@@ -1,3 +1,5 @@
+import TimezoneSync from "@/app/components/TimezoneSync";
+
 /** Focused layout for onboarding: no tab bar, just the logo and the step. */
 export default function OnboardingLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -14,6 +16,7 @@ export default function OnboardingLayout({ children }: { children: React.ReactNo
       <main className="page" style={{ paddingTop: 8 }}>
         {children}
       </main>
+      <TimezoneSync />
     </div>
   );
 }

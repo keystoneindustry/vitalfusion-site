@@ -5,13 +5,15 @@
  */
 
 import { db, q } from "./supabase";
-import { todayIn } from "./dates";
 import { loadDays, type DayTasks } from "./client-days";
 import { listClients, type ClientRow } from "./clients";
 import { firstName } from "./client-input";
 import { sendPush, pushConfigured, type PushMessage, type PushSubscriptionKeys } from "./push";
 import { reminderEmail, sendEmail } from "./email";
 import { formatCallTime } from "./booking";
+import { daysBetween, todayIn } from "./dates";
+import { listMeals, logStats } from "./meals";
+import { ONBOARDING_STEPS } from "./onboarding";
 
 export const MORNING_HOUR = 8;
 export const EVENING_HOUR = 19;
@@ -84,6 +86,57 @@ export function eveningReminder(d: DayTasks): Reminder | null {
   };
 }
 
+/**
+ * Before the plan is live (the 3–5 days between onboarding and the kickoff call), the only job is photographing
+ * meals. Morning: a nudge to log everything (plus the call if it's today). Evening: a nudge only if nothing was logged.
+ */
+export function foodLogReminder(kind: "morning" | "evening", loggedToday: number, kickoffToday: string | null, startingPhotos = false): Reminder | null {
+  if (kind === "morning") {
+    const lines: string[] = [];
+    if (startingPhotos) lines.push("📸 Starting progress photos, before you eat");
+    if (kickoffToday) lines.push(`📞 Kickoff call with Tyler at ${kickoffToday}`);
+    lines.push("📷 Photograph everything you eat and drink today");
+    return {
+      lines,
+      important: true,
+      push: {
+        title: kickoffToday ? `REMINDER: Kickoff call with Tyler at ${kickoffToday}` : "REMINDER: Photograph your meals today",
+        body: kickoffToday
+          ? "Keep logging your meals until then. Tyler will go over them with you."
+          : "Every meal, snack and drink (besides water), before you eat. Tyler builds your plan from these.",
+        url: startingPhotos ? "/progress/photos/new" : "/food/new",
+        tag: "morning",
+      },
+    };
+  }
+  if (loggedToday > 0) return null;
+  return {
+    lines: ["📷 No meals logged today yet. Add what you ate (a photo of the leftovers or a quick note is fine)"],
+    important: true,
+    push: {
+      title: "REMINDER: Log today's meals",
+      body: "Nothing logged today yet. Add what you ate, even without a photo.",
+      url: "/food/new",
+      tag: "evening",
+    },
+  };
+}
+
+/** Days after the invite on which a client who hasn't finished onboarding gets a nudge email. */
+export const ONBOARDING_NUDGE_DAYS = [1, 3, 6];
+
+/** Morning email for a client who was invited but hasn't finished onboarding. */
+export function onboardingNudge(stepLabel: string | null): Reminder {
+  const lines = stepLabel
+    ? [`You're on: ${stepLabel}`, "It takes about 15 minutes in total, and your answers are saved as you go"]
+    : ["Open your invite email, or go to the app and sign in with your email", "Setup takes about 15–20 minutes"];
+  return {
+    lines,
+    important: true,
+    push: { title: "Finish setting up your coaching", body: lines[0], url: "/", tag: "morning" },
+  };
+}
+
 type SubRow = PushSubscriptionKeys & { id: string; client_id: string };
 
 export async function listSubscriptions(clientId: string): Promise<SubRow[]> {
@@ -129,43 +182,109 @@ function wantsReminders(c: ClientRow): boolean {
   return c.onboarding_step === "done" && (c.stage === "active" || c.stage === "onboarding") && c.reminders_enabled !== false;
 }
 
-/** One pass of the hourly job. Returns a short summary for the logs. */
 /** Clients who've taken at least one progress photo (the rest still owe their starting photos). */
 async function clientsWithPhotos(): Promise<Set<string>> {
   const rows = await db<{ client_id: string }[]>("progress_photos?select=client_id").catch(() => []);
   return new Set(rows.map((r) => r.client_id));
 }
 
+/** Clients with a published plan. Before that they're in the food-log days before the kickoff call. */
+async function clientsWithPlan(): Promise<Set<string>> {
+  const rows = await db<{ client_id: string }[]>("plans?select=client_id&status=eq.published").catch(() => []);
+  return new Set(rows.map((r) => r.client_id));
+}
+
+async function mealsLoggedToday(c: ClientRow, date: string): Promise<number> {
+  const logs = await listMeals(c.id, 30).catch(() => []);
+  return logStats(logs, c.timezone, date).today;
+}
+
+/** Invited (or partway through onboarding), not finished, reminders not turned off. */
+function needsOnboardingNudge(c: ClientRow): boolean {
+  return c.onboarding_step !== "done" && (c.stage === "invited" || c.stage === "onboarding") && !!c.invited_at && c.reminders_enabled !== false;
+}
+
+/** The reminder for one client at this slot, or null. Exported pieces are pure; this one reads the database. */
+async function reminderFor(c: ClientRow, kind: "morning" | "evening", date: string, hasPlan: boolean, hasPhotos: boolean): Promise<Reminder | null> {
+  if (!hasPlan) {
+    // Food-log days: from onboarding to the kickoff call. Nothing after the call day (the plan is on its way).
+    const callDay = c.kickoff_at ? todayIn(c.timezone, new Date(c.kickoff_at)) : null;
+    if (callDay && callDay < date) return null;
+    const callTime = callDay === date && c.kickoff_at ? (formatCallTime(c.kickoff_at, c.timezone).split(" at ")[1] ?? null) : null;
+    const logged = kind === "evening" ? await mealsLoggedToday(c, date) : 0;
+    return foodLogReminder(kind, logged, callTime, !hasPhotos);
+  }
+  const { days } = await loadDays(c.id, [date]);
+  const day = days[0];
+  if (!day) return null;
+  const call = c.next_call_at && todayIn(c.timezone, new Date(c.next_call_at)) === date ? (formatCallTime(c.next_call_at, c.timezone).split(" at ")[1] ?? null) : null;
+  return kind === "morning" ? morningReminder(day, call, !hasPhotos) : eveningReminder(day);
+}
+
+async function deliver(
+  c: ClientRow,
+  date: string,
+  kind: "morning" | "evening",
+  r: Reminder,
+  origin: string,
+  emailOpts: { subject?: string; intro?: string } = {},
+): Promise<"push" | "email" | "none"> {
+  if (await pushToClient(c.id, { ...r.push, url: `${origin}${r.push.url ?? "/"}` })) {
+    await record(c.id, date, kind, "push", r.push.body);
+    return "push";
+  }
+  if (r.important) {
+    await sendEmail({ to: c.email, ...reminderEmail(firstName(c.full_name), kind, r.lines, `${origin}${r.push.url ?? "/"}`, emailOpts) });
+    await record(c.id, date, kind, "email", r.lines.join(" · "));
+    return "email";
+  }
+  await record(c.id, date, kind, "none", "no notifications; habits only");
+  return "none";
+}
+
 export async function runReminders(origin: string, now = new Date()): Promise<{ checked: number; sent: { client: string; kind: string; channel: string }[] }> {
-  const clients = (await listClients()).filter(wantsReminders);
+  const all = await listClients();
+  const clients = all.filter(wantsReminders);
   const sent: { client: string; kind: string; channel: string }[] = [];
   const withPhotos = await clientsWithPhotos();
+  const withPlan = await clientsWithPlan();
   for (const c of clients) {
     const kind = reminderKind(localHour(c.timezone, now));
     if (!kind) continue;
     const date = todayIn(c.timezone, now);
     try {
       if (!(await claim(c.id, date, kind))) continue;
-      const { days } = await loadDays(c.id, [date]);
-      const day = days[0];
-      const call = c.next_call_at && todayIn(c.timezone, new Date(c.next_call_at)) === date ? (formatCallTime(c.next_call_at, c.timezone).split(" at ")[1] ?? null) : null;
-      const r = day ? (kind === "morning" ? morningReminder(day, call, !withPhotos.has(c.id)) : eveningReminder(day)) : null;
+      const hasPlan = withPlan.has(c.id);
+      const r = await reminderFor(c, kind, date, hasPlan, withPhotos.has(c.id));
       if (!r) {
         await record(c.id, date, kind, "none", "nothing due");
         continue;
       }
-      if (await pushToClient(c.id, { ...r.push, url: `${origin}${r.push.url ?? "/"}` })) {
-        await record(c.id, date, kind, "push", r.push.body);
-        sent.push({ client: c.id, kind, channel: "push" });
-      } else if (r.important) {
-        await sendEmail({ to: c.email, ...reminderEmail(firstName(c.full_name), kind, r.lines, `${origin}${r.push.url ?? "/"}`) });
-        await record(c.id, date, kind, "email", r.lines.join(" · "));
-        sent.push({ client: c.id, kind, channel: "email" });
-      } else {
-        await record(c.id, date, kind, "none", "no notifications; habits only");
-      }
+      const opts = hasPlan ? {} : kind === "morning" ? { subject: "Photograph your meals today", intro: `Morning, ${firstName(c.full_name)}! Today's job:` } : { subject: "Log today's meals", intro: `${firstName(c.full_name)}, quick reminder:` };
+      const channel = await deliver(c, date, kind, r, origin, opts);
+      if (channel !== "none") sent.push({ client: c.id, kind, channel });
     } catch (err) {
       console.error("Reminder failed", c.id, err);
+    }
+  }
+
+  // Invited but not finished onboarding: one morning nudge on days 1, 3 and 6 after the invite.
+  for (const c of all.filter(needsOnboardingNudge)) {
+    if (reminderKind(localHour(c.timezone, now)) !== "morning") continue;
+    const date = todayIn(c.timezone, now);
+    const day = daysBetween(todayIn(c.timezone, new Date(c.invited_at!)), date);
+    if (!ONBOARDING_NUDGE_DAYS.includes(day)) continue;
+    try {
+      if (!(await claim(c.id, date, "morning"))) continue;
+      const step = c.first_signed_in_at ? (ONBOARDING_STEPS.find((s) => s.id === c.onboarding_step)?.label ?? null) : null;
+      const r = onboardingNudge(step);
+      const channel = await deliver(c, date, "morning", r, origin, {
+        subject: "Finish setting up your coaching app",
+        intro: `Hi ${firstName(c.full_name)}, you're almost ready to start. Pick up where you left off:`,
+      });
+      if (channel !== "none") sent.push({ client: c.id, kind: "onboarding", channel });
+    } catch (err) {
+      console.error("Onboarding nudge failed", c.id, err);
     }
   }
   return { checked: clients.length, sent };
@@ -176,10 +295,7 @@ export async function sendReminderNow(clientId: string, kind: "morning" | "eveni
   const c = (await listClients()).find((x) => x.id === clientId);
   if (!c) return "no such client";
   const date = todayIn(c.timezone);
-  const { days } = await loadDays(c.id, [date]);
-  const call = c.next_call_at && todayIn(c.timezone, new Date(c.next_call_at)) === date ? (formatCallTime(c.next_call_at, c.timezone).split(" at ")[1] ?? null) : null;
-  const startingPhotos = !(await clientsWithPhotos()).has(c.id);
-  const r = days[0] ? (kind === "morning" ? morningReminder(days[0], call, startingPhotos) : eveningReminder(days[0])) : null;
+  const r = await reminderFor(c, kind, date, (await clientsWithPlan()).has(c.id), (await clientsWithPhotos()).has(c.id));
   if (!r) return "nothing due today";
   const ok = await pushToClient(c.id, { ...r.push, url: `${origin}${r.push.url ?? "/"}` });
   return ok ? `sent: ${r.push.title} — ${r.push.body}` : "no phone with notifications on";

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import TabBar from "./TabBar";
+import TimezoneSync from "@/app/components/TimezoneSync";
 
 /** Shell for every client screen: logo bar on top, five tabs along the bottom. */
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
@@ -15,6 +16,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         {children}
       </main>
       <TabBar />
+      <TimezoneSync />
     </div>
   );
 }

@@ -198,3 +198,11 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   eat" (counts as important, so email if no push) and opens `/progress/photos/new`.
 - First check-in a week out (Nov 12): the starting setup now starts the weekly check-in and photo schedules at today + 7, so
   the first one is on their chosen day at least a week away (signed up Thursday, picked Sunday → the Sunday after next).
+- Pre-launch audit (Nov 20): (1) food-log reminders: before any published plan, `foodLogReminder` sends an 8am "photograph
+  everything you eat today" (plus the kickoff call if it's today, and starting photos) and a 7pm nudge only if nothing was
+  logged; nothing after the call day. (2) Onboarding nudges: invited clients who haven't finished get one morning push/email on
+  days 1, 3 and 6 after the invite (`onboardingNudge`, `ONBOARDING_NUDGE_DAYS`). (3) Kickoff safety net: coach flag when a
+  client finished setup but no kickoff time came from Cal.com; Details tab → "Kickoff call" card sets/clears it by hand in
+  Eastern (`setKickoffAction`, `zonedTimeToIso` / `isoToZonedInput` in `lib/booking.ts`). Coach flag "stopped partway through
+  setup" after 2 days. (4) Time zones: `TimezoneSync` (in the client and onboarding layouts) saves the phone's time zone to
+  `clients.timezone` via `saveTimezoneAction` (before this every client was America/New_York). Welcome "What's next" lists starting photos.

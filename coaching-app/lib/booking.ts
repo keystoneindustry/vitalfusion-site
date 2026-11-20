@@ -42,3 +42,36 @@ export function callKind(slugOrTitle: string): "kickoff" | "checkin" | "other" {
   if (s.includes("check")) return "checkin";
   return "other";
 }
+
+/**
+ * "2026-11-24T14:30" typed as a clock time in `timeZone` → the real moment (ISO, UTC).
+ * Null if it isn't a valid date and time.
+ */
+export function zonedTimeToIso(local: string, timeZone = "America/New_York"): string | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(local.trim());
+  if (!m) return null;
+  const [y, mo, d, h, mi] = m.slice(1).map(Number);
+  const asUtc = Date.UTC(y, mo - 1, d, h, mi);
+  if (Number.isNaN(asUtc) || new Date(asUtc).getUTCDate() !== d) return null;
+  const offsetAt = (t: number) => {
+    const p = Object.fromEntries(
+      new Intl.DateTimeFormat("en-US", { timeZone, hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })
+        .formatToParts(new Date(t))
+        .map((x) => [x.type, x.value]),
+    );
+    return Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour % 24, +p.minute) - t;
+  };
+  let t = asUtc - offsetAt(asUtc);
+  t = asUtc - offsetAt(t);
+  return new Date(t).toISOString();
+}
+
+/** The reverse, for a datetime-local box: an ISO moment as "YYYY-MM-DDTHH:mm" in `timeZone`. */
+export function isoToZonedInput(iso: string, timeZone = "America/New_York"): string {
+  const p = Object.fromEntries(
+    new Intl.DateTimeFormat("en-US", { timeZone, hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })
+      .formatToParts(new Date(iso))
+      .map((x) => [x.type, x.value]),
+  );
+  return `${p.year}-${p.month}-${p.day}T${String(+p.hour % 24).padStart(2, "0")}:${p.minute}`;
+}

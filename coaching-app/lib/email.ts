@@ -312,9 +312,15 @@ export function checkinReplyClientEmail(firstName: string, link: string) {
 }
 
 /** Reminder when push notifications aren't set up: today's plan (morning) or what's still open (evening). */
-export function reminderEmail(firstName: string, kind: "morning" | "evening", lines: string[], link: string) {
-  const subject = kind === "morning" ? "Your plan for today" : "Still to do today";
-  const intro = kind === "morning" ? `Here's what's on your calendar today, ${firstName}:` : `${firstName}, a few things are still open today:`;
+export function reminderEmail(
+  firstName: string,
+  kind: "morning" | "evening",
+  lines: string[],
+  link: string,
+  opts: { subject?: string; intro?: string } = {},
+) {
+  const subject = opts.subject ?? (kind === "morning" ? "Your plan for today" : "Still to do today");
+  const intro = opts.intro ?? (kind === "morning" ? `Here's what's on your calendar today, ${firstName}:` : `${firstName}, a few things are still open today:`);
   const list = lines.map((l) => `<li style="margin:0 0 6px">${esc(l)}</li>`).join("");
   return {
     subject,

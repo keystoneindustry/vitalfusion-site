@@ -129,7 +129,11 @@ export function describeEvent(e: ClientEvent): string {
     case "questions_submitted":
       return "Submitted their onboarding questions";
     case "kickoff_booked":
-      return `Booked their kickoff call${typeof d.when === "string" ? ` for ${d.when}` : ""}`;
+      return d.by === "coach"
+        ? `Kickoff call set by you${typeof d.when === "string" ? ` for ${d.when}` : ""}`
+        : `Booked their kickoff call${typeof d.when === "string" ? ` for ${d.when}` : ""}`;
+    case "kickoff_cleared":
+      return "Kickoff call time cleared";
     case "kickoff_self_reported":
       return "Said they booked their kickoff call";
     case "kickoff_cancelled":

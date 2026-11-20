@@ -50,6 +50,7 @@ export default async function WelcomePage() {
           <li>Sign your coaching agreement</li>
           <li>Answer a few questions about you</li>
           <li>Book your kickoff call with Tyler</li>
+          <li>Take your starting progress photos (first thing the next morning)</li>
         </ol>
         <p className="small muted" style={{ margin: "10px 0 0" }}>About 15–20 minutes. Once you're done, you'll get a quick tour of the app.</p>
       </section>
