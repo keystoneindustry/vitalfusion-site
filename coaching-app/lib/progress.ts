@@ -8,7 +8,7 @@ import { getPublishedPlan } from "./plans";
 import { getSettings } from "./settings";
 import { getResponse } from "./onboarding-data";
 import { addEvent, type ClientRow } from "./clients";
-import { checkinForm } from "./forms";
+import { checkinForm, quickCheckForm } from "./forms";
 
 export const PHOTO_BUCKET = "progress-photos";
 export const POSES = [
@@ -137,6 +137,7 @@ export async function applyDefaultSchedule(client: ClientRow): Promise<string[]>
   const answers = response?.answers ?? {};
   const start = todayIn(client.timezone);
   const checkin = await checkinForm();
+  const quick = await quickCheckForm();
 
   const steps = await stepsHabit();
   if (steps && !habits.some((h) => h.habit_id === steps.id)) {
@@ -170,6 +171,12 @@ export async function applyDefaultSchedule(client: ClientRow): Promise<string[]>
     // (signed up Thursday, picked Sunday → first check-in the Sunday after next).
     await addSchedule({ client_id: client.id, kind: "form", form_id: checkin.id, days: [day], every_weeks: 1, start_date: addDays(start, 7), end_date: client.end_date, one_date: null });
     added.push("weekly check-in");
+  }
+  if (quick && !schedules.some((s) => s.kind === "form" && s.form_id === quick.id)) {
+    // A 1-minute check 3 days in, so a struggling beginner is caught before the first weekly check-in.
+    const date = addDays(start, 3);
+    await addSchedule({ client_id: client.id, kind: "form", form_id: quick.id, days: [], every_weeks: 1, start_date: date, end_date: date, one_date: date });
+    added.push(quick.title.toLowerCase());
   }
   if (added.length) await addEvent(client.id, "schedule_added", { added });
   return added;

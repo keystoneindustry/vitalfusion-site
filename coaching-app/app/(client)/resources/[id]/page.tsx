@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireClient } from "@/lib/auth";
-import { packageStatus, todayIn } from "@/lib/dates";
-import { formatSize, getResource, RESOURCE_BUCKET, unlocked } from "@/lib/resources";
+import { todayIn } from "@/lib/dates";
+import { coachingDay, formatSize, getResource, RESOURCE_BUCKET, unlocked } from "@/lib/resources";
 import { videoEmbedUrl } from "@/lib/settings";
 import { signedUrls } from "@/lib/storage";
 
@@ -12,9 +12,8 @@ export default async function ResourcePage({ params }: { params: Promise<{ id: s
   const { id } = await params;
   const { client } = await requireClient(`/resources/${id}`);
   const r = await getResource(id);
-  const status = packageStatus(client.start_date, client.end_date, todayIn(client.timezone));
-  const week = status.kind === "in_progress" ? status.week : status.kind === "ended" ? 999 : 1;
-  if (!r || !unlocked(r, week)) notFound();
+  const day = coachingDay(client.start_date, client.end_date, todayIn(client.timezone));
+  if (!r || !unlocked(r, day)) notFound();
   const fileUrl = r.path ? (await signedUrls(RESOURCE_BUCKET, [r.path], r.kind === "video_file" ? 6 * 3600 : 3600).catch(() => ({}) as Record<string, string>))[r.path] : null;
   const embed = r.kind === "video_link" && r.url ? videoEmbedUrl(r.url) : null;
 

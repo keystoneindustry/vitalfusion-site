@@ -49,7 +49,7 @@ export default async function CoachResourcesPage({ searchParams }: { searchParam
                       {KIND_LABEL[r.kind]}
                       {r.size_bytes ? ` · ${formatSize(r.size_bytes)}` : ""}
                       {r.kind === "video_link" ? " · link" : ""}
-                      {r.unlock_week ? ` · unlocks week ${r.unlock_week}` : ""}
+                      {r.unlock_days ? ` · unlocks ${r.unlock_days} day${r.unlock_days === 1 ? "" : "s"} after they start` : ""}
                       {r.published ? "" : " · hidden"}
                     </span>
                   </div>
@@ -79,8 +79,8 @@ export default async function CoachResourcesPage({ searchParams }: { searchParam
                         <input name="category" defaultValue={r.category} maxLength={60} list="res-cats" />
                       </div>
                       <div className="field">
-                        <label>Unlocks in week</label>
-                        <input name="unlockWeek" type="number" min={1} max={104} defaultValue={r.unlock_week ?? ""} placeholder="Right away" />
+                        <label>Unlock after (days)</label>
+                        <input name="unlockDays" type="number" min={0} max={730} defaultValue={r.unlock_days || ""} placeholder="Right away" />
                       </div>
                     </div>
                     <div className="field">

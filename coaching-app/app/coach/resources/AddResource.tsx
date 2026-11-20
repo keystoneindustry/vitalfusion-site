@@ -15,7 +15,7 @@ export default function AddResource({ categories, maxMb }: { categories: string[
   const [newCategory, setNewCategory] = useState("");
   const [description, setDescription] = useState("");
   const [url, setUrl] = useState("");
-  const [unlockWeek, setUnlockWeek] = useState("");
+  const [unlockDays, setUnlockDays] = useState("");
   const [progress, setProgress] = useState<number | null>(null);
   const [error, setError] = useState("");
   const [done, setDone] = useState("");
@@ -25,7 +25,7 @@ export default function AddResource({ categories, maxMb }: { categories: string[
     setTitle("");
     setDescription("");
     setUrl("");
-    setUnlockWeek("");
+    setUnlockDays("");
     setNewCategory("");
     setProgress(null);
     if (fileRef.current) fileRef.current.value = "";
@@ -63,7 +63,7 @@ export default function AddResource({ categories, maxMb }: { categories: string[
     const cat = (category === "__new" ? newCategory : category).trim();
     if (!title.trim()) return setError("Give it a title.");
     if (!cat) return setError("Name the new category.");
-    const base = { title, category: cat, description, unlockWeek };
+    const base = { title, category: cat, description, unlockDays };
     if (mode === "link") {
       if (!url.trim()) return setError("Paste the video link.");
       setProgress(0);
@@ -139,8 +139,8 @@ export default function AddResource({ categories, maxMb }: { categories: string[
           </select>
         </div>
         <div className="field">
-          <label htmlFor="r-week">Unlocks in week</label>
-          <input id="r-week" type="number" inputMode="numeric" min={1} max={104} value={unlockWeek} placeholder="Right away" onChange={(e: { target: HTMLInputElement }) => setUnlockWeek(e.target.value)} />
+          <label htmlFor="r-days">Unlock after (days)</label>
+          <input id="r-days" type="number" inputMode="numeric" min={0} max={730} value={unlockDays} placeholder="Right away" onChange={(e: { target: HTMLInputElement }) => setUnlockDays(e.target.value)} />
         </div>
       </div>
       {category === "__new" && (

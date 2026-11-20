@@ -1,15 +1,14 @@
 import Link from "next/link";
 import { requireClient } from "@/lib/auth";
-import { packageStatus, todayIn } from "@/lib/dates";
-import { byCategory, KIND_ICON, KIND_LABEL, listResources, startHere, unlocked } from "@/lib/resources";
+import { todayIn } from "@/lib/dates";
+import { byCategory, coachingDay, KIND_ICON, KIND_LABEL, listResources, startHere, unlockLabel, unlocked } from "@/lib/resources";
 
 export const metadata = { title: "Resources · Vital Fusion" };
 
 export default async function ResourcesPage() {
   const { client } = await requireClient("/resources");
   const today = todayIn(client.timezone);
-  const status = packageStatus(client.start_date, client.end_date, today);
-  const week = status.kind === "in_progress" ? status.week : status.kind === "ended" ? 999 : 1;
+  const day = coachingDay(client.start_date, client.end_date, today);
   const all = await listResources(true);
   const guide = startHere(all);
   const groups = byCategory(all);
@@ -41,14 +40,14 @@ export default async function ResourcesPage() {
           </h2>
           <div className="res-list">
             {g.items.map((r) => {
-              const open = unlocked(r, week);
+              const open = unlocked(r, day);
               const inner = (
                 <>
                   <span className="res-icon">{open ? KIND_ICON[r.kind] : "🔒"}</span>
                   <span className="res-text">
                     <b>{r.title}</b>
                     <span className="muted small">
-                      {open ? KIND_LABEL[r.kind] : `Unlocks in week ${r.unlock_week}`}
+                      {open ? KIND_LABEL[r.kind] : unlockLabel(r, day)}
                       {open && Date.parse(r.created_at) > weekAgo ? <span className="new-badge">New</span> : null}
                     </span>
                   </span>

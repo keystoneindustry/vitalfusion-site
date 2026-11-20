@@ -8,7 +8,7 @@ import { todayIn } from "@/lib/dates";
 import { formatCallTime } from "@/lib/booking";
 import { PerfectDay } from "@/app/components/PlanViews";
 import TrackingApps from "@/app/components/TrackingApps";
-import { findGuide, listResources } from "@/lib/resources";
+import { coachingDay, findGuide, listResources } from "@/lib/resources";
 import FeatureTour from "../FeatureTour";
 import { NUTRITION_TOUR } from "../tour-steps";
 
@@ -85,7 +85,7 @@ export default async function NutritionPage({ searchParams }: { searchParams: Pr
         />
       )}
       <div data-tour="n-tracking">
-        <TrackingApps guideId={findGuide(await listResources(true).catch(() => []), /track(ing)?\s+(your\s+)?calories/i)?.id} />
+        <TrackingApps guideId={findGuide(await listResources(true).catch(() => []), /track(ing)?\s+(your\s+)?calories/i, coachingDay(client.start_date, client.end_date, todayIn(client.timezone)))?.id} />
       </div>
     </>
   );

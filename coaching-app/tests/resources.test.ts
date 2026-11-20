@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { byCategory, checkUpload, formatSize, isVideoLink, resourcePath, unlocked } from "../lib/resources";
+import { byCategory, checkUpload, coachingDay, findGuide, formatSize, isVideoLink, resourcePath, unlockLabel, unlocked } from "../lib/resources";
 
 const pdf = checkUpload("application/pdf", 2_000_000);
 assert.ok(pdf.ok && pdf.kind === "pdf" && pdf.ext === "pdf");
@@ -14,11 +14,19 @@ assert.equal(resourcePath("How To Track Calories (v2).pdf", "pdf", 123), "123-ho
 assert.equal(resourcePath("🎥.mov", "mov", 5), "5-file.mov");
 assert.match(resourcePath("x".repeat(200) + ".pdf", "pdf", 1), /^1-x{50}\.pdf$/);
 
-assert.equal(unlocked({ unlock_week: null, published: true }, 0), true);
-assert.equal(unlocked({ unlock_week: 3, published: true }, 2), false);
-assert.equal(unlocked({ unlock_week: 3, published: true }, 3), true);
-assert.equal(unlocked({ unlock_week: 1, published: true }, 0), true); // not started counts as week 1
-assert.equal(unlocked({ unlock_week: null, published: false }, 5), false);
+assert.equal(unlocked({ unlock_days: null, published: true }, 0), true);
+assert.equal(unlocked({ unlock_days: 7, published: true }, 6), false);
+assert.equal(unlocked({ unlock_days: 7, published: true }, 7), true);
+assert.equal(unlocked({ unlock_days: 3, published: true }, -2), false); // before the start date counts as day 0
+assert.equal(unlocked({ unlock_days: null, published: false }, 5), false);
+assert.equal(coachingDay("2026-11-23", null, "2026-11-20"), 0);
+assert.equal(coachingDay("2026-11-23", null, "2026-11-30"), 7);
+assert.equal(coachingDay("2026-11-23", "2026-12-01", "2026-12-05"), 100000); // ended: everything open
+assert.equal(unlockLabel({ unlock_days: 7 }, 6), "Unlocks tomorrow");
+assert.equal(unlockLabel({ unlock_days: 7 }, 2), "Unlocks in 5 days");
+const g = { title: "How to Track Calories", published: true, unlock_days: 7 };
+assert.equal(findGuide([g], /track/i, 3), null);
+assert.equal(findGuide([g], /track/i, 7), g);
 
 assert.equal(isVideoLink("https://youtu.be/abc123"), true);
 assert.equal(isVideoLink("https://www.loom.com/share/abc123"), true);

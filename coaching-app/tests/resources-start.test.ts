@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { findGuide, startHere } from "../lib/resources";
 
-const base = { category: "Getting started", sort: 0, created_at: "2026-11-11T00:00:00Z", published: true, unlock_week: null as number | null };
+const base = { category: "Getting started", sort: 0, created_at: "2026-11-11T00:00:00Z", published: true, unlock_days: null as number | null };
 const list = [
   { ...base, title: "How to Track Calories", sort: 10 },
   { ...base, title: "(READ FIRST) How Your Coaching Works", sort: 20 },

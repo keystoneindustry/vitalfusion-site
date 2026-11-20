@@ -618,6 +618,9 @@ p .cg { padding: 0 6px; margin: 0 2px 0 8px; }
 .ex-row { background: var(--card); border: 1px solid var(--card-border) !important; border-radius: 12px; padding: 10px !important; margin-bottom: 8px; }
 .app-links { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .app-links .btn { padding-left: 6px; padding-right: 6px; white-space: nowrap; font-size: 15px; }
+.app-links .app-rec { position: relative; flex-direction: column; gap: 2px; line-height: 1.2; }
+.app-links .rec-badge { display: block; font-size: 11px; font-weight: 800; letter-spacing: .02em; color: #0c1622; }
+.app-links .btn-ghost { align-self: stretch; }
 /* Coach exercise library */
 .ex-search { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; margin: 0 0 14px; }
 .ex-search input { grid-column: 1 / -1; }

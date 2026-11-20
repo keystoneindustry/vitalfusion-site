@@ -50,12 +50,12 @@ export async function saveResourceAction(payload: string): Promise<SaveResult> {
   const title = s("title", 120);
   if (!title) return { ok: false, error: "Give it a title." };
   const category = s("category", 60) || "General";
-  const week = parseInt(String(d.unlockWeek ?? ""), 10);
+  const days = parseInt(String(d.unlockDays ?? ""), 10);
   const base = {
     title,
     category,
     description: s("description", 600) || null,
-    unlock_week: Number.isFinite(week) && week >= 1 && week <= 104 ? week : null,
+    unlock_days: Number.isFinite(days) && days >= 1 && days <= 730 ? days : null,
     published: d.published !== false,
     sort: Date.now() % 2_000_000_000,
   };
@@ -86,12 +86,12 @@ export async function updateResourceAction(id: string, form: FormData): Promise<
   await requireCoach("/coach/resources");
   const title = String(form.get("title") ?? "").trim().slice(0, 120);
   if (!title) redirect("/coach/resources?error=" + encodeURIComponent("Give it a title."));
-  const week = parseInt(String(form.get("unlockWeek") ?? ""), 10);
+  const days = parseInt(String(form.get("unlockDays") ?? ""), 10);
   await updateResource(id, {
     title,
     category: String(form.get("category") ?? "").trim().slice(0, 60) || "General",
     description: String(form.get("description") ?? "").trim().slice(0, 600) || null,
-    unlock_week: Number.isFinite(week) && week >= 1 && week <= 104 ? week : null,
+    unlock_days: Number.isFinite(days) && days >= 1 && days <= 730 ? days : null,
   });
   revalidatePath("/resources");
   redirect("/coach/resources?msg=saved");

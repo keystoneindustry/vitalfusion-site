@@ -2,6 +2,7 @@
 
 import { db, q } from "./supabase";
 import { videoEmbedUrl } from "./settings";
+import { daysBetween, isIsoDate } from "./dates";
 
 export const RESOURCE_BUCKET = "resources";
 export const MAX_UPLOAD_MB = 50;
@@ -19,7 +20,8 @@ export type Resource = {
   url: string | null;
   file_name: string | null;
   size_bytes: number | null;
-  unlock_week: number | null;
+  /** Days after the client's start date before they can open it (null/0 = right away). */
+  unlock_days: number | null;
   published: boolean;
   sort: number;
   created_at: string;
@@ -65,9 +67,22 @@ export function resourcePath(fileName: string, ext: string, now = Date.now()): s
   return `${now}-${base}.${ext}`;
 }
 
-/** Can a client in coaching week `week` see this? (week 0 = not started yet counts as week 1) */
-export function unlocked(r: Pick<Resource, "unlock_week" | "published">, week: number): boolean {
-  return r.published && (!r.unlock_week || Math.max(1, week) >= r.unlock_week);
+/** Can a client on coaching day `day` (0 = their start date; before it counts as 0) see this? */
+export function unlocked(r: Pick<Resource, "unlock_days" | "published">, day: number): boolean {
+  return r.published && (!r.unlock_days || Math.max(0, day) >= r.unlock_days);
+}
+
+/** How many days into their coaching a client is: 0 on (or before) the start date; ended packages unlock everything. */
+export function coachingDay(start: string | null, end: string | null, today: string): number {
+  if (!start || !isIsoDate(start)) return 0;
+  if (end && isIsoDate(end) && today > end) return 100000;
+  return Math.max(0, daysBetween(start, today));
+}
+
+/** "Unlocks tomorrow" / "Unlocks in 3 days". */
+export function unlockLabel(r: Pick<Resource, "unlock_days">, day: number): string {
+  const left = Math.max(1, (r.unlock_days ?? 0) - Math.max(0, day));
+  return left === 1 ? "Unlocks tomorrow" : `Unlocks in ${left} days`;
 }
 
 export function isVideoLink(url: string): boolean {
@@ -101,16 +116,16 @@ export function byCategory<T extends Pick<Resource, "category" | "sort" | "creat
  * The guide every client should read first: one with "read first" in its title, else the first item in
  * "Getting started". Null when there's nothing published yet.
  */
-export function startHere<T extends Pick<Resource, "title" | "category" | "sort" | "created_at" | "published" | "unlock_week">>(list: T[]): T | null {
-  const open = list.filter((r) => r.published && !r.unlock_week);
+export function startHere<T extends Pick<Resource, "title" | "category" | "sort" | "created_at" | "published" | "unlock_days">>(list: T[]): T | null {
+  const open = list.filter((r) => r.published && !r.unlock_days);
   const marked = open.find((r) => /read\s*first|start\s*here/i.test(r.title));
   if (marked) return marked;
   return byCategory(open).find((g) => g.category === "Getting started")?.items[0] ?? null;
 }
 
 /** A published guide whose title matches, e.g. /track(ing)? calories/i for the Nutrition tab. */
-export function findGuide<T extends Pick<Resource, "title" | "published" | "unlock_week">>(list: T[], pattern: RegExp): T | null {
-  return list.find((r) => r.published && !r.unlock_week && pattern.test(r.title)) ?? null;
+export function findGuide<T extends Pick<Resource, "title" | "published" | "unlock_days">>(list: T[], pattern: RegExp, day = 0): T | null {
+  return list.find((r) => unlocked(r, day) && pattern.test(r.title)) ?? null;
 }
 
 export async function listResources(publishedOnly: boolean): Promise<Resource[]> {

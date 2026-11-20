@@ -213,3 +213,9 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   milestones. `coachingSummary()` in lib/client-input.ts. Agreement: month-to-month payment paragraph (cancel anytime in
   writing before the next billing date, service continues through the paid period, no refunds for a started period, coach can
   end with written notice); AGREEMENT_VERSION 2026-11-20. Coach flag for a cancelled monthly client's last day.
+- Nov 20: Resources unlock by DAYS after the client's start date (`resources.unlock_days`; `unlocked(r, day)`, `coachingDay()`,
+  `unlockLabel()` in lib/resources.ts; client sees "Unlocks in N days"; old `unlock_week` values were converted ×7). The
+  Nutrition tab's tracking-guide link respects the unlock. Coach Resources rows have an "Open" link
+  (`/coach/resources/[id]/open`, coach-only redirect to a signed URL). Nutrition tab marks Cronometer "⭐ Recommended".
+  Day 3 quick check: custom form "Day 3 quick check" (3 questions) found by `quickCheckForm()` (title contains "day 3");
+  the starting setup schedules it once at plan-live + 3 days.

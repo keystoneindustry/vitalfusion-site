@@ -25,6 +25,15 @@ export async function checkinForm(): Promise<Form | null> {
   return rows[0] ?? null;
 }
 
+/**
+ * The short form every new client gets 3 days after their plan goes live: the active custom form whose title
+ * mentions "day 3" (Tyler can edit its questions in the form builder; renaming it drops it from new setups).
+ */
+export async function quickCheckForm(): Promise<Form | null> {
+  const rows = await db<Form[]>(`forms?select=*&kind=eq.custom&archived=eq.false&order=created_at.asc`);
+  return rows.find((f) => /day\s*3/i.test(f.title)) ?? null;
+}
+
 export async function insertForm(row: Pick<Form, "title" | "intro" | "questions">): Promise<Form> {
   const rows = await db<Form[]>("forms", { method: "POST", prefer: "return=representation", body: { ...row, kind: "custom" } });
   return rows[0];
