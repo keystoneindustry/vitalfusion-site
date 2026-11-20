@@ -41,7 +41,10 @@ export default async function CoachResourcesPage({ searchParams }: { searchParam
                 <div className="res-head">
                   <span className="res-icon">{KIND_ICON[r.kind]}</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <b>{r.title}</b>
+                    <b>{r.title}</b>{" "}
+                    <a className="small" href={`/coach/resources/${r.id}/open`} target="_blank" rel="noopener noreferrer">
+                      Open
+                    </a>
                     <span className="muted small" style={{ display: "block" }}>
                       {KIND_LABEL[r.kind]}
                       {r.size_bytes ? ` · ${formatSize(r.size_bytes)}` : ""}
