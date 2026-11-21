@@ -151,6 +151,7 @@ export type QuizErrors = Partial<Record<keyof QuizInput, string>>;
 // Rules agreed with the coach.
 export const RULES = {
   proteinPerLb: 0.9,
+  proteinPerLbMuscle: 1.0, // build-muscle plans get 1 g per lb
   proteinMax: 180,
   fatPerLb: 0.35,
   fatPerLbMuscle: 0.42, // build-muscle plans get a little more fat
@@ -229,7 +230,8 @@ export function calculate(q: Pick<QuizInput, "sex" | "age" | "heightFt" | "heigh
   const useGoalWeight = wantsLoss && bmi >= 30 && q.goalWeightLb > 0 && q.goalWeightLb < q.weightLb;
   const baseLb = useGoalWeight ? q.goalWeightLb : q.weightLb;
 
-  const protein = Math.min(Math.round(baseLb * RULES.proteinPerLb), RULES.proteinMax);
+  const proteinPerLb = q.goal === "muscle" ? RULES.proteinPerLbMuscle : RULES.proteinPerLb;
+  const protein = Math.min(Math.round(baseLb * proteinPerLb), RULES.proteinMax);
   const carbsFor = (p: number, f: number) => Math.floor((calories - p * 4 - f * 9) / 4);
 
   const fatIdeal = baseLb * (q.goal === "muscle" ? RULES.fatPerLbMuscle : RULES.fatPerLb);

@@ -27,7 +27,8 @@ assert.equal(bulk.weeklyChangeLb, 0.4);
 assert.equal(bulk.weeksToGoal, 25); // 10 lb / 0.4 lb a week
 assert.ok(bulk.carbs > r.carbs);
 assert.equal(bulk.fat, 76); // 0.42 × 180
-assert.equal(bulk.carbs, Math.floor((bulk.calories - 162 * 4 - 76 * 9) / 4));
+assert.equal(bulk.protein, 180); // 1.0 × 180 (build muscle)
+assert.equal(bulk.carbs, Math.floor((bulk.calories - 180 * 4 - 76 * 9) / 4));
 console.log("180 lb man, build muscle to 190:", bulk);
 // teens can still build muscle (small surplus is fine)
 { const t = calculate({ ...base, age: 16, goal: "muscle", pace: "", goalWeightLb: 190 }); assert.equal(t.calories, t.maintenance + 200); }
@@ -200,4 +201,18 @@ console.log("Sequence tests passed");
   const light = calculate({ sex: "female", age: 25, heightFt: 5, heightIn: 1, weightLb: 110, goalWeightLb: 100, activity: "sedentary", goal: "lose", pace: "aggressive" } as any);
   assert.ok(light.fat >= 40, `fat ${light.fat} should be >= 40`);
   assert.equal(light.protein, 99); // 0.9 × 110
+}
+
+// Build muscle: 1 g protein per lb (Nov 20 example: male 19, 5'10", 160 → 175, active)
+{
+  const justice = calculate({ sex: "male", age: 19, heightFt: 5, heightIn: 10, weightLb: 160, goalWeightLb: 175, activity: "moderate", goal: "muscle", pace: "balanced" } as never);
+  assert.equal(justice.protein, 160);
+  assert.ok(justice.fat >= 40 && justice.carbs >= 100);
+  assert.equal(justice.calories, justice.maintenance + 200);
+  console.log("Build-muscle example:", justice.calories, "cal", justice.protein, "P", justice.carbs, "C", justice.fat, "F");
+  const big = calculate({ sex: "male", age: 30, heightFt: 6, heightIn: 2, weightLb: 210, goalWeightLb: 220, activity: "moderate", goal: "muscle", pace: "balanced" } as never);
+  assert.equal(big.protein, 180); // still capped at 180
+  const loser = calculate({ sex: "male", age: 30, heightFt: 5, heightIn: 10, weightLb: 160, goalWeightLb: 150, activity: "moderate", goal: "lose", pace: "balanced" } as never);
+  assert.equal(loser.protein, 144); // fat loss stays 0.9 g/lb
+  console.log("Build-muscle protein tests passed");
 }
