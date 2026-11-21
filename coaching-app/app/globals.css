@@ -808,3 +808,8 @@ input, select, textarea { font-size: max(16px, 1em); }
 .start-photos { border-color: #5a4c26; background: linear-gradient(180deg, #221d10, var(--card)); }
 .start-photo-tips { padding: 0 0 0 20px; margin: 0 0 14px; }
 .start-photo-tips li { margin: 4px 0; }
+
+/* Coach "Client view" banner (read-only impersonation) */
+.viewas-banner { position: sticky; top: 0; z-index: 60; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: calc(env(safe-area-inset-top, 0px) + 8px) 14px 8px; background: #ffe7ab; color: #1a1406; font-size: 14px; }
+.viewas-banner b { font-weight: 800; }
+.viewas-exit { color: #1a1406; font-weight: 700; text-decoration: underline; white-space: nowrap; }

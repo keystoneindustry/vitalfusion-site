@@ -41,7 +41,12 @@ export default async function ClientLayout({ children, params }: { children: Rea
             {client.kickoff_at && Date.parse(client.kickoff_at) > Date.now() ? ` · Kickoff ${formatCallTime(client.kickoff_at, client.timezone)}` : ""}
           </p>
         </div>
-        <span className={`pill pill-${client.stage}`}>{stageLabel(client.stage)}</span>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+          <span className={`pill pill-${client.stage}`}>{stageLabel(client.stage)}</span>
+          <a className="btn btn-ghost btn-sm" href={`/coach/clients/${client.id}/view`} title="See the app exactly as they see it (read-only)">
+            👁 Client view
+          </a>
+        </div>
       </div>
       {client.health_flag && <p className="health-chip">⚠️ Health questions need review</p>}
       <ClientTabs id={client.id} badges={{ Meals: badge("nutrition"), Training: badge("training"), "Check-ins": unreplied.length ? String(unreplied.length) : undefined }} />

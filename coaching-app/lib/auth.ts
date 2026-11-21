@@ -1,10 +1,11 @@
 import { cache } from "react";
 import { redirect } from "next/navigation";
+import { cookies, headers } from "next/headers";
 import { after } from "next/server";
 import { authPublic, db, q, SupabaseError, type AuthUser } from "./supabase";
 import { readSessionCookies } from "./session";
 import { isCoachEmail } from "./env";
-import { addEvent, getClientByEmail, getClientByUserId, updateClient, type ClientRow } from "./clients";
+import { addEvent, getClient, getClientByEmail, getClientByUserId, updateClient, type ClientRow } from "./clients";
 
 export type Role = "coach" | "client";
 
@@ -16,7 +17,21 @@ export type Viewer = {
   role: Role;
   fullName: string | null;
   client: ClientRow | null;
+  /** True when the coach is looking at the client app as this client ("Client view", read-only). */
+  viewingAs?: boolean;
 };
+
+/** Cookie the coach portal sets for "Client view": which client the coach is looking at the app as. */
+export const VIEW_AS_COOKIE = "vf_view_as";
+/** Readable by page scripts, so error screens can say "read-only" instead of "something went wrong". */
+export const VIEW_AS_FLAG_COOKIE = "vf_view_as_on";
+
+/** Thrown when anything tries to save while the coach is in Client view. */
+export class ReadOnlyViewError extends Error {
+  constructor() {
+    super("Client view is read-only: nothing was saved.");
+  }
+}
 
 type ViewerResult = { status: "ok"; viewer: Viewer } | { status: "expired" } | { status: "none" };
 
@@ -63,7 +78,15 @@ export async function requireCoach(path: string): Promise<Viewer> {
 /** A client with an active CRM record. The coach is sent to the dashboard. */
 export async function requireClient(path: string): Promise<Viewer & { client: ClientRow }> {
   const viewer = await requireViewer(path);
-  if (viewer.role === "coach") redirect("/coach");
+  if (viewer.role === "coach") {
+    // Client view: the coach sees the app exactly as this client does, read-only.
+    const id = (await cookies()).get(VIEW_AS_COOKIE)?.value;
+    const client = id && /^[0-9a-f-]{36}$/i.test(id) ? await getClient(id) : null;
+    if (!client) redirect("/coach");
+    // Server actions (every save in the client app) arrive with a Next-Action header: refuse them.
+    if ((await headers()).get("next-action")) throw new ReadOnlyViewError();
+    return { ...viewer, client, viewingAs: true };
+  }
   if (!viewer.client) redirect("/no-access");
   // Remember when they last opened the app (at most every 30 minutes), for Tyler's at-risk alerts.
   const seen = viewer.client.last_seen_at ? Date.parse(viewer.client.last_seen_at) : 0;

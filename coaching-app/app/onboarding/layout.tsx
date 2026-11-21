@@ -1,9 +1,11 @@
 import TimezoneSync from "@/app/components/TimezoneSync";
+import ViewAsBanner from "@/app/components/ViewAsBanner";
 
 /** Focused layout for onboarding: no tab bar, just the logo and the step. */
 export default function OnboardingLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="onb">
+      <ViewAsBanner />
       <header className="topbar">
         <a href="/" className="home-brand" aria-label="Home">
           <img src="/icons/logo.png" alt="" />

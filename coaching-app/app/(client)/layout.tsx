@@ -1,11 +1,13 @@
 import Link from "next/link";
 import TabBar from "./TabBar";
 import TimezoneSync from "@/app/components/TimezoneSync";
+import ViewAsBanner from "@/app/components/ViewAsBanner";
 
 /** Shell for every client screen: logo bar on top, five tabs along the bottom. */
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="app">
+      <ViewAsBanner />
       <header className="topbar">
         <Link href="/" className="home-brand" aria-label="Home">
           <img src="/icons/logo.png" alt="" />

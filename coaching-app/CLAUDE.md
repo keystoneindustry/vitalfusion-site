@@ -219,3 +219,9 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   (`/coach/resources/[id]/open`, coach-only redirect to a signed URL). Nutrition tab marks Cronometer "⭐ Recommended".
   Day 3 quick check: custom form "Day 3 quick check" (3 questions) found by `quickCheckForm()` (title contains "day 3");
   the starting setup schedules it once at plan-live + 3 days.
+- Client view (Nov 21): coach client header → "👁 Client view" (`/coach/clients/[id]/view` sets httpOnly `vf_view_as` =
+  client id + readable `vf_view_as_on=1`, 2 h) → the real client app at `/` as that client. `requireClient` accepts a coach
+  with that cookie (returns the client, `viewingAs: true`, no last_seen update) and throws `ReadOnlyViewError` for any
+  server action (Next-Action header), so nothing can be saved; API routes already reject the coach. `ViewAsBanner` (gold bar,
+  "Exit client view" → `/coach/view-exit`) in the client + onboarding layouts; `error.tsx` there (`ClientViewError`) explains
+  a blocked save. Opening a check-in reply in client view doesn't mark it seen.

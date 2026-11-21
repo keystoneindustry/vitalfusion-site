@@ -13,7 +13,7 @@ export const metadata = { title: "Check-in · Vital Fusion" };
 export default async function SubmissionPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ sent?: string }> }) {
   const { id } = await params;
   const { sent } = await searchParams;
-  const { client } = await requireClient(`/check-ins/${id}`);
+  const { client, viewingAs } = await requireClient(`/check-ins/${id}`);
   const sub = await getSubmission(id);
   if (!sub || sub.client_id !== client.id) notFound();
   const [form, settings] = await Promise.all([getForm(sub.form_id), getSettings()]);
@@ -22,7 +22,7 @@ export default async function SubmissionPage({ params, searchParams }: { params:
   const recent = sub.due_date >= addDays(today, -6);
   const upcomingCall = client.next_call_at && Date.parse(client.next_call_at) > Date.now() ? client.next_call_at : null;
   const callLink = settings.checkin_link ? bookingUrl(settings.checkin_link, { name: client.full_name, email: client.email, clientId: client.id }) : null;
-  if (sub.replied_at && !sub.reply_seen_at) await updateSubmission(sub.id, { reply_seen_at: new Date().toISOString() });
+  if (sub.replied_at && !sub.reply_seen_at && !viewingAs) await updateSubmission(sub.id, { reply_seen_at: new Date().toISOString() });
 
   return (
     <>
