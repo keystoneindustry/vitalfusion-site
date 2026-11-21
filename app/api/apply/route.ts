@@ -3,6 +3,7 @@ import { validateApplication } from "@/lib/application";
 import { applicantEmail, coachEmail, sendEmail } from "@/lib/email";
 import { saveApplication } from "@/lib/store";
 import { sendResendEvent } from "@/lib/resend-events";
+import { recordFunnelLead } from "@/lib/funnel";
 
 export const runtime = "nodejs";
 
@@ -34,10 +35,13 @@ export async function POST(req: Request) {
 
   // Save and notify in parallel. The application only counts as received if at
   // least one of them succeeds, so a lead is never silently lost.
-  const [saved, emailed] = await Promise.allSettled([
+  const [saved, emailed, funnel] = await Promise.allSettled([
     saveApplication(app),
     sendEmail({ to: notifyTo, replyTo: app.email, ...coachEmail(app) }),
+    // Saved for the dashboard's conversion tracking (lead → application → client).
+    recordFunnelLead("application", { email: app.email, name: app.fullName, source: app.source }),
   ]);
+  if (funnel.status === "rejected") console.error("Funnel save failed:", funnel.reason);
   if (saved.status === "rejected") console.error("Save failed:", saved.reason);
   if (emailed.status === "rejected") console.error("Notify email failed:", emailed.reason);
 

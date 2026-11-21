@@ -54,6 +54,10 @@ is not a developer; explain changes plainly and keep the site simple.
   your quiz answers" / "❌ Stop doing this (it's why you're stuck)" / "🤔 Be honest with me…". Duplicate guard: the automation
   sets contact property `macro_sequence = started` and skips anyone who already has it. Footer address:
   1802 Charolais Court, Bel Air, MD 21015.
+- Conversion tracking: every live calculator signup and application is also saved to the coaching app's Supabase
+  (project bcwytsuqudwghxctxoef) table `funnel_leads` via the insert-only RPC `record_funnel_lead` (`lib/funnel.ts`,
+  publishable key + FUNNEL_TOKEN env, production only). The business dashboard joins it with `clients` by email.
+  Tracking links: `/macros?source=<platform>` and `/?source=<platform>` (instagram, youtube, facebook, tiktok).
 - Old Emergent URLs (/application, /vital-method-application) redirect in `next.config.mjs`.
 - The application (`app/apply/ApplyForm.tsx`) is multi-step, one question per screen; step order
   is `STEPS` in `lib/application.ts`. Picking "Other" reveals a required text box (`otherArea`).
