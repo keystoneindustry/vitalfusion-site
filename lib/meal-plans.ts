@@ -1,4 +1,4 @@
-// The two free "60-Day Belly Fat Meal Plan" lead magnets (reel #024, "comment PLAN" via ManyChat).
+// The two free "60-Day Belly Fat Burning Meal Plan" lead magnets (reel #024, "comment PLAN" via ManyChat).
 // Each has its own hidden page (/plan/workday, /plan/everyday), its own PDF in public/plans/,
 // and its own follow-up sequence in Resend Automations (started by `event`).
 // Amounts per meal live only in the PDFs; the pages show the meals with the amounts hidden.

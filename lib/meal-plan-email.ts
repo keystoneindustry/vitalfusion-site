@@ -33,7 +33,7 @@ export function mealPlanEmail(lead: MealPlanLead, plan: MealPlan, siteUrl: strin
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;">
 <tr><td bgcolor="#ffffff" style="background-color:#ffffff;border-radius:12px;padding-top:28px;padding-bottom:28px;padding-left:24px;padding-right:24px;">
 <p style="${P}">Hi ${name},</p>
-<p style="${P}">Here's your 60-Day Belly Fat Meal Plan: <strong>${esc(plan.name)}</strong>. It has the exact amounts for every meal, a prep schedule, simple swaps and a shopping list.</p>
+<p style="${P}">Here's your 60-Day Belly Fat Burning Meal Plan: <strong>${esc(plan.name)}</strong>. It has the exact amounts for every meal, a prep schedule, simple swaps and a shopping list.</p>
 <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;"><tr><td bgcolor="#5a8bb3" style="background-color:#5a8bb3;border-radius:10px;">
 <a href="${pdfUrl}" style="display:inline-block;padding-top:14px;padding-bottom:14px;padding-left:24px;padding-right:24px;font-family:Arial, Helvetica, sans-serif;font-size:16px;line-height:20px;font-weight:bold;color:#ffffff;text-decoration:none;">Download my meal plan (PDF) &rarr;</a>
 </td></tr></table>
@@ -53,7 +53,7 @@ ${steps.map((s, i) => `<p style="margin-top:0;margin-bottom:8px;font-family:Aria
   const text = [
     `Hi ${lead.firstName || "there"},`,
     "",
-    `Here's your 60-Day Belly Fat Meal Plan: ${plan.name}. It has the exact amounts for every meal, a prep schedule, simple swaps and a shopping list.`,
+    `Here's your 60-Day Belly Fat Burning Meal Plan: ${plan.name}. It has the exact amounts for every meal, a prep schedule, simple swaps and a shopping list.`,
     "",
     `Download my meal plan (PDF): ${pdfUrl}`,
     "",
