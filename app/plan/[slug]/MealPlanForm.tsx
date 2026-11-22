@@ -67,7 +67,7 @@ export default function MealPlanForm({ plan, source }: { plan: MealPlan; source:
 
   return (
     <main className="wrap lp apply-lp mp">
-      <p className="kicker">Free · {plan.name}</p>
+      {!plan.hideKicker && <p className="kicker">Free · {plan.name}</p>}
       <h1 className="display"><Rich text={plan.title} /></h1>
       <p className="lead">{plan.intro}</p>
 

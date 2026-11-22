@@ -10,6 +10,8 @@ export type MealPlan = {
   /** Shown on the page, in emails and the dashboard. */
   name: string;
   title: string;
+  /** Hide the small "Free · <plan name>" line above the title. */
+  hideKicker?: boolean;
   intro: string;
   pdf: string;
   /** Resend event that starts this plan's follow-up emails. */
@@ -43,7 +45,8 @@ export const MEAL_PLANS: Record<MealPlanSlug, MealPlan> = {
   everyday: {
     slug: "everyday",
     name: "The Everyday Plan",
-    title: "Get your free *60-day* meal plan",
+    title: "Get your free 60-day meal plan *to burn body fat scary fast*",
+    hideKicker: true,
     intro: "Four meals of real food, with the exact amounts for everything. Enter your name and email and it's yours right away.",
     pdf: "/plans/60-day-meal-plan-everyday.pdf",
     event: "meal_plan_everyday.requested",
