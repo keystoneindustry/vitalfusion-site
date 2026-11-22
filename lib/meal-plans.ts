@@ -50,7 +50,7 @@ export const MEAL_PLANS: Record<MealPlanSlug, MealPlan> = {
     stats: STATS,
     meals: [
       { label: "Meal 1", name: "Eggs & avocado toast", foods: ["Eggs", "Egg whites", "Avocado", "Sourdough", "Kiwi"] },
-      { label: "Meal 2", name: "Chicken burrito bowl", foods: ["Chicken breast", "Rice", "Black beans", "Veggies", "Salsa"] },
+      { label: "Meal 2", name: "Chicken burrito bowl", foods: ["Chicken breast", "Rice", "Peppers & onions", "Lettuce", "Salsa"] },
       { label: "Meal 3", name: "Salmon & potatoes", foods: ["Salmon", "Potatoes", "Veggies"] },
       { label: "Meal 4", name: "Greek yogurt bowl", foods: ["Greek yogurt", "Berries", "Honey"] },
     ],
