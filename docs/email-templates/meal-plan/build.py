@@ -85,7 +85,7 @@ def emails(slug, c):
     apply = f"{SITE}/?source=meal-plan-{slug}-email"
     e1 = wrap("".join([
         p("Hi {{{NAME}}},"),
-        p(f"You've had {c['name']} for a couple of days now. How's it going so far?"),
+        p("You've had the 1,800-calorie meal plan for a couple of days now. How's it going so far?"),
         p("The meals usually aren't the hard part. Prep is. Here are three shortcuts that make it a lot easier:"),
         bullets(c["prep"]),
         p(c["miss"]),
@@ -125,7 +125,7 @@ def emails(slug, c):
 
 
 META = {}
-SUBJECTS = ["How's it going so far? (+ 3 prep shortcuts)", "📉 Don't trust the scale this week", "🤔 Be honest with me…"]
+SUBJECTS = ["🍽️ How's it going so far? (+ 3 prep shortcuts)", "📉 Don't trust the scale this week", "🤔 Be honest with me…"]
 for slug, c in PLANS.items():
     for i, h in enumerate(emails(slug, c), 1):
         open(os.path.join(HERE, f"{slug}-{i}.html"), "w").write(h)
