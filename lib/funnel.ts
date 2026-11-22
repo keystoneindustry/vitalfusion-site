@@ -1,4 +1,4 @@
-// Saves each Nutrition Plan Calculator signup and coaching application to the coaching app's
+// Saves each Nutrition Plan Calculator signup, free meal plan request and coaching application to the coaching app's
 // Supabase (table funnel_leads) so the business dashboard can follow lead → application → client
 // by email and source. Insert-only, through the record_funnel_lead() function: the key below is the
 // public "publishable" key, and FUNNEL_TOKEN (a Vercel env var) is the shared secret the function checks.
@@ -7,7 +7,7 @@
 const FUNNEL_URL = process.env.FUNNEL_SUPABASE_URL || "https://bcwytsuqudwghxctxoef.supabase.co";
 const FUNNEL_KEY = process.env.FUNNEL_SUPABASE_KEY || "sb_publishable_OS3v8A4s959sEhvBx-aHZw_soV8aCHN";
 
-export type FunnelKind = "calculator" | "application";
+export type FunnelKind = "calculator" | "application" | "meal_plan";
 
 export async function recordFunnelLead(
   kind: FunnelKind,

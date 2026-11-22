@@ -54,7 +54,19 @@ is not a developer; explain changes plainly and keep the site simple.
   your quiz answers" / "❌ Stop doing this (it's why you're stuck)" / "🤔 Be honest with me…". Duplicate guard: the automation
   sets contact property `macro_sequence = started` and skips anyone who already has it. Footer address:
   1802 Charolais Court, Bel Air, MD 21015.
-- Conversion tracking: every live calculator signup and application is also saved to the coaching app's Supabase
+- Free 60-day meal plans (reel #024, Instagram "comment PLAN" via ManyChat): hidden (noindex) pages `/plan/workday`
+  ("The 9-to-5 Plan") and `/plan/everyday` ("The Everyday Plan"), links `/plan/<slug>?source=instagram`. Config + validation in
+  `lib/meal-plans.ts`; page `app/plan/[slug]/` (name + email → thank-you screen with the PDF download right away). PDFs are
+  static files in `public/plans/` (built outside the repo from the amounts in the Claude project note
+  `claude/meal-plan-guides-024.md`). `/api/meal-plan` emails the PDF link at once (`lib/meal-plan-email.ts`), sends
+  `meal_plan_workday.requested` / `meal_plan_everyday.requested` (Resend Automations "Meal plan follow-up – 9-to-5 / Everyday
+  (day 2, 5, 8)", stopped by `coaching.applied`, duplicate guard contact property `meal_plan_<slug>_sequence = started`,
+  sets `meal_plan`), adds them to the one Resend segment "60-Day Meal Plan (both plans)" (`addToSegment`, production only;
+  the Resend plan allows only 3 segments), saves a `meal_plan` funnel lead (details.plan) and emails the coach. Templates
+  "Meal plan <Plan> 1/2/3" live in Resend (copies + generator in `docs/email-templates/meal-plan/`). Their coaching buttons
+  go to `/?source=meal-plan-<slug>-email`; the PDF's to `/?source=meal-plan-<slug>-pdf`. Charlie's graph for emails:
+  `public/images/email/charlie-graph.jpg`.
+- Conversion tracking: every live calculator signup, meal plan request and application is also saved to the coaching app's Supabase
   (project bcwytsuqudwghxctxoef) table `funnel_leads` via the insert-only RPC `record_funnel_lead` (`lib/funnel.ts`,
   publishable key + FUNNEL_TOKEN env, production only). The business dashboard joins it with `clients` by email.
   Tracking links: `/macros?source=<platform>` and `/?source=<platform>` (instagram, youtube, facebook, tiktok).

@@ -618,3 +618,30 @@ body:has(.apply-lp) {
 .btn-pdf:hover { border-color: #6a9fc6; background: #151c28; }
 .btn-pdf:disabled { opacity: 0.7; cursor: default; }
 .pdf-icon { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: #6a9fc6; color: #08101a; font-weight: 900; }
+
+/* ───────── Free 60-day meal plan pages (/plan/workday, /plan/everyday) ───────── */
+.mp { background: var(--lp-bg); }
+.mp .display { font-size: clamp(36px, 10vw, 58px); }
+.mp-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0 0 22px; }
+.mp-stat { border: 1px solid var(--lp-line); border-radius: 14px; padding: 12px 8px; text-align: center; background: var(--lp-alt); }
+.mp-stat b { display: block; font-size: 22px; font-weight: 800; color: var(--text); }
+.mp-stat span { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-hi); }
+.mp-form { padding: 22px 18px 18px; margin: 0 0 34px; }
+.mp-form .field label { font-weight: 600; }
+.mp-form .btn-cta { margin-top: 6px; }
+.mp-h2 { font-size: 22px; font-weight: 800; margin: 0 0 14px; }
+.mp-meals { display: grid; gap: 12px; margin: 0 0 12px; }
+.mp-meal { padding: 16px 18px; }
+.mp-meal-label { margin: 0; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent-hi); }
+.mp-meal-name { margin: 2px 0 8px; font-size: 18px; font-weight: 800; }
+.mp-meal ul { list-style: none; margin: 0; padding: 0; }
+.mp-meal li { display: flex; justify-content: space-between; padding: 7px 0; border-top: 1px solid var(--lp-line); color: var(--text-2); font-size: 15px; }
+.mp-blur { filter: blur(5px); user-select: none; color: var(--text); font-weight: 700; }
+.mp-done { text-align: center; }
+.mp-check { width: 64px; height: 64px; margin: 8px auto 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 900; color: #08101a; background: linear-gradient(180deg, #8fbddf, #5a8bb3); }
+.mp-next { text-align: left; padding: 18px 20px; margin-top: 26px; }
+.mp-next-title { margin: 0 0 8px; font-weight: 800; color: #ffe7ab; }
+.mp-next ol { margin: 0; padding-left: 20px; color: var(--text-2); line-height: 1.7; }
+@media (min-width: 860px) {
+  .mp-meals { grid-template-columns: 1fr 1fr; }
+}

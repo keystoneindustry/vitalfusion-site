@@ -18,11 +18,20 @@ export async function sendResendEvent(event: string, email: string, payload?: Re
 export const CALCULATOR_SEGMENT_ID = process.env.RESEND_CALCULATOR_SEGMENT_ID || "033e0913-801d-4646-93d9-a4763c1b7cc3";
 
 export async function addToCalculatorSegment(email: string, firstName: string): Promise<void> {
+  return addToSegment(CALCULATOR_SEGMENT_ID, email, firstName);
+}
+
+// Everyone who requests either free 60-day meal plan (/plan/workday, /plan/everyday) goes in this one
+// segment (the Resend plan allows 3 segments). Which plan they took is the contact property `meal_plan`,
+// set by the plan's follow-up automation.
+export const MEAL_PLAN_SEGMENT_ID = process.env.RESEND_MEAL_PLAN_SEGMENT_ID || "49d1126f-74c6-4e70-b85d-db5d01624c8e";
+
+export async function addToSegment(segmentId: string, email: string, firstName: string): Promise<void> {
   const key = process.env.RESEND_API_KEY;
   // Live site only, so preview tests don't fill the list with test addresses.
   if (!key || process.env.VERCEL_ENV !== "production") return;
   const headers = { Authorization: `Bearer ${key}`, "Content-Type": "application/json" };
-  const addUrl = `https://api.resend.com/contacts/${encodeURIComponent(email)}/segments/${CALCULATOR_SEGMENT_ID}`;
+  const addUrl = `https://api.resend.com/contacts/${encodeURIComponent(email)}/segments/${segmentId}`;
   const add = () => fetch(addUrl, { method: "POST", headers });
 
   let res = await add();
@@ -33,7 +42,7 @@ export async function addToCalculatorSegment(email: string, firstName: string): 
     const created = await fetch("https://api.resend.com/contacts", {
       method: "POST",
       headers,
-      body: JSON.stringify({ email, ...(firstName ? { first_name: firstName } : {}), segments: [{ id: CALCULATOR_SEGMENT_ID }] }),
+      body: JSON.stringify({ email, ...(firstName ? { first_name: firstName } : {}), segments: [{ id: segmentId }] }),
     });
     if (created.ok) return;
     // The sequence event may have created the contact a moment ago: try adding once more.
