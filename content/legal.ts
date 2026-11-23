@@ -205,13 +205,7 @@ export const PRIVACY: LegalSection[] = [
     ],
   },
   {
-    title: "5. Artificial intelligence",
-    body: [
-      "We use an AI provider (Anthropic) to help draft nutrition and training plans and check-in feedback, which your coach reviews before you see them, to power the AI Nutrition Assistant in the app, and to build the sample day of meals in our free Nutrition Plan Calculator. To do this, the relevant information (for example your targets, onboarding answers, meal notes or your question) is sent to the provider to generate a response. The provider processes it on our behalf only to provide that service. Your conversations with the AI Nutrition Assistant are stored on your own device, not on our servers, and your coach can’t see them.",
-    ],
-  },
-  {
-    title: "6. Who we share it with",
+    title: "5. Who we share it with",
     body: [
       "We share information only with service providers who help us run the Services, and only what they need. They may use it only to provide their services to us:",
       "- **Supabase** (app database and private file storage)",
@@ -226,13 +220,13 @@ export const PRIVACY: LegalSection[] = [
     ],
   },
   {
-    title: "7. Photos",
+    title: "6. Photos",
     body: [
       "Progress photos and meal photos are stored in private storage and shown only through temporary secure links. Only you and your coach can see them. We will never post your photos, name or results publicly without your separate written permission.",
     ],
   },
   {
-    title: "8. How long we keep it",
+    title: "7. How long we keep it",
     body: [
       "- **Leads (free tools, applications):** until you unsubscribe or ask us to delete it, or about 2 years after we last hear from you.",
       "- **Clients:** while you are coached, and for a reasonable time after so we can support you if you return.",
@@ -241,13 +235,13 @@ export const PRIVACY: LegalSection[] = [
     ],
   },
   {
-    title: "9. How we protect it",
+    title: "8. How we protect it",
     body: [
       "Information is encrypted in transit, stored with access controls, and photos and documents are kept in private storage. No system is perfectly secure, but we work to protect your information and will tell you if a breach affects you as the law requires.",
     ],
   },
   {
-    title: "10. Your choices and rights",
+    title: "9. Your choices and rights",
     body: [
       "You can:",
       "- **See, correct or download** the information we have about you.",
@@ -258,16 +252,16 @@ export const PRIVACY: LegalSection[] = [
     ],
   },
   {
-    title: "11. Children",
+    title: "10. Children",
     body: [
       "Coaching and the app are for adults 18 and over. We don’t knowingly collect information from children under 13. If you believe a child has given us information, contact us and we’ll delete it.",
     ],
   },
   {
-    title: "12. Changes",
+    title: "11. Changes",
     body: [
       "We may update this policy. We’ll post the new version here with a new “Last updated” date and tell clients about important changes by email or in the app.",
     ],
   },
-  { title: "13. Contact", body: [LEGAL_CONTACT] },
+  { title: "12. Contact", body: [LEGAL_CONTACT] },
 ];
