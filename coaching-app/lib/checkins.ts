@@ -4,14 +4,16 @@
  * "[Check-in]" subject. Never throws: problems are saved on the submission.
  */
 
+import { listSessions } from "./workouts";
+import { bestOf, newRecords } from "./workout-log";
 import { askForJson, aiConfigured, type JsonSpec } from "./ai";
 import { addDays, todayIn } from "./dates";
-import { adherence, habitDueOn } from "./calendar";
+import { adherence, habitDueOn, scheduleDueOn } from "./calendar";
 import { getClient, type ClientRow } from "./clients";
 import { db, q } from "./supabase";
 import { answerLines, cleanSummary, getForm, getSubmission, listSubmissions, updateSubmission, type CheckinSummary, type Form, type Submission } from "./forms";
 import { habitTitle, listChecks, listClientHabits } from "./habits";
-import { listWeighIns, weeklyAverages } from "./progress";
+import { listSchedules, listWeighIns, weeklyAverages } from "./progress";
 import { getPublishedPlan, hasContent } from "./plans";
 import { getSettings } from "./settings";
 import { checkinCoachEmail, sendEmail } from "./email";
@@ -26,6 +28,8 @@ export type WeekNumbers = {
   habitTotal: { done: number; due: number };
   photosThisWeek: number;
   targets: string | null;
+  /** Logged workouts this week (optional for older saved numbers). */
+  workouts?: { logged: number; scheduled: number; lines: string[]; records: string[] };
 };
 
 /** Plain-English lines for the email and the AI. */
@@ -44,6 +48,11 @@ export function numberLines(n: WeekNumbers): string[] {
     for (const h of n.habits) out.push(`  - ${h.title}: ${h.done}/${h.due}`);
   }
   out.push(`Progress photos in the last 7 days: ${n.photosThisWeek}`);
+  if (n.workouts && (n.workouts.logged > 0 || n.workouts.scheduled > 0)) {
+    out.push(`Workouts logged: ${n.workouts.logged}${n.workouts.scheduled ? ` (${n.workouts.scheduled} on their calendar; logging is optional, so fewer logs doesn't always mean missed workouts)` : ""}`);
+    for (const l of n.workouts.lines) out.push(`  - ${l}`);
+    if (n.workouts.records.length) out.push(`New personal records: ${n.workouts.records.join("; ")}`);
+  }
   return out;
 }
 
@@ -51,13 +60,19 @@ export async function weekNumbers(client: ClientRow, endDate: string): Promise<W
   const from = addDays(endDate, -6);
   const prevFrom = addDays(endDate, -13);
   const dates = Array.from({ length: 7 }, (_, i) => addDays(from, i));
-  const [weighIns, habits, checks, photos, plan] = await Promise.all([
+  const [weighIns, habits, checks, photos, plan, sessions, schedules] = await Promise.all([
     listWeighIns(client.id, 40),
     listClientHabits(client.id, false),
     listChecks(client.id, from, endDate),
     db<{ date: string }[]>(`progress_photos?select=date&client_id=eq.${q(client.id)}&date=gte.${from}&date=lte.${endDate}`),
     getPublishedPlan(client.id),
+    listSessions(client.id, 300).catch(() => []),
+    listSchedules(client.id).catch(() => []),
   ]);
+  const weekSessions = sessions.filter((s) => s.date >= from && s.date <= endDate).sort((a, b) => (a.date < b.date ? -1 : 1));
+  const older = sessions.filter((s) => s.date < from);
+  const records = weekSessions.flatMap((s, i) => newRecords([...older, ...weekSessions.slice(0, i)], s).map((r) => `${r.name} ${r.best.label}`));
+  const scheduled = dates.reduce((n, d) => n + schedules.filter((s) => s.kind === "workout" && scheduleDueOn(s, d)).length, 0);
   const avg = (list: { weight_lb: number }[]) =>
     list.length ? Math.round((list.reduce((a, w) => a + w.weight_lb, 0) / list.length) * 10) / 10 : null;
   const thisWeek = weighIns.filter((w) => w.date >= from && w.date <= endDate);
@@ -80,6 +95,19 @@ export async function weekNumbers(client: ClientRow, endDate: string): Promise<W
     habitTotal: adherence(habits, checks, dates),
     photosThisWeek: new Set(photos.map((p) => p.date)).size,
     targets: hasContent(plan) ? targetLine(plan.targets) : null,
+    workouts: {
+      logged: weekSessions.length,
+      scheduled,
+      lines: weekSessions.map((s) => {
+        const top = s.exercises
+          .map((e) => ({ e, b: bestOf(e.sets, e.kind) }))
+          .filter((x) => x.b)
+          .slice(0, 4)
+          .map((x) => `${x.e.name} ${x.b!.label}`);
+        return `${s.date} ${s.workout_name}${top.length ? `: ${top.join(", ")}` : " (marked done, no numbers)"}`;
+      }),
+      records,
+    },
   };
 }
 

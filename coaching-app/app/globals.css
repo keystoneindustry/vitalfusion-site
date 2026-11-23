@@ -815,3 +815,33 @@ input, select, textarea { font-size: max(16px, 1em); }
 .viewas-exit { color: #1a1406; font-weight: 700; text-decoration: underline; white-space: nowrap; }
 .legal-note { margin-top: 22px; line-height: 1.5; }
 .legal-note a { color: inherit; text-decoration: underline; }
+
+/* Workout logging */
+.logger { display: flex; flex-direction: column; gap: 12px; }
+.log-ex { padding: 14px; }
+.log-ex-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.log-ex-head b { font-size: 17px; color: #fff; }
+.log-last { margin: 6px 0 0; font-size: 14px; color: #ffe2a8; }
+.log-sets { display: grid; grid-template-columns: 36px 1fr 1fr; gap: 8px; align-items: center; margin-top: 10px; }
+.log-col { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.log-n { width: 30px; height: 30px; border-radius: 9px; background: #1c2a3d; color: var(--accent); font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.log-sets input { width: 100%; min-height: 46px; font-size: 17px; text-align: center; }
+.log-set-btns { display: flex; justify-content: space-between; margin-top: 10px; font-size: 15px; }
+.log-done { text-align: center; padding: 22px 16px; }
+.log-done-title { font-size: 22px; font-weight: 800; color: #fff; margin: 0 0 10px; }
+.pr-list { display: flex; flex-direction: column; gap: 8px; margin: 6px 0 14px; }
+.pr-item { margin: 0; padding: 10px 12px; border-radius: 12px; background: #211b0e; border: 1px solid #5a4a26; color: #ffe2a8; font-weight: 700; }
+.log-done-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.log-btn { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 4px 14px 14px; }
+.log-btn.done { background: #0f1f17; border-color: #23503a; color: #bfe9cf; }
+.history-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.hist-session { padding: 12px 14px; }
+.hist-session h3 { margin: 0 0 6px; font-size: 16px; color: #fff; display: flex; justify-content: space-between; gap: 8px; }
+.hist-ex { margin: 4px 0; font-size: 14px; color: var(--text-2); }
+.hist-ex b { color: #fff; font-weight: 600; }
+.pr-table { width: 100%; border-collapse: collapse; font-size: 15px; }
+.pr-table td { padding: 8px 0; border-bottom: 1px solid #1d2028; }
+.pr-table td:last-child { text-align: right; color: #ffe2a8; font-weight: 700; white-space: nowrap; }
+.lift-chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin: 4px 0 10px; }
+.lift-chips a { flex: 0 0 auto; padding: 8px 12px; border-radius: 99px; border: 1px solid #3a3e48; color: var(--text-2); font-size: 14px; text-decoration: none; }
+.lift-chips a[aria-current="true"] { background: #1c2a3d; border-color: var(--accent); color: #fff; }

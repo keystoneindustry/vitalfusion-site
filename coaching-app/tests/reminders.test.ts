@@ -21,7 +21,7 @@ const day: DayTasks = {
   weighIn: { due: true, weight: null },
   photos: { due: false, count: 0 },
   forms: [{ formId: "f1", title: "Weekly check-in", isCheckin: true, submitted: false }],
-  workouts: [{ day: 0, name: "Full body A" }],
+  workouts: [{ day: 0, name: "Full body A", done: false }],
 };
 const m = morningReminder(day, "2:00 PM EST")!;
 assert.equal(m.push.title, "REMINDER: Full body A today");

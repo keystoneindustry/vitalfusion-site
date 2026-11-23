@@ -136,11 +136,11 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
             </div>
           )}
           {day.workouts.map((w) => (
-            <Link key={w.day} href={`/train?day=${w.day}`} className="task-link">
+            <Link key={w.day} href={w.done ? `/train/log?day=${w.day}` : `/train?day=${w.day}`} className={`task-link ${w.done ? "done" : ""}`}>
               <span className="task-icon">🏋️</span>
               <span className="task-text">
                 <b>{w.name}</b>
-                <span className="small">Today's workout</span>
+                <span className="small">{w.done ? "Logged ✓" : "Today's workout"}</span>
               </span>
               <span className="chev" aria-hidden="true">›</span>
             </Link>

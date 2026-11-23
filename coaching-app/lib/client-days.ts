@@ -13,7 +13,7 @@ export type DayTasks = {
   photos: { due: boolean; count: number };
   forms: { formId: string; title: string; isCheckin: boolean; submitted: boolean }[];
   /** Workouts from their program put on this day by the coach. `day` is the program's day index. */
-  workouts: { day: number; name: string }[];
+  workouts: { day: number; name: string; done: boolean }[];
 };
 
 /** "Full body A" from a training day; falls back to "Workout 2". */
@@ -28,7 +28,7 @@ export async function loadDays(clientId: string, dates: string[]): Promise<{ day
   if (dates.length === 0) return { days: [], habits: [], schedules: [] };
   const from = dates[0];
   const to = dates[dates.length - 1];
-  const [habits, schedules, checks, weighIns, photos, forms, subs, plan] = await Promise.all([
+  const [habits, schedules, checks, weighIns, photos, forms, subs, plan, logged] = await Promise.all([
     listClientHabits(clientId, false),
     listSchedules(clientId),
     listChecks(clientId, from, to),
@@ -37,7 +37,9 @@ export async function loadDays(clientId: string, dates: string[]): Promise<{ day
     db<{ id: string; title: string; kind: string }[]>(`forms?select=id,title,kind`),
     db<{ form_id: string; due_date: string }[]>(`form_submissions?select=form_id,due_date&client_id=eq.${q(clientId)}&due_date=gte.${from}&due_date=lte.${to}`),
     getPublishedPlan(clientId),
+    db<{ date: string; workout_day: number }[]>(`workout_sessions?select=date,workout_day&client_id=eq.${q(clientId)}&date=gte.${from}&date=lte.${to}`).catch(() => []),
   ]);
+  const loggedSet = new Set(logged.map((l) => `${l.date}|${l.workout_day}`));
   const program = hasContent(plan) ? (plan.content.training?.days ?? []) : [];
   const formById = new Map(forms.map((f) => [f.id, f]));
   const submitted = new Set(subs.map((x) => `${x.form_id}|${x.due_date}`));
@@ -57,7 +59,7 @@ export async function loadDays(clientId: string, dates: string[]): Promise<{ day
       }),
     workouts: schedules
       .filter((s) => s.kind === "workout" && typeof s.workout_day === "number" && s.workout_day < program.length && scheduleDueOn(s, date))
-      .map((s) => ({ day: s.workout_day!, name: workoutName(program, s.workout_day!) })),
+      .map((s) => ({ day: s.workout_day!, name: workoutName(program, s.workout_day!), done: loggedSet.has(`${date}|${s.workout_day}`) })),
   }));
   return { days, habits: habits.filter((h) => h.active), schedules };
 }

@@ -61,7 +61,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
           const past = d.date < today;
           const items: { icon: string; text: string; state: "done" | "missed" | "due" | "plain"; href?: string }[] = [];
           if (callDay === d.date && client.next_call_at) items.push({ icon: "📞", text: `1-on-1 call with Tyler · ${formatCallTime(client.next_call_at, client.timezone).split(" at ")[1] ?? ""}`, state: "due" });
-          for (const w of d.workouts) items.push({ icon: "🏋️", text: w.name, state: "plain", href: `/train?day=${w.day}` });
+          for (const w of d.workouts) items.push({ icon: "🏋️", text: w.done ? `${w.name} · logged` : w.name, state: w.done ? "done" : "plain", href: w.done ? "/train/history" : `/train?day=${w.day}` });
           if (kickoffDay === d.date && client.kickoff_at) items.push({ icon: "📞", text: `Kickoff call · ${formatCallTime(client.kickoff_at, client.timezone).split(" at ")[1] ?? ""}`, state: "due" });
           if (d.weighIn.due || d.weighIn.weight !== null)
             items.push({ icon: "⚖️", text: d.weighIn.weight !== null ? `Weigh-in · ${d.weighIn.weight} lb` : "Weigh-in", state: d.weighIn.weight !== null ? "done" : past ? "missed" : "due", href: isToday ? "/progress/weigh-in" : undefined });

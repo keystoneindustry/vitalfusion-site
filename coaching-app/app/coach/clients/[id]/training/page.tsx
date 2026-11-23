@@ -12,6 +12,8 @@ import PartBar from "../PartBar";
 import AiCard from "../AiCard";
 import { saveTrainingAction } from "../plan-actions";
 import { hasVideo, listExercises } from "@/lib/exercises";
+import { listSessions } from "@/lib/workouts";
+import WorkoutHistory from "@/app/components/WorkoutHistory";
 
 export const metadata = { title: "Training · Vital Fusion Coach" };
 // The AI keeps working after the page answers; give it up to 5 minutes.
@@ -22,15 +24,16 @@ export default async function TrainingPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ msg?: string; error?: string }>;
+  searchParams: Promise<{ msg?: string; error?: string; lift?: string }>;
 }) {
   const { id } = await params;
-  const { msg, error } = await searchParams;
+  const { msg, error, lift } = await searchParams;
   await requireCoach(`/coach/clients/${id}/training`);
   const client = await getClient(id);
   if (!client) notFound();
 
   const [open, pub, response, exercises] = await Promise.all([getOpenPlan(client.id), getPublishedPlan(client.id), getResponse(client.id), listExercises().catch(() => [])]);
+  const sessions = await listSessions(client.id, 300).catch(() => []);
   const library = exercises.map((x) => ({ name: x.name, video: hasVideo(x) }));
   const work = hasContent(open) ? open : null;
   const live = hasContent(pub) ? pub : null;
@@ -99,6 +102,11 @@ export default async function TrainingPage({
           )}
         </div>
       </div>
+
+      <section style={{ marginTop: 18 }} id="logged">
+        <h2 className="h2">📝 Logged workouts</h2>
+        <WorkoutHistory sessions={sessions} base={`/coach/clients/${client.id}/training`} lift={lift} limit={10} coach />
+      </section>
     </>
   );
 }

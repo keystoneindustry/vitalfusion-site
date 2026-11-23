@@ -152,7 +152,9 @@ export function describeEvent(e: ClientEvent): string {
     case "report_sent":
       return "📊 Monthly progress report sent";
     case "milestone":
-      return `🏆 Reached a milestone: ${String(d.title ?? "a win")}`;
+      return String(d.title ?? "").startsWith("New PR") ? `🏆 ${String(d.title)}` : `🏆 Reached a milestone: ${String(d.title ?? "a win")}`;
+    case "workout_logged":
+      return `🏋️ Logged a workout${d.name ? `: ${String(d.name)}` : ""}`;
     case "why_updated":
       return "Updated their “why”";
     case "first_meal_logged":

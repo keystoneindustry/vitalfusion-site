@@ -22,7 +22,7 @@ type Chip = { text: string; state: "done" | "due" | "plain" };
 
 function chipsFor(d: DayTasks): Chip[] {
   const out: Chip[] = [];
-  for (const w of d.workouts) out.push({ text: `🏋️ ${w.name}`, state: "plain" });
+  for (const w of d.workouts) out.push({ text: `🏋️ ${w.name}${w.done ? " ✓" : ""}`, state: w.done ? "done" : "plain" });
   for (const f of d.forms) out.push({ text: `📝 ${f.title}${f.submitted ? " ✓" : ""}`, state: f.submitted ? "done" : "due" });
   if (d.weighIn.due) out.push({ text: d.weighIn.weight !== null ? `⚖️ ${d.weighIn.weight} lb ✓` : "⚖️ Weigh-in", state: d.weighIn.weight !== null ? "done" : "due" });
   if (d.photos.due) out.push({ text: `📸 Photos${d.photos.count >= 3 ? " ✓" : d.photos.count ? ` ${d.photos.count}/3` : ""}`, state: d.photos.count >= 3 ? "done" : "due" });

@@ -136,7 +136,6 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   suggestion names, no videos. `matchExercise()` (`lib/exercise-match.ts`) links a program's exercise to the library
   (exact name, else all library words present, most specific wins); `demosFor()` gives the client Training tab a
   "▶ Watch demo" per exercise. The builder shows "🎬 Demo: …" per exercise; AI drafts are told which names have videos.
-  No client workout logging (Tyler's call).
 - Nov 11: the app tour moved out of onboarding. Welcome step = note/video + "What's next" list. After onboarding,
   Today shows a live tour once (`app/(client)/AppTour.tsx`: dims the screen and highlights each tab via `data-tour`
   attributes on the tab bar, then "Open the guide" → the READ FIRST resource); `clients.tour_seen_at` via
@@ -230,3 +229,13 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   portion only if the coach ends coaching for reasons not caused by the client, no public photos/results without separate
   written permission, Terms + Privacy are part of the agreement (agreement controls on conflict). Login page shows
   "By signing in, you agree to our Terms of Service and Privacy Policy" (links to the website).
+- Workout logging (Nov 23, optional for clients): table `workout_sessions` (one row per client + date + program day, `exercises`
+  jsonb: name, kind reps|time, sets of {weight lb, reps, seconds}). Pure logic `lib/workout-log.ts` (set cleaning, timed vs reps from
+  the plan's reps text, "last time", bests, PRs: the first log of a lift is the baseline, beating it is a PR; tests in
+  `tests/workout-log.test.ts`); DB `lib/workouts.ts` (`saveSession` upserts and stores PRs once in `client_milestones` as
+  `pr:<lift>:<metric>:<value>`, already marked seen, + timeline event). Client: Training → "📝 Log this workout" per workout →
+  `/train/log?day=N[&date=]` (`WorkoutLogger.tsx`, every set, pounds only, last time's numbers as placeholders, draft kept in
+  localStorage until saved; saving with no numbers = marked done; edits allowed up to 14 days back); `/train/history` (lift chart,
+  PRs, recent sessions, shared `app/components/WorkoutHistory.tsx` + `LiftChart.tsx`). Logged workouts show as done on Today,
+  Calendar and coach Home/Calendar (`DayTasks.workouts[].done`). Coach Training tab has "Logged workouts" at the bottom. Logging
+  counts as activity for at-risk; the check-in AI gets workouts logged vs scheduled, best sets and new PRs (`weekNumbers`).

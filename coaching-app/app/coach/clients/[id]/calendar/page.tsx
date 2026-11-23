@@ -29,7 +29,7 @@ type Item = { icon: string; text: string; state: "done" | "missed" | "due" | "pl
 function itemsFor(d: DayTasks, today: string, extra: Item[]): Item[] {
   const past = d.date < today;
   const out: Item[] = [...extra];
-  for (const w of d.workouts) out.push({ icon: "🏋️", text: w.name, state: "plain" });
+  for (const w of d.workouts) out.push({ icon: "🏋️", text: w.done ? `${w.name} · logged` : w.name, state: w.done ? "done" : "plain" });
   if (d.weighIn.due || d.weighIn.weight !== null)
     out.push({ icon: "⚖️", text: d.weighIn.weight !== null ? `Weigh-in · ${d.weighIn.weight} lb` : "Weigh-in", state: d.weighIn.weight !== null ? "done" : past ? "missed" : "due" });
   if (d.photos.due) out.push({ icon: "📸", text: `Progress photos${d.photos.count ? ` · ${d.photos.count}/3` : ""}`, state: d.photos.count >= 3 ? "done" : past ? "missed" : "due" });

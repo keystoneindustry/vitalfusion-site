@@ -7,6 +7,8 @@ import { todayIn } from "@/lib/dates";
 import { weekDates } from "@/lib/calendar";
 import { loadDays } from "@/lib/client-days";
 import { demosFor } from "@/lib/exercises";
+import { sessionsBetween } from "@/lib/workouts";
+import Link from "next/link";
 import FeatureTour from "../FeatureTour";
 import { TRAINING_TOUR } from "../tour-steps";
 
@@ -39,6 +41,7 @@ export default async function TrainPage({ searchParams }: { searchParams: Promis
     demosFor(training.days.flatMap((d) => d.exercises.map((e) => e.name))).catch(() => ({})),
   ]);
   const todays = week.find((d) => d.date === today)?.workouts[0] ?? null;
+  const loggedToday = (await sessionsBetween(client.id, today, today).catch(() => [])).map((s) => s.workout_day);
   const scheduled = week.some((d) => d.workouts.length > 0);
   const openDay = day !== undefined ? Math.max(0, parseInt(day, 10) || 0) : (todays?.day ?? 0);
   const minutes = Math.round(training.days.reduce((a, d) => a + estimateMinutes(d), 0) / training.days.length);
@@ -46,7 +49,10 @@ export default async function TrainPage({ searchParams }: { searchParams: Promis
 
   return (
     <>
-      <h1 className="h1">Your training</h1>
+      <div className="history-head">
+        <h1 className="h1">Your training</h1>
+        <Link href="/train/history" className="btn btn-ghost btn-sm">📈 History</Link>
+      </div>
       <p className="lead" style={{ marginTop: -4 }} data-tour="t-meta">
         {perWeek}× a week · ~{minutes} min · {GOAL_LABEL[published.targets.inputs.goal] ?? "Your goal"}
       </p>
@@ -58,7 +64,12 @@ export default async function TrainPage({ searchParams }: { searchParams: Promis
       )}
 
       {training.overview && <p className="program-intro">{training.overview.split(/(?<=\.)\s+/).slice(0, 2).join(" ")}</p>}
-      <TrainingProgram training={training} openDay={openDay} demos={demos} />
+      <TrainingProgram
+        training={training}
+        openDay={openDay}
+        demos={demos}
+        log={{ href: (k) => `/train/log?day=${k}`, doneToday: loggedToday }}
+      />
       {(!client.training_tour_seen_at || tour === "1") && (
         <FeatureTour
           tour="training"

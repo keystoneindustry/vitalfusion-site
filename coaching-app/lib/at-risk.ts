@@ -99,7 +99,7 @@ export async function loadAtRisk(clients: ClientRow[]): Promise<Risk[]> {
   if (!list.length) return [];
   const ids = list.map((c) => q(c.id)).join(",");
   const since = new Date(Date.now() - 30 * 864e5).toISOString();
-  const [checks, weighIns, subs, photos, meals, checkinForms] = await Promise.all([
+  const [checks, weighIns, subs, photos, meals, checkinForms, workouts] = await Promise.all([
     db<{ client_id: string; created_at: string }[]>(`habit_checks?select=client_id,created_at&client_id=in.(${ids})&created_at=gte.${since}&order=created_at.desc`),
     db<{ client_id: string; created_at: string }[]>(`weigh_ins?select=client_id,created_at&client_id=in.(${ids})&created_at=gte.${since}`),
     db<{ client_id: string; form_id: string; due_date: string; submitted_at: string | null }[]>(
@@ -108,6 +108,7 @@ export async function loadAtRisk(clients: ClientRow[]): Promise<Risk[]> {
     db<{ client_id: string; created_at: string }[]>(`progress_photos?select=client_id,created_at&client_id=in.(${ids})&created_at=gte.${since}`),
     db<{ client_id: string; created_at: string }[]>(`meal_logs?select=client_id,created_at&client_id=in.(${ids})&created_at=gte.${since}`),
     db<{ id: string }[]>(`forms?select=id&kind=eq.checkin`),
+    db<{ client_id: string; created_at: string }[]>(`workout_sessions?select=client_id,created_at&client_id=in.(${ids})&created_at=gte.${since}`).catch(() => []),
   ]);
   const checkinIds = new Set(checkinForms.map((f) => f.id));
 
@@ -116,7 +117,7 @@ export async function loadAtRisk(clients: ClientRow[]): Promise<Risk[]> {
     const tz = c.timezone;
     const today = todayIn(tz ?? undefined);
     let logged: string | null = null;
-    for (const rows of [checks, weighIns, photos, meals]) {
+    for (const rows of [checks, weighIns, photos, meals, workouts]) {
       for (const r of rows) if (r.client_id === c.id) logged = latest(logged, day(r.created_at, tz));
     }
     const sent = subs.filter((s) => s.client_id === c.id);

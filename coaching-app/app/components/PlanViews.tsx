@@ -202,7 +202,18 @@ export function setsReps(e: { sets: string; reps: string }): string {
 }
 
 /** A training program, laid out to scan on a phone: workouts first, then one card of program notes. */
-export function TrainingProgram({ training, openDay = 0, demos = {} }: { training: Training; openDay?: number; demos?: Record<string, Demo> }) {
+export function TrainingProgram({
+  training,
+  openDay = 0,
+  demos = {},
+  log,
+}: {
+  training: Training;
+  openDay?: number;
+  demos?: Record<string, Demo>;
+  /** Client only: "Log this workout" per day, and which days are already logged today. */
+  log?: { href: (day: number) => string; doneToday: number[] };
+}) {
   const warmup = toLines(training.warmup);
   const notes: { icon: string; title: string; text: string }[] = [
     { icon: "🔥", title: "Warm-up", text: training.warmup },
@@ -248,6 +259,11 @@ export function TrainingProgram({ training, openDay = 0, demos = {} }: { trainin
                 </li>
               ))}
             </ol>
+            {log && (
+              <a href={log.href(k)} className={`btn btn-ghost log-btn ${log.doneToday.includes(k) ? "done" : ""}`}>
+                {log.doneToday.includes(k) ? "✓ Logged today · edit" : "📝 Log this workout"}
+              </a>
+            )}
           </details>
         ))}
       </div>
