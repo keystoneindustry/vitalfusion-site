@@ -225,3 +225,8 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   server action (Next-Action header), so nothing can be saved; API routes already reject the coach. `ViewAsBanner` (gold bar,
   "Exit client view" → `/coach/view-exit`) in the client + onboarding layouts; `error.tsx` there (`ClientViewError`) explains
   a blocked save. Opening a check-in reply in client view doesn't mark it seen.
+- Nov 23: agreement v2026-11-23 aligned with the website Terms of Service (vitalfusioncoaching.com/terms) and Privacy Policy
+  (/privacy): non-refundable once paid (installments owed in full), monthly cancel by emailing tyler@, refund of the unused
+  portion only if the coach ends coaching for reasons not caused by the client, no public photos/results without separate
+  written permission, Terms + Privacy are part of the agreement (agreement controls on conflict). Login page shows
+  "By signing in, you agree to our Terms of Service and Privacy Policy" (links to the website).

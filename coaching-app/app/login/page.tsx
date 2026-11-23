@@ -27,6 +27,11 @@ export default async function LoginPage({
       <p className="lead center">Enter the email you gave your coach.</p>
       {message && <div className="notice notice-warn">{message}</div>}
       <LoginForm defaultEmail={params.email} />
+      <p className="small muted center legal-note">
+        By signing in, you agree to our{" "}
+        <a href="https://vitalfusioncoaching.com/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a> and{" "}
+        <a href="https://vitalfusioncoaching.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
+      </p>
     </main>
   );
 }

@@ -2,12 +2,14 @@ import { formatDate } from "./dates";
 
 /**
  * Vital Fusion Coaching LLC — Client Onboarding, Informed Consent & Personal Training Agreement.
- * Wording comes from Tyler's existing agreement (Nov 2026), with three approved changes:
- * Privacy and data (Section V), Coaching package and payment (Section V), and
- * Maryland governing law (Section VIII). Bump AGREEMENT_VERSION whenever the wording changes.
+ * Wording comes from Tyler's existing agreement (Nov 2026), with approved changes: Privacy and data, Coaching package
+ * and payment (Section V), Maryland governing law (Section VIII), and on Nov 23, 2026 (to match the website Terms of
+ * Service): non-refundable once paid, monthly cancellation by email, refund of the unused portion only if the Coach ends
+ * coaching for reasons not caused by the Client, no public photos without written permission, and the Terms/Privacy
+ * Policy are part of the agreement. Bump AGREEMENT_VERSION whenever the wording changes.
  * Have a lawyer review this wording before launch.
  */
-export const AGREEMENT_VERSION = "2026-11-20";
+export const AGREEMENT_VERSION = "2026-11-23";
 export const AGREEMENT_TITLE = "Client Onboarding, Informed Consent & Personal Training Agreement";
 export const COACH_SIGNATURE = { name: "Tyler Kendrick", title: "Owner", company: "Vital Fusion Coaching LLC" };
 
@@ -49,12 +51,12 @@ export type PackageTerms = { billing?: "package" | "monthly"; coachingWeeks: num
 function packageParagraph(p: PackageTerms): string {
   if (p.billing === "monthly") {
     const start = p.startDate ? formatDate(p.startDate) : "the agreed start date";
-    return `The Client is purchasing online coaching on a month-to-month basis, beginning ${start}. Payment is due in advance at the start of each monthly billing period. There is no minimum commitment: the Client may cancel at any time by notifying the Coach in writing, including by email or in the coaching app, before their next billing date. After cancellation no further payments will be charged, and coaching services continue through the end of the billing period already paid for. Payments are non-refundable for a billing period that has already begun, unless otherwise stated in writing. Failure to maintain payment may result in suspension or termination of services. The Coach may also end the monthly arrangement by giving the Client written notice, in which case no further payments will be charged.`;
+    return `The Client is purchasing online coaching on a month-to-month basis, beginning ${start}. Payment is due in advance at the start of each monthly billing period. There is no minimum commitment: the Client may cancel at any time by emailing the Coach at tyler@vitalfusioncoaching.com before their next billing date. After cancellation no further payments will be charged, and coaching services continue through the end of the billing period already paid for. All payments are non-refundable once paid, including the payment for the current billing period, unless otherwise stated in writing. Failure to maintain payment may result in suspension or termination of services. The Coach may also end the monthly arrangement by giving the Client written notice, in which case no further payments will be charged.`;
   }
   const length = p.coachingWeeks ? `${p.coachingWeeks} week${p.coachingWeeks === 1 ? "" : "s"}` : "the agreed length";
   const start = p.startDate ? formatDate(p.startDate) : "the agreed start date";
   const end = p.endDate ? formatDate(p.endDate) : "the agreed end date";
-  return `The Client is purchasing ${length} of online coaching, beginning ${start} and ending ${end} (the “Term”). Payment for the Term is due in advance according to the agreed-upon schedule. Failure to maintain payment may result in suspension or termination of services. All payments are non-refundable once the Term has begun, unless otherwise stated in writing. Coaching services end on the end date unless the Client and Coach agree in writing to renew. Any pause, extension or change to the Term must be agreed in writing, including by email or in the coaching app, and will be recorded in an updated version of this Agreement.`;
+  return `The Client is purchasing ${length} of online coaching, beginning ${start} and ending ${end} (the “Term”). Payment for the Term is due in advance according to the agreed-upon schedule. Failure to maintain payment may result in suspension or termination of services. All payments are non-refundable once paid, including if the Client stops using the services or ends coaching early, unless otherwise stated in writing. If the Client pays in installments, the Client agrees to pay every installment for the full Term. Coaching services end on the end date unless the Client and Coach agree in writing to renew. Any pause, extension or change to the Term must be agreed in writing, including by email, and will be recorded in an updated version of this Agreement.`;
 }
 
 /** Sections III–VIII, with the client's package filled in. */
@@ -91,8 +93,8 @@ export function agreementSections(p: PackageTerms): AgreementSection[] {
         "The Client agrees to promptly notify the Coach of any pain, discomfort, injury, illness, dizziness, unusual symptoms, or changes in physical condition or medication that may affect safe participation. The Client acknowledges that failure to communicate such information may increase the risk of injury.",
         "The Client understands that Vital Fusion Coaching LLC reserves the right to modify exercise programming at any time based on progress, feedback, safety considerations, or limitations disclosed by the Client. The Client acknowledges that modifications are intended to reduce risk and improve effectiveness.",
         `Coaching package and payment. ${packageParagraph(p)}`,
-        "Privacy and data. The Client’s personal information, health data, photos and progress information will be kept confidential and will not be sold. To provide coaching services, Vital Fusion Coaching LLC uses service providers that store or process this information on its behalf, including app hosting and data storage, email delivery, and artificial-intelligence tools that help prepare plans and check-in feedback for the Coach’s review. These providers may use the information only to provide their services to the Coach. Information may also be disclosed when required by law. When coaching ends, the Client may ask the Coach to delete their information, except records the Coach must keep for legal or business purposes, such as this signed Agreement.",
-        "The Client acknowledges that Vital Fusion Coaching LLC may terminate coaching services if the Client fails to follow safety instructions, provides false or misleading information, or engages in conduct that places themselves or the Coach at unreasonable risk.",
+        "Privacy and data. The Client’s personal information, health data, photos and progress information will be kept confidential and will not be sold. To provide coaching services, Vital Fusion Coaching LLC uses service providers that store or process this information on its behalf, including app hosting and data storage, email delivery, and artificial-intelligence tools that help prepare plans and check-in feedback for the Coach’s review. These providers may use the information only to provide their services to the Coach. Information may also be disclosed when required by law. The Coach will not publicly share the Client’s photos, name, story or results (for example as a testimonial or before-and-after) without the Client’s separate written permission. When coaching ends, the Client may ask the Coach to delete their information, except records the Coach must keep for legal or business purposes, such as this signed Agreement.",
+        "The Client acknowledges that Vital Fusion Coaching LLC may terminate coaching services if the Client fails to follow safety instructions, provides false or misleading information, fails to pay, or engages in conduct that places themselves or the Coach at unreasonable risk; in those cases no refund is owed. If Vital Fusion Coaching LLC ends coaching services for any other reason, it will refund the unused portion of what the Client paid.",
       ],
     },
     {
@@ -118,7 +120,7 @@ export function agreementSections(p: PackageTerms): AgreementSection[] {
       paragraphs: [
         "This Agreement shall be governed by and construed in accordance with the laws of the State of Maryland. Any dispute arising out of or related to this Agreement shall be brought in the state or federal courts located in Maryland.",
         "If any provision of this Agreement is found to be invalid or unenforceable, the remaining provisions shall continue in full force and effect.",
-        "This Agreement constitutes the entire agreement between the parties and supersedes all prior discussions, representations, or agreements, whether written or oral.",
+        "This Agreement, together with the Vital Fusion Coaching Terms of Service and Privacy Policy at vitalfusioncoaching.com, constitutes the entire agreement between the parties and supersedes all prior discussions, representations, or agreements, whether written or oral. If this Agreement conflicts with the Terms of Service, this Agreement controls.",
       ],
     },
   ];
