@@ -150,7 +150,7 @@ export const TERMS: LegalSection[] = [
   {
     title: "22. Changes to these Terms",
     body: [
-      "We may update these Terms. We will post the new version here with a new “Last updated” date, and tell clients about important changes by email or in the app. Changes apply from the date they’re posted and don’t change a Coaching Agreement you already signed.",
+      "We may update these Terms. We will post the new version here and tell clients about important changes by email or in the app. Changes apply from the date they’re posted and don’t change a Coaching Agreement you already signed.",
     ],
   },
   {
@@ -260,7 +260,7 @@ export const PRIVACY: LegalSection[] = [
   {
     title: "11. Changes",
     body: [
-      "We may update this policy. We’ll post the new version here with a new “Last updated” date and tell clients about important changes by email or in the app.",
+      "We may update this policy. We’ll post the new version here and tell clients about important changes by email or in the app.",
     ],
   },
   { title: "12. Contact", body: [LEGAL_CONTACT] },

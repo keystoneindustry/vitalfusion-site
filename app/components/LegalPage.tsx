@@ -1,5 +1,5 @@
 import { Fragment } from "react";
-import { LEGAL_UPDATED, type LegalSection } from "@/content/legal";
+import type { LegalSection } from "@/content/legal";
 
 /** **bold** inside a line. */
 function inline(text: string) {
@@ -31,7 +31,6 @@ export default function LegalPage({ title, intro, sections }: { title: string; i
   return (
     <main className="wrap legal">
       <h1 className="display">{title}</h1>
-      <p className="legal-updated">Last updated: {LEGAL_UPDATED}</p>
       <Body lines={intro} />
       {sections.map((s) => (
         <section key={s.title}>

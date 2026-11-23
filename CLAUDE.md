@@ -87,4 +87,4 @@ is not a developer; explain changes plainly and keep the site simple.
   `content/legal.ts`, rendered by `app/components/LegalPage.tsx`. Footer (`SiteChrome.tsx`) links both + a one-line
   "not medical advice" disclaimer; the application's last step says "By applying, you agree to our Terms of Service and
   Privacy Policy." The coaching app's sign-in screen links them too. Keep them in sync with the app's coaching agreement
-  (coaching-app/lib/agreement.ts): no refunds once paid, monthly cancel by email, Maryland law. Update LEGAL_UPDATED on changes.
+  (coaching-app/lib/agreement.ts): no refunds once paid, monthly cancel by email, Maryland law. No "last updated" line is shown (Tyler's call); LEGAL_UPDATED is kept for reference only.
