@@ -645,3 +645,17 @@ body:has(.apply-lp) {
 @media (min-width: 860px) {
   .mp-meals { grid-template-columns: 1fr 1fr; }
 }
+
+/* Terms / Privacy (hidden pages, linked from the footer) */
+.footer-legal { margin: 10px 0 6px; }
+.footer-legal a { color: var(--text-2, #c9ced6); text-decoration: underline; }
+.footer-disclaimer { font-size: 12.5px; max-width: 460px; margin: 0 auto 8px; }
+.privacy a { color: inherit; text-decoration: underline; }
+.legal { max-width: 760px; }
+.legal .display { font-size: clamp(30px, 6vw, 42px); margin-bottom: 6px; }
+.legal-updated { color: var(--muted); font-size: 14px; margin: 0 0 22px; }
+.legal h2 { font-size: 19px; margin: 28px 0 8px; }
+.legal p, .legal li { line-height: 1.65; color: var(--text-2, #c9ced6); font-size: 16px; }
+.legal ul { padding-left: 20px; margin: 6px 0 12px; }
+.legal li { margin-bottom: 6px; }
+.legal strong { color: var(--text, #fff); }

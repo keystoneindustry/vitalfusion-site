@@ -83,3 +83,8 @@ is not a developer; explain changes plainly and keep the site simple.
   are on phones.
 - Example foods in tips (results page + day 2 email) use tokens like `{protein:4}` filled by `fillFoods()`
   in `lib/foods.ts`, so nobody is shown a food they said they don't eat.
+- Legal (Nov 23, 2026, approved by Tyler): hidden (noindex, not in the menu) pages `/terms` and `/privacy`, text in
+  `content/legal.ts`, rendered by `app/components/LegalPage.tsx`. Footer (`SiteChrome.tsx`) links both + a one-line
+  "not medical advice" disclaimer; the application's last step says "By applying, you agree to our Terms of Service and
+  Privacy Policy." The coaching app's sign-in screen links them too. Keep them in sync with the app's coaching agreement
+  (coaching-app/lib/agreement.ts): no refunds once paid, monthly cancel by email, Maryland law. Update LEGAL_UPDATED on changes.

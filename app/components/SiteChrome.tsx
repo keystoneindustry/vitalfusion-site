@@ -31,6 +31,10 @@ export function SiteFooter() {
           </a>
         </p>
       )}
+      <p className="footer-legal">
+        <Link href="/terms">Terms of Service</Link> · <Link href="/privacy">Privacy Policy</Link>
+      </p>
+      <p className="muted footer-disclaimer">General fitness and nutrition information, not medical advice. Talk to your doctor before starting a new program.</p>
       <p className="muted">© {new Date().getFullYear()} {site.brand}. All rights reserved.</p>
     </footer>
   );

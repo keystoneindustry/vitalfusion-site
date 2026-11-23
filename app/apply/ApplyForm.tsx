@@ -347,7 +347,13 @@ export default function ApplyForm({ source, initialAge = "" }: { source: string;
             {step === LAST ? (status === "sending" ? "Submitting…" : "Submit Application") : <>Continue <span aria-hidden>→</span></>}
           </button>
         )}
-        {step === LAST && <p className="privacy">Your info stays private and is only used to contact you about coaching.</p>}
+        {step === LAST && (
+          <p className="privacy">
+            By applying, you agree to our{" "}
+            <a href="/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a> and{" "}
+            <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
+          </p>
+        )}
       </form>
       </div>
     </main>
