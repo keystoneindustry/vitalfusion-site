@@ -38,8 +38,8 @@ export default function Home() {
         <div className="lp-inner narrow">
           <p className="hero-eyebrow">{hero.eyebrow}</p>
           <h1 className="hero-title">
-            {hero.headline[0]}
-            <span className="accent"> {hero.headline[1]}</span> {hero.headline[2]}
+            <span className="line">{hero.headline[0]}</span>{" "}
+            <span className="line"><span className="accent">{hero.headline[1]}</span> {hero.headline[2]}</span>
           </h1>
           <VideoHero {...video} />
           {hero.sub && <p className="hero-sub"><Rich text={hero.sub} /></p>}
