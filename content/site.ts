@@ -13,9 +13,9 @@ export const site = {
   applyCta: "Apply for 1:1 Coaching",
 
   hero: {
-    eyebrow: "For busy professionals who are done starting over",
+    eyebrow: "For busy professionals with no time to live in the gym",
     // Three lines; the middle one is shown in brand blue.
-    headline: ["Get back in shape", "and feel confident again", "without extreme dieting or living in the gym."],
+    headline: ["Stop starting over", "every Monday.", "Get back in shape for good."],
     button: "Apply for 1:1 Coaching",
     note: "Takes 60 seconds",
     // Holiday line under the button. Set to "" after New Year's to hide it.
@@ -180,8 +180,8 @@ export const site = {
   },
 
   closing: {
-    headline: "90 days will pass *either way.*",
-    sub: "90 days from now you could be back in shape and feeling like yourself again, or still waiting for the right Monday to start.",
+    headline: "The time will pass *either way.*",
+    sub: "Are you done letting your body hold you back? A year from now you could feel confident and like yourself again, or still be waiting for the right Monday to start.",
     disclaimer: "Results vary and depend on your starting point, effort and consistency.",
   },
 
