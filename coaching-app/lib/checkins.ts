@@ -6,6 +6,9 @@
 
 import { listSessions } from "./workouts";
 import { bestOf, newRecords } from "./workout-log";
+import { COACHING_PLAYBOOK } from "./playbook";
+import { getResponse } from "./onboarding-data";
+import { coachingDay } from "./resources";
 import { askForJson, aiConfigured, type JsonSpec } from "./ai";
 import { addDays, todayIn } from "./dates";
 import { adherence, habitDueOn, scheduleDueOn } from "./calendar";
@@ -115,18 +118,13 @@ export async function weekNumbers(client: ClientRow, endDate: string): Promise<W
 
 const SYSTEM = `You help Tyler Kendrick, coach at Vital Fusion Coaching, review a client's weekly check-in. Tyler reads your notes and edits the reply before the client sees it.
 
-How Tyler coaches (placeholder rules until he writes his own playbook):
-- Look at the weekly average weight, not single weigh-ins. Weight flat for 2+ weeks while hitting targets on most days → suggest a small calorie cut (100-150 kcal) or more daily steps.
-- Low adherence (hitting targets on fewer than 4-5 days) → keep the targets and work on the obstacle they named.
-- Poor sleep, high stress or high hunger → address that before cutting calories.
-- Celebrate wins specifically. Never shame.
-- Never diagnose; flag anything medical or worrying for Tyler.
+${COACHING_PLAYBOOK}
 
 Write:
 - summary: 3-5 short bullet lines for Tyler (what happened this week, with numbers).
 - wins and concerns: short lines.
 - suggestions: concrete changes for Tyler to consider, each with a short reason. Empty if nothing should change.
-- draftReply: the reply to the client in Tyler's voice: warm, direct, specific to their answers and numbers, plain English, short paragraphs, 80-160 words, at most one emoji, signed "– Tyler". Answer any question they asked.`;
+- draftReply: the reply to the client in Tyler's voice: warm and detailed, specific to their answers and numbers, explains the why, plain English, short paragraphs, 120-220 words, at most one emoji, signed "– Tyler". Answer any question they asked (except flagged topics: say Tyler will follow up).`;
 
 const OUTPUT: JsonSpec = {
   name: "checkin_review",
@@ -144,10 +142,18 @@ const OUTPUT: JsonSpec = {
 
 async function aiReview(client: ClientRow, form: Form, sub: Submission, numbers: WeekNumbers, previous: Submission | null): Promise<CheckinSummary> {
   const lines = answerLines(sub.questions.length ? sub.questions : form.questions, sub.answers);
+  const [response, weighIns] = await Promise.all([getResponse(client.id).catch(() => null), listWeighIns(client.id, 60).catch(() => [])]);
+  const goal = String(response?.answers?.goal ?? "").trim();
+  const day = coachingDay(client.start_date, client.end_date, sub.due_date);
+  const week = client.start_date && day < 100000 && sub.due_date >= client.start_date ? Math.floor(day / 7) + 1 : null;
+  const avgs = weeklyAverages(weighIns.filter((w) => w.date <= sub.due_date)).slice(-4);
   const res = await askForJson({
     system: SYSTEM,
     content: [
-      { type: "text", text: `Client: ${client.full_name}${client.billing === "monthly" ? ", monthly coaching (ongoing)" : client.coaching_weeks ? `, ${client.coaching_weeks}-week package` : ""}. Check-in date: ${sub.due_date}.` },
+      { type: "text", text: `Client: ${client.full_name}${client.billing === "monthly" ? ", monthly coaching (ongoing)" : client.coaching_weeks ? `, ${client.coaching_weeks}-week package` : ""}. Check-in date: ${sub.due_date}.${week ? ` Coaching week ${week}.` : ""}${goal ? ` Goal: ${goal}.` : ""}` },
+      ...(avgs.length >= 2
+        ? [{ type: "text" as const, text: `WEEKLY AVERAGE WEIGHT (oldest → newest, week starting)\n${avgs.map((a) => `- ${a.week}: ${a.avg} lb (${a.count} weigh-ins)`).join("\n")}` }]
+        : []),
       { type: "text", text: `THIS WEEK'S NUMBERS\n${numberLines(numbers).join("\n")}` },
       { type: "text", text: `THEIR ANSWERS\n${lines.map((l) => `${l.section ? `[${l.section}]\n` : ""}- ${l.prompt}: ${l.answer}`).join("\n")}` },
       previous

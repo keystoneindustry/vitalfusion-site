@@ -78,7 +78,7 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   reply `/check-ins/[id]`. Submitting (`app/(client)/check-ins/actions.ts`) saves `form_submissions` (with a questions
   snapshot) and runs `processSubmission` (`lib/checkins.ts`) via `after()`: week numbers (weigh-in averages, habit
   adherence, photos), AI review for check-ins (summary, wins, concerns, suggested changes, draft reply in Tyler's voice;
-  placeholder coaching rules in the prompt), then emails the `checkin_email` setting with subject "[Check-in] Name · date".
+  Tyler's coaching playbook in `lib/playbook.ts`, written Nov 24 from his answers), then emails the `checkin_email` setting with subject "[Check-in] Name · date".
   Coach client tab Check-ins → review page with numbers, AI summary and reply box (prefilled with the draft); sending
   emails the client. Dashboard flags check-ins awaiting a reply.
 - Resources: coach manages them at `/coach/resources` (top menu): PDFs and video files (≤50 MB, uploaded straight from the
