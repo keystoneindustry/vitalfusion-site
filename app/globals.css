@@ -377,11 +377,14 @@ input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px
 }
 .lp-hero::after { content: ""; position: absolute; inset: auto 0 0 0; height: 120px; background: linear-gradient(transparent, var(--lp-bg)); pointer-events: none; }
 .lp-hero .lp-inner { position: relative; z-index: 1; }
-.hero-eyebrow { margin: 0 0 16px; color: var(--text-2); font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
-.hero-title { font-size: clamp(36px, 10.4vw, 66px); line-height: 1.04; letter-spacing: -0.035em; font-weight: 800; margin: 0 0 26px; }
+.hero-eyebrow { margin: 0 auto 14px; max-width: 30em; color: var(--accent-hi, #8fbddf); font-size: 12px; font-weight: 700; letter-spacing: 0.08em; line-height: 1.5; text-transform: uppercase; }
+.hero-title { font-size: clamp(30px, 8.4vw, 52px); line-height: 1.04; letter-spacing: -0.035em; font-weight: 800; margin: 0 0 26px; }
 .hero-title .accent { display: block; color: var(--accent-hi, #8fbddf); text-shadow: 0 0 40px rgba(106, 159, 198, 0.35); }
 .hero-sub { color: var(--text-2); font-size: 17px; line-height: 1.6; margin: 0 auto 26px; max-width: 32em; }
 .lp-hero .cta { margin-top: 22px; }
+.hero-sub { margin: 22px auto 0; max-width: 30em; color: var(--text-2); font-size: 17px; line-height: 1.55; }
+.hero-sub strong { color: var(--text, #fff); font-weight: 700; }
+.hero-sub em { font-style: italic; }
 .holiday { margin: 22px auto 0; max-width: 30em; padding: 12px 16px; border-radius: 14px; border: 1px solid #2c3a52; background: rgba(18, 26, 40, 0.7); color: #c9dcee; font-size: 15px; line-height: 1.5; }
 
 /* Video */

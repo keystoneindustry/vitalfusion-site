@@ -13,10 +13,13 @@ export const site = {
   applyCta: "Apply for 1:1 Coaching",
 
   hero: {
-    eyebrow: "For busy professionals with no time to live in the gym",
+    eyebrow: "For busy professionals tired of belly fat, crash diets and Monday restarts",
     // Three lines; the middle one is shown in brand blue.
-    headline: ["Stop starting over", "every Monday.", "Get back in shape for good."],
-    button: "Apply for 1:1 Coaching",
+    headline: ["Get back in shape", "and keep it off", "for good."],
+    // Blurb under the video, right above the main button. **Double stars** = bold.
+    sub: "1:1 coaching that helps busy professionals lose fat, build muscle and **regain the confidence you once had**, even if you've *tried everything* before.",
+    // Only the top button says this; every other button uses applyCta.
+    button: "Start My Transformation",
     note: "Takes 60 seconds",
     // Holiday line under the button. Set to "" after New Year's to hide it.
     holiday: "Start now and get a head start on the holidays, instead of starting over in January.",
@@ -174,6 +177,7 @@ export const site = {
     headline: "Meet your coach",
     paragraphs: [
       "I've been where you are. After years of trying every diet and workout program, I found what actually works: a sustainable, personalized approach that fits your life.",
+      "I still work a desk job in sales, with work lunches and happy hours. I stay in shape and built my dream body anyway, using the same system I'll build around your life.",
       "Now I help busy professionals get back in shape and feel confident again, without extreme dieting or living in the gym. Most of my clients come to me after years of starting over. They don't need more willpower. They need a plan that fits a full calendar, and someone checking in every week.",
     ],
     credentials: ["Nutrition Specialist", "5+ Years Experience"],
