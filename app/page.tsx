@@ -41,8 +41,8 @@ export default function Home() {
             <span className="line">{hero.headline[0]}</span>{" "}
             <span className="line"><span className="accent">{hero.headline[1]}</span> {hero.headline[2]}</span>
           </h1>
-          <VideoHero {...video} />
           {hero.sub && <p className="hero-sub"><Rich text={hero.sub} /></p>}
+          <VideoHero {...video} />
           <div id="hero-form">
             <Cta label={hero.button} note={hero.note} />
           </div>

@@ -384,7 +384,7 @@ input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px
 .hero-sub { color: var(--text-2); font-size: 17px; line-height: 1.6; margin: 0 auto 26px; max-width: 32em; }
 .lp-hero .cta { margin-top: 22px; }
 .lp-hero .btn-cta { white-space: nowrap; font-size: clamp(15px, 4.4vw, 19px); padding-left: 14px; padding-right: 14px; letter-spacing: 0.02em; }
-.hero-sub { margin: 22px auto 0; max-width: 30em; color: var(--text-2); font-size: 17px; line-height: 1.55; }
+.hero-sub { margin: -8px auto 24px; max-width: 30em; color: var(--text-2); font-size: 17px; line-height: 1.55; }
 .hero-sub strong { color: var(--text, #fff); font-weight: 700; }
 .hero-sub em { font-style: italic; }
 .holiday { margin: 22px auto 0; max-width: 30em; padding: 12px 16px; border-radius: 14px; border: 1px solid #2c3a52; background: rgba(18, 26, 40, 0.7); color: #c9dcee; font-size: 15px; line-height: 1.5; }

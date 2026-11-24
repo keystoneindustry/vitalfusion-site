@@ -16,7 +16,7 @@ export const site = {
     eyebrow: "For busy professionals tired of belly fat, crash diets and Monday restarts",
     // Two lines: the first part, then the blue part followed by the last part.
     headline: ["Get back in shape", "and keep it off", "for good."],
-    // Blurb under the video, right above the main button. **Double stars** = bold.
+    // Blurb under the headline, above the video. **Double stars** = bold.
     sub: "1:1 coaching that helps busy professionals lose fat, build muscle and **regain the confidence you once had**, even if you've *tried everything* before.",
     // Only the top button says this; every other button uses applyCta.
     button: "Start My Transformation",
