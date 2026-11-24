@@ -8,7 +8,7 @@ import Rich from "./components/Rich";
 import ApplyLink from "./components/ApplyLink";
 
 // Homepage: one goal — start the application.
-// Order: video hero → 3 pillars → how it works → client results → what you get
+// Order: video hero → sound familiar? → 3 pillars → how it works → client results → what you get
 // → your coach → is this for you? → closing. (No sticky button bar; Start Now repeats in the page.) All text comes from content/site.ts.
 
 function Cta({ label, note }: { label: string; note?: string }) {
@@ -27,7 +27,7 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
 }
 
 export default function Home() {
-  const { hero, video, pillars, how, results, whatYouGet, about, fit, closing, applyCta } = site;
+  const { hero, video, pain, pillars, how, results, whatYouGet, about, fit, closing, applyCta } = site;
 
   return (
     <main className="home lp">
@@ -46,6 +46,24 @@ export default function Home() {
             <Cta label={hero.button} note={hero.note} />
           </div>
           {hero.holiday && <p className="holiday">{hero.holiday}</p>}
+        </div>
+      </section>
+
+      {/* SOUND FAMILIAR? */}
+      <section className="lp-sec" id="pain">
+        <div className="lp-inner narrow">
+          <div className="sec-head reveal">
+            <Eyebrow>{pain.eyebrow}</Eyebrow>
+            <h2 className="sec-title"><Rich text={pain.headline} /></h2>
+          </div>
+          <div className="fit-card card-lp reveal">
+            <ul>
+              {pain.items.map((t) => (
+                <li key={t}><span className="mark no"><Icon name="x" size={16} /></span>{t}</li>
+              ))}
+            </ul>
+          </div>
+          <p className="pillars-close reveal">{pain.closing}</p>
         </div>
       </section>
 

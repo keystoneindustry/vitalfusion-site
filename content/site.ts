@@ -10,14 +10,14 @@ export const site = {
   // Required in marketing email footers (CAN-SPAM).
   mailingAddress: "1802 Charolais Court, Bel Air, MD 21015",
   instagram: "", // e.g. "vitalfusioncoaching" (no @). Leave "" to hide the link.
-  applyCta: "Start Now",
+  applyCta: "Apply for 1:1 Coaching",
 
   hero: {
-    eyebrow: "For busy professionals who can't stay consistent",
+    eyebrow: "For busy professionals who are done starting over",
     // Three lines; the middle one is shown in brand blue.
-    headline: ["Lose your first", "15+ lbs in 90 days", "without extreme diets."],
-    button: "Start Now",
-    note: "60-second application",
+    headline: ["Get back in shape", "and feel confident again", "without extreme dieting or living in the gym."],
+    button: "Apply for 1:1 Coaching",
+    note: "Takes 60 seconds",
     // Holiday line under the button. Set to "" after New Year's to hide it.
     holiday: "Start now and get a head start on the holidays, instead of starting over in January.",
     photo: "/images/coach-photo.webp",
@@ -31,42 +31,57 @@ export const site = {
     unmuteLabel: "Tap to watch with sound",
   },
 
+  // "Sound familiar?" checklist right under the video. *Stars* = italic accent font.
+  pain: {
+    eyebrow: "Sound familiar?",
+    headline: "You used to feel *good in your own skin.*",
+    items: [
+      "You avoid photos, or delete them after",
+      "Your clothes fit tighter than they did a few years ago",
+      "You start a diet on Monday and you're done by Thursday",
+      "Work, kids and travel eat every free hour you have",
+      "You've lost the weight before, and it came right back",
+      "You're tired by 2 p.m. and don't feel like yourself",
+    ],
+    closing: "None of this means you're lazy. It means every plan you've tried was built for someone with more time.",
+  },
+
   // Words wrapped in *stars* show in the italic accent font.
   pillars: {
     eyebrow: "Why this time is different",
-    headline: "It was never your *willpower.*",
-    sub: "Your last plan just wasn't built for your life. Mine is built on 3 pillars.",
+    headline: "You're not lazy. *You're busy.*",
+    sub: "Most plans ask for hours in the gym and a diet you can't live with. Mine is built on 3 pillars.",
     items: [
       {
         icon: "plate",
         label: "Pillar 1",
-        title: "Not a lose-it-fast diet.",
-        text: "No cutting carbs to zero or skipping meals. You eat foods you already like, in amounts that get you results.",
+        title: "No extreme dieting.",
+        text: "No cutting carbs to zero, no skipping meals, no crash diets. You eat foods you already like and still lose fat.",
       },
       {
         icon: "calendar",
         label: "Pillar 2",
-        title: "Built around your life.",
-        text: "Long workdays, kids, travel and weekends are planned for, not ignored. The plan changes when your week does.",
+        title: "No living in the gym.",
+        text: "Short workouts a few days a week, at home or the gym. Long workdays, kids and travel are planned for, and the plan changes when your week does.",
       },
       {
         icon: "infinity",
         label: "Pillar 3",
-        title: "Sustainable for good.",
-        text: "You learn habits that keep the weight off after you lose it, so this is the last time you have to lose it.",
+        title: "Confidence that lasts.",
+        text: "You build habits that keep the weight off, so you feel good in your clothes and in photos, and this is the last time you start over.",
       },
     ],
-    closing: "You don't need a stricter diet. You need a plan you can stick to, with someone in your corner.",
+    closing: "You don't need more discipline. You need a plan that fits the life you already have, and someone in your corner.",
   },
 
   how: {
     eyebrow: "How it works",
-    headline: "From application to *results.*",
+    headline: "From busy and stuck to *back in shape.*",
     steps: [
       { title: "Apply", text: "Fill out the 60-second application so I can see your goals." },
       { title: "Quick call", text: "We hop on a short call to make sure it's a good fit." },
-      { title: "Your personalized plan", text: "Nutrition and training built around your schedule and the foods you like." },
-      { title: "Weekly check-ins", text: "We check in every week and adjust your plan as you go." },
+      { title: "Your personalized plan", text: "Meals with foods you like and workouts that fit your calendar. Nothing extreme." },
+      { title: "Weekly check-ins", text: "We check in every week and adjust, so one busy week never knocks you off track." },
     ],
   },
 
@@ -74,8 +89,8 @@ export const site = {
     eyebrow: "What you get",
     headline: "Everything you need. *Nothing you don't.*",
     items: [
-      { icon: "dumbbell", title: "Workouts built for your schedule", text: "Home, gym or on the road." },
-      { icon: "plate", title: "Real-life nutrition", text: "Foods you already like, with a plan for eating out." },
+      { icon: "dumbbell", title: "Workouts that fit your schedule", text: "Short sessions at home, the gym or on the road." },
+      { icon: "plate", title: "No extreme dieting", text: "Foods you already like, plus a plan for eating out and weekends." },
       { icon: "chat", title: "Weekly 1:1 check-ins", text: "Plus messaging access whenever you have a question." },
       { icon: "phone", title: "The Vital Fusion app", text: "Your plan, grocery list, meals and progress in one place." },
     ],
@@ -95,22 +110,24 @@ export const site = {
   fit: {
     yesTitle: "This is *for you* if…",
     yes: [
-      "You're busy and have tried diets that didn't stick",
+      "You're a busy professional and your health keeps sliding down the list",
+      "You've tried diets that worked for a few weeks, then didn't",
+      "You want to feel confident in your clothes and in photos again",
       "You have 15+ lbs to lose and want it gone for good",
       "You want a real person checking in on you, not just an app",
-      "You're ready to commit and follow a plan",
     ],
     noTitle: "This is *not* for you if…",
     no: [
       "You want a crash diet or a quick fix before an event",
       "You only want a PDF meal plan to do on your own",
       "You aren't willing to track your food or train a few times a week",
+      "You want a plan that has you in the gym 2 hours a day",
     ],
   },
 
   results: {
     eyebrow: "Client Results",
-    headline: "Real clients. *Real results.*",
+    headline: "Busy people. *Real results.*",
     featured: {
       name: "Charlie G.",
       headline: "Lost 16 lbs in 8 weeks",
@@ -157,14 +174,14 @@ export const site = {
     headline: "Meet your coach",
     paragraphs: [
       "I've been where you are. After years of trying every diet and workout program, I found what actually works: a sustainable, personalized approach that fits your life.",
-      "Now I help busy adults build the body and health they deserve, without giving up everything they love.",
+      "Now I help busy professionals get back in shape and feel confident again, without extreme dieting or living in the gym. Most of my clients come to me after years of starting over. They don't need more willpower. They need a plan that fits a full calendar, and someone checking in every week.",
     ],
     credentials: ["Nutrition Specialist", "5+ Years Experience"],
   },
 
   closing: {
     headline: "90 days will pass *either way.*",
-    sub: "Start now and you could walk into the holidays already down, not starting over in January.",
+    sub: "90 days from now you could be back in shape and feeling like yourself again, or still waiting for the right Monday to start.",
     disclaimer: "Results vary and depend on your starting point, effort and consistency.",
   },
 

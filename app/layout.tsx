@@ -5,9 +5,9 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://vitalfusioncoaching.com"),
-  title: "Vital Fusion Coaching | Online Fitness & Nutrition Coaching",
+  title: "Vital Fusion Coaching | 1:1 Coaching for Busy Professionals",
   description:
-    "One-on-one online coaching that fuses training, nutrition and accountability into a plan built around your goals.",
+    "Get back in shape and feel confident again, without extreme dieting or living in the gym. 1:1 online coaching for busy professionals.",
   openGraph: {
     title: "Vital Fusion Coaching",
     description: "One-on-one online fitness and nutrition coaching.",
