@@ -70,8 +70,11 @@ is not a developer; explain changes plainly and keep the site simple.
   (`/grocery-list?source=instagram`), form `app/grocery-list/GroceryListForm.tsx` (same look as the meal plan pages), config,
   validation and emails in `lib/grocery-list.ts`, PDF `public/plans/fat-loss-grocery-list.pdf` (built outside the repo; its
   coaching button goes to `/?source=grocery-list`). `/api/grocery-list` emails the PDF link, sends `grocery_list.signed_up`
-  (Resend Automation for the day 2, 4, 7 follow-ups), saves a `grocery_list` funnel lead and emails the coach. No Resend
-  segment (all 3 used).
+  (Resend Automation "Grocery list follow-up (day 2, 4, 7)", stopped by `coaching.applied`, duplicate guard contact
+  property `grocery_list_sequence = started`; templates "Grocery list 1/2/3", copies + generator in
+  `docs/email-templates/grocery-list/`, buttons go to `/?source=grocery-list-email`), saves a `grocery_list` funnel lead
+  and emails the coach. No Resend segment (all 3 used). Subjects are set on each automation step (they override the
+  template's subject), so change both.
 - Conversion tracking: every live calculator signup, meal plan request, grocery list request and application is also saved to the coaching app's Supabase
   (project bcwytsuqudwghxctxoef) table `funnel_leads` via the insert-only RPC `record_funnel_lead` (`lib/funnel.ts`,
   publishable key + FUNNEL_TOKEN env, production only). The business dashboard joins it with `clients` by email.
