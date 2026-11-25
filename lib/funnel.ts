@@ -7,7 +7,7 @@
 const FUNNEL_URL = process.env.FUNNEL_SUPABASE_URL || "https://bcwytsuqudwghxctxoef.supabase.co";
 const FUNNEL_KEY = process.env.FUNNEL_SUPABASE_KEY || "sb_publishable_OS3v8A4s959sEhvBx-aHZw_soV8aCHN";
 
-export type FunnelKind = "calculator" | "application" | "meal_plan";
+export type FunnelKind = "calculator" | "application" | "meal_plan" | "grocery_list";
 
 export async function recordFunnelLead(
   kind: FunnelKind,

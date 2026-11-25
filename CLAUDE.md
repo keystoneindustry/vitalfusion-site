@@ -66,7 +66,13 @@ is not a developer; explain changes plainly and keep the site simple.
   "Meal plan <Plan> 1/2/3" live in Resend (copies + generator in `docs/email-templates/meal-plan/`). Their coaching buttons
   go to `/?source=meal-plan-<slug>-email`; the PDF's to `/?source=meal-plan-<slug>-pdf`. Charlie's graph for emails:
   `public/images/email/charlie-graph.jpg`.
-- Conversion tracking: every live calculator signup, meal plan request and application is also saved to the coaching app's Supabase
+- Free Fat Loss Grocery List (Instagram "comment LIST" via ManyChat): hidden (noindex) page `/grocery-list`
+  (`/grocery-list?source=instagram`), form `app/grocery-list/GroceryListForm.tsx` (same look as the meal plan pages), config,
+  validation and emails in `lib/grocery-list.ts`, PDF `public/plans/fat-loss-grocery-list.pdf` (built outside the repo; its
+  coaching button goes to `/?source=grocery-list`). `/api/grocery-list` emails the PDF link, sends `grocery_list.signed_up`
+  (Resend Automation for the day 2, 4, 7 follow-ups), saves a `grocery_list` funnel lead and emails the coach. No Resend
+  segment (all 3 used).
+- Conversion tracking: every live calculator signup, meal plan request, grocery list request and application is also saved to the coaching app's Supabase
   (project bcwytsuqudwghxctxoef) table `funnel_leads` via the insert-only RPC `record_funnel_lead` (`lib/funnel.ts`,
   publishable key + FUNNEL_TOKEN env, production only). The business dashboard joins it with `clients` by email.
   Tracking links: `/macros?source=<platform>` and `/?source=<platform>` (instagram, youtube, facebook, tiktok).
