@@ -652,14 +652,14 @@ body:has(.apply-lp) {
 }
 
 /* The Busy Professional Blueprint sign-up page (/blueprint) */
-.bp { position: relative; padding-top: 26px; scroll-behavior: smooth; }
-.bp-grid { position: absolute; inset: 0 calc(-1 * var(--pad-x)) auto; height: 620px; z-index: 0; pointer-events: none;
+.bp { position: relative; padding-top: 26px; overflow-x: clip; }
+.bp-grid { position: absolute; inset: 0 0 auto; height: 620px; z-index: 0; pointer-events: none;
   background-image: linear-gradient(rgba(143, 189, 223, 0.13) 1px, transparent 1px), linear-gradient(90deg, rgba(143, 189, 223, 0.13) 1px, transparent 1px);
   background-size: 34px 34px; background-position: center top;
   -webkit-mask-image: radial-gradient(ellipse 85% 75% at 50% 30%, #000 20%, transparent 78%); mask-image: radial-gradient(ellipse 85% 75% at 50% 30%, #000 20%, transparent 78%); }
 .bp > *:not(.bp-grid) { position: relative; z-index: 1; }
 .bp-hero { text-align: center; }
-.bp-pill { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 18px; padding: 7px 14px; border-radius: 999px; border: 1px solid rgba(143, 189, 223, 0.4); background: rgba(106, 159, 198, 0.1); color: var(--accent-hi); font-size: 11.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+.bp-pill { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 18px; padding: 7px 14px; border-radius: 999px; border: 1px solid rgba(143, 189, 223, 0.4); background: rgba(106, 159, 198, 0.1); color: var(--accent-hi); font-size: clamp(9.5px, 2.75vw, 11.5px); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
 .bp-pill span { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-hi); box-shadow: 0 0 10px 2px rgba(143, 189, 223, 0.8); }
 .bp-title { margin: 0 0 14px; font-size: clamp(38px, 11vw, 64px); line-height: 1.02; letter-spacing: -0.035em; font-weight: 800; }
 .bp-title em { display: block; color: var(--accent-hi); font-size: 1.22em; line-height: 1; text-shadow: 0 0 44px rgba(106, 159, 198, 0.55); }
@@ -693,6 +693,7 @@ body:has(.apply-lp) {
 .bp-item-name { margin: 2px 0 8px; font-size: 18px; font-weight: 800; }
 .bp-item-body ul { list-style: none; margin: 0; padding: 0; }
 .bp-item-body li { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-top: 1px solid var(--lp-line); color: var(--text-2); font-size: 15px; }
+.bp-item-body .mp-blur { flex: none; white-space: nowrap; }
 .bp-center { text-align: center; }
 .bp-coach { display: flex; align-items: center; gap: 16px; margin: 30px 0 24px; padding: 16px; border-radius: 18px; background: var(--lp-alt); border: 1px solid var(--lp-line); }
 .bp-coach img { flex: none; width: 84px; height: 104px; object-fit: cover; object-position: 50% 12%; border-radius: 12px; border: 1px solid rgba(143, 189, 223, 0.35); }
