@@ -102,7 +102,7 @@ overview = page(2, "Start here", '''
 <p class="lead">You have a full-time job, so this is built to fit around one. Four things, done every week:</p>
 <ol>
 <li><b>Lift 3 days a week.</b> Day 1 is chest, shoulders and triceps. Day 2 is back and biceps. Day 3 is legs and abs.</li>
-<li><b>Do cardio 3 to 4 times a week.</b> 20 minutes on the StairMaster or incline treadmill.</li>
+<li><b>Do cardio 3 to 4 times a week.</b> 20 minutes on the StairMaster or incline treadmill, plus a 10-minute walk after meals.</li>
 <li><b>Eat the 1,800-calorie meal plan.</b> Same four meals every day, with a grocery list for the week.</li>
 <li><b>Recover.</b> Sleep, plus a few basic supplements.</li>
 </ol>
@@ -188,7 +188,10 @@ cardio = page(6, "Cardio", '''
 <tr><td class="n">2</td><td class="x"><b>Incline treadmill</b><span>A walk, not a run. Try not to hold the handrails.</span></td><td class="s">20 minutes<span>Incline 10–12, speed 3 mph</span></td></tr></table>
 <p style="margin-top:18px">You can do other forms of cardio, but these are the ones that will get you shredded the fastest.</p>
 <h3>When to do it</h3>
-<p>Right after you lift, or on a day you don't lift. Either works, so do whichever fits your schedule. The next page has two sample weeks.</p>''')
+<p>Right after you lift, or on a day you don't lift. Either works, so do whichever fits your schedule. The next page has two sample weeks.</p>
+<h3>Walk for 10 minutes after meals</h3>
+<p>Take a 10-minute walk after you eat. This is on top of your cardio sessions, not instead of them.</p>
+<p>It gets you out of your chair and adds extra steps to every day. A lap around the office or the block counts.</p>''')
 
 
 def wk(days):
