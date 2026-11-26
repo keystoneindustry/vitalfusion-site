@@ -75,7 +75,7 @@ is not a developer; explain changes plainly and keep the site simple.
   `docs/email-templates/grocery-list/`, buttons go to `/?source=grocery-list-email`), saves a `grocery_list` funnel lead
   and emails the coach. No Resend segment (all 3 used). Subjects are set on each automation step (they override the
   template's subject), so change both.
-- The Blueprint (free guide, drafted Nov 26, 2026; NOT live until Tyler approves): hidden page `/blueprint`
+- The Blueprint (free guide, published Nov 26, 2026): hidden page `/blueprint`
   (`/blueprint?source=instagram`), form `app/blueprint/BlueprintForm.tsx`, config, validation and emails in
   `lib/blueprint.ts`, PDF `public/plans/the-blueprint.pdf` (source `docs/pdf-source/blueprint/build.py`, run with Python +
   Playwright; the pulldown picture is `straight-arm-pulldown.jpg` next to it; page 7 is a sample week; its coaching button goes to
