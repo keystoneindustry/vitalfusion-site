@@ -203,15 +203,15 @@ week = page(7, "Sample week", f'''
 <p class="eyebrow">Sample week</p><h2>Two ways to fit it in</h2>
 <p class="lead">Each workout shouldn't take longer than 45 minutes. Cardio is 20 minutes. Pick the week that fits your job.</p>
 <h3 style="margin-top:30px">Option 1: Monday, Wednesday, Friday</h3>
-<p>Lift three days, and do your cardio on the days in between.</p>
+<p>Lift three days, and do your cardio right after each workout.</p>
 {wk([
-    ("Mon", "lift", "Day 1", L1),
-    ("Tue", "cardio", "Cardio", "20 minutes"),
-    ("Wed", "lift", "Day 2", L2),
-    ("Thu", "cardio", "Cardio", "20 minutes"),
-    ("Fri", "lift", "Day 3", L3),
-    ("Sat", "cardio", "Cardio", "20 minutes"),
-    ("Sun", "rest", "Rest", "Or a 4th cardio session"),
+    ("Mon", "lift", "Day 1", L1 + "<i>+ 20 min cardio</i>"),
+    ("Tue", "rest", "Rest", ""),
+    ("Wed", "lift", "Day 2", L2 + "<i>+ 20 min cardio</i>"),
+    ("Thu", "rest", "Rest", ""),
+    ("Fri", "lift", "Day 3", L3 + "<i>+ 20 min cardio</i>"),
+    ("Sat", "rest", "Rest", "Or a 4th cardio session"),
+    ("Sun", "rest", "Rest", ""),
 ])}
 <h3 style="margin-top:38px">Option 2: Weekends, if your work week is busy</h3>
 <p>Lift Saturday and Sunday, then pick one weekday for Day 3. Do your cardio right after each workout.</p>
