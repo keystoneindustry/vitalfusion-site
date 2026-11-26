@@ -58,7 +58,7 @@ export default function BlueprintForm({ source }: { source: string }) {
           <p className="mp-next-title">Start here</p>
           <ol>
             <li>Do Day 1 in the next 48 hours. It&apos;s on page 3.</li>
-            <li>Buy the week&apos;s groceries from the list on page 8.</li>
+            <li>Buy the week&apos;s groceries from the list on page 9.</li>
             <li>Pick the 3 to 4 days you&apos;ll do your 20 minutes of cardio.</li>
           </ol>
         </div>

@@ -66,6 +66,15 @@ HI = p("Hi {{{NAME}}},")
 B = lambda t: f"<strong>{t}</strong>"
 I = lambda t: f"<em>{t}</em>"
 U = lambda t: f'<span style="text-decoration:underline;">{t}</span>'
+ME = f"{SITE}/images/email/tyler-work.jpg"
+
+
+def me():
+    return f"""<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:16px;"><tr><td align="center" bgcolor="#f4f5f7" style="background-color:#f4f5f7;border-radius:10px;padding-top:16px;padding-bottom:12px;padding-left:16px;padding-right:16px;">
+<img src="{ME}" width="260" height="341" alt="Tyler in work clothes" border="0" style="display:block;width:260px;height:341px;border-radius:8px;">
+<p style="margin-top:10px;margin-bottom:0;font-family:Arial, Helvetica, sans-serif;font-size:13px;line-height:18px;color:#5b6370;">Me, on a normal work day.</p>
+</td></tr></table>"""
+
 
 EMAILS = [
     ("💪 Did you do Day 1 yet?", "".join([
@@ -75,9 +84,11 @@ EMAILS = [
         p("If you did, good. Keep going."),
         p("If you didn't, let me guess why.", 6),
         p("Work ran late. You got home tired.", 6),
+        p("You sat down on the couch for “just a minute.”", 6),
         p(f"And you told yourself, {I('“I’ll start Monday.”')}"),
+        p(f"You've probably said that before. {B('That’s how a few months turns into a few years.')}"),
         p("Here's the thing:", 6),
-        p(f"{B('Day 1 is 5 exercises.')} You're in and out in under an hour."),
+        p(f"{B('Day 1 is 5 exercises.')} It shouldn't take you longer than 45 minutes."),
         p("You don't need a perfect week to start.", 6),
         p(f"You need {U(B('one workout.'))}"),
         p("So pick a day in the next 48 hours and put it on your calendar like a meeting."),
@@ -91,16 +102,19 @@ EMAILS = [
         p("I get it. Full-time job, a commute, maybe kids."),
         p("But look at what The Blueprint actually asks for:", 8),
         bullets([
-            "3 workouts",
+            "3 workouts, 45 minutes or less",
             "3 to 4 cardio sessions, 20 minutes each",
         ]),
         p(B("That's a few hours out of a 168-hour week.")),
         p("So it's not really about time.", 6),
-        p(f"It's that after a long day, {B('the gym is the first thing to go.')}"),
+        p(f"It's that you sit at a desk all day, and by 6 p.m. {B('you have nothing left.')}"),
         p("A meeting runs over. A client dinner pops up.", 6),
         p(f"You skip once, then twice, and {U('the week is gone.')}"),
+        p("Meanwhile your shirts fit a little tighter every year.", 6),
+        p(I("And you remember when staying in shape was easy.")),
         p("I work a desk job in sales. Long days, work lunches, happy hours.", 6),
         p(f"I still stay in shape, because my training is {B('built around my work week')} instead of fighting it."),
+        me(),
         p(f"{B('That’s what I do for my clients.')} I build the plan around the life you actually have."),
         button("See how 1:1 coaching works"),
     ])),
@@ -117,9 +131,13 @@ EMAILS = [
         p("Here's where it usually falls apart:", 8),
         bullets([
             "The work lunch you didn't plan for",
+            "Snacks at your desk at 3 p.m., when your energy crashes",
+            "Takeout at 8 p.m., because you're too tired to cook",
             "Drinks on Friday",
             f"The weekend, when there's {U('no routine')}",
         ]),
+        p(f"You eat well Monday to Thursday, then {B('undo it by Sunday night.')}", 6),
+        p(I("And you wonder why you look the same.")),
         p("None of that makes you weak.", 6),
         p(f"It means you need {B('a plan for those moments')}, not just a plan for the perfect day."),
         p("The Blueprint is the fast version. Coaching is the version built around your life.", 6),
@@ -137,6 +155,7 @@ EMAILS = [
         bullets([
             "The scale doesn't move for a few days",
             "You're sore and work gets busy",
+            "You miss one workout, and it feels like you blew the whole thing",
             f"And {B('nobody notices if you skip')}",
         ]),
         p(I("That last one is the real problem.")),
@@ -144,6 +163,8 @@ EMAILS = [
         p(B("That's why you show up.")),
         p(f"With your body, {U('nobody’s checking.')}", 6),
         p("So it's always the first thing you drop."),
+        p("Then a few months later you start over. New plan, same result.", 6),
+        p(f"{B('It’s not the plan.')} You've had good plans before."),
         p("My clients don't have more willpower than you.", 6),
         p(f"They have {B('someone checking in every week')} and a plan that changes when life does."),
         p(f"If the scale is stuck or you've missed a few days, {B('hit reply and tell me where you’re at.')} I'll point you in the right direction."),
@@ -162,6 +183,13 @@ EMAILS = [
             f"{B('Someone checking in every week,')} so a missed day doesn't turn into a missed month",
             f"{B('Changes when work gets crazy,')} instead of starting over",
         ]),
+        p("Think about what staying the same costs you:", 8),
+        bullets([
+            "Keeping your shirt on at the pool",
+            "Being wiped out by the time you get home",
+            f"Not feeling like {U('yourself')} when you look in the mirror",
+        ]),
+        p(B("The time will pass either way.")),
         p(f"60 days from now you could be {U('leaner, stronger and confident with your shirt off.')}", 6),
         p(f"Or you could be right here, {I('with the same PDF sitting in your downloads.')}"),
         p(f"{B('If you want help doing this for real, apply below.')} It takes about 60 seconds, and I review every application myself."),

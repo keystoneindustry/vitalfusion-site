@@ -78,7 +78,7 @@ is not a developer; explain changes plainly and keep the site simple.
 - The Blueprint (free guide, drafted Nov 26, 2026; NOT live until Tyler approves): hidden page `/blueprint`
   (`/blueprint?source=instagram`), form `app/blueprint/BlueprintForm.tsx`, config, validation and emails in
   `lib/blueprint.ts`, PDF `public/plans/the-blueprint.pdf` (source `docs/pdf-source/blueprint/build.py`, run with Python +
-  Playwright; drop Tyler's photo in as `straight-arm-pulldown.jpg` next to it; its coaching button goes to
+  Playwright; the pulldown picture is `straight-arm-pulldown.jpg` next to it; page 7 is a sample week; its coaching button goes to
   `/?source=blueprint`). For men with full-time jobs: 3-day split, cardio, the 9-to-5 plan's 1,800-calorie meals + grocery
   list, recovery, supplements. Tyler wants this PDF plain (no cards, tiles or pills) and no "results vary" line next to the
   meal plan. `/api/blueprint` emails the PDF link, sends `blueprint.signed_up` (Resend Automation "Blueprint follow-up

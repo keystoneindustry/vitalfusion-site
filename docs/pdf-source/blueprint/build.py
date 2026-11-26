@@ -58,7 +58,7 @@ td.s span { display: block; font-weight: 500; font-size: 12px; color: #5b6370 }
 .cols { display: flex; gap: 0.5in }
 .cols > div { flex: 1 }
 .cols h3 { margin-top: 16px }
-.photo { float: right; width: 1.75in; margin: 4px 0 8px 22px }
+.photo { float: right; width: 2.7in; margin: 0 0 8px 22px }
 .photo img { width: 100%; display: block; border-radius: 6px }
 .photo .ph { height: 2.2in; border: 1.5px dashed #b9c0cc; border-radius: 6px; display: flex; align-items: center; justify-content: center; text-align: center; color: #8a91a0; font-size: 11px; padding: 10px }
 .photo p { font-size: 10.5px; color: #8a91a0; margin: 5px 0 0; line-height: 1.35 }
@@ -104,7 +104,8 @@ overview = page(2, "Start here", '''
 <li>Start with <b>5 minutes of easy cardio</b> (a walk on the treadmill or the bike) to get warm.</li>
 <li>Before any exercise marked <b>go heavy</b>, do 1 or 2 lighter sets first. They don't count toward your sets.</li>
 <li>Each workout page has warm-up tips for that day.</li>
-</ul>''')
+</ul>
+<p>Each workout shouldn't take longer than 45 minutes. Page 7 shows two ways to fit the week around your job.</p>''')
 
 day1 = page(3, "Training", f'''
 <p class="eyebrow">Day 1</p><h2>Chest, shoulders<br>and triceps</h2>
@@ -128,7 +129,7 @@ photo = (f'<img src="data:image/jpeg;base64,{base64.b64encode(open(PHOTO, "rb").
          else '<div class="ph">Tyler\'s straight-arm pulldown photo goes here</div>')
 day2 = page(4, "Training", f'''
 <p class="eyebrow">Day 2</p><h2>Back and biceps</h2>
-<div class="photo">{photo}<p>Straight-arm pulldown, also called a cable pullover.</p></div>
+<div class="photo">{photo}<p>Straight-arm pulldown, also called a cable pullover: start (left) and finish (right).</p></div>
 <h3 style="margin-top:14px">Warm-up</h3>
 <ul>
 <li>5 minutes of easy cardio.</li>
@@ -169,14 +170,44 @@ day3 = page(5, "Training", f'''
 ])}''')
 
 cardio = page(6, "Cardio", '''
-<p class="eyebrow">Cardio</p><h2>20 minutes,<br>3 to 4 times a week</h2>
+<p class="eyebrow" style="font-size:20px;letter-spacing:.14em;margin-bottom:10px">Cardio</p><h2>20 minutes,<br>3 to 4 times a week</h2>
 <p class="lead">Pick one of these two.</p>
 <table><tr><th></th><th>Machine</th><th class="s">Settings</th></tr>
 <tr><td class="n">1</td><td class="x"><b>StairMaster</b><span>A steady pace you can hold for the full 20 minutes.</span></td><td class="s">20 minutes</td></tr>
 <tr><td class="n">2</td><td class="x"><b>Incline treadmill</b><span>A walk, not a run. Try not to hold the handrails.</span></td><td class="s">20 minutes<span>Incline 10–12, speed 3 mph</span></td></tr></table>
 <p style="margin-top:18px">You can do other forms of cardio, but these are the ones that will get you shredded the fastest.</p>
 <h3>When to do it</h3>
-<p>Right after you lift, or on a day you don't lift. Either works, so do whichever fits your schedule.</p>''')
+<p>Right after you lift, or on a day you don't lift. Either works, so do whichever fits your schedule. The next page has two sample weeks.</p>''')
+
+
+def wk(rows):
+    out = '<table><tr><th style="width:1.3in">Day</th><th>What to do</th></tr>'
+    for d, what in rows:
+        out += f'<tr><td class="x" style="padding:9px 0"><b>{d}</b></td><td style="padding:9px 0">{what}</td></tr>'
+    return out + "</table>"
+
+
+week = page(7, "Sample week", f'''
+<p class="eyebrow" style="margin-top:0.4in">Sample week</p><h2>Two ways to fit it in</h2>
+<p class="lead">Each workout shouldn't take longer than 45 minutes. Cardio is 20 minutes. Pick the week that fits your job.</p>
+<h3 style="margin-top:18px">Option 1: Monday, Wednesday, Friday</h3>
+{wk([
+    ("Monday", "<b>Day 1:</b> chest, shoulders and triceps"),
+    ("Tuesday", "Cardio, 20 minutes"),
+    ("Wednesday", "<b>Day 2:</b> back and biceps"),
+    ("Thursday", "Cardio, 20 minutes"),
+    ("Friday", "<b>Day 3:</b> legs and abs"),
+    ("Saturday", "Cardio, 20 minutes"),
+    ("Sunday", "Rest, or a 4th cardio session"),
+])}
+<h3 style="margin-top:20px">Option 2: Weekends, if your work week is busy</h3>
+{wk([
+    ("Saturday", "<b>Day 1:</b> chest, shoulders and triceps, then 20 minutes of cardio"),
+    ("Sunday", "<b>Day 2:</b> back and biceps, then 20 minutes of cardio"),
+    ("One weekday", "<b>Day 3:</b> legs and abs, then 20 minutes of cardio. Pick whichever day is lightest at work."),
+    ("Any other day", "A 4th cardio session, if you have 20 minutes"),
+])}
+<p class="small" style="margin-top:12px">These are examples. Any 3 days work, as long as you get all 3 workouts and 3 to 4 cardio sessions in every week.</p>''')
 
 MEALS = [
     ("Meal 1", "Overnight oats", "Make it the night before.", [("Rolled oats (dry)", "60 g · about ⅔ cup"), ("Whey protein", "1 scoop (30 g)"), ("Chia seeds", "12 g · 1 tbsp"), ("Kiwi, sliced", "1 medium"), ("Almond butter", "16 g · 1 tbsp")], (550, 38, 63, 18)),
@@ -195,14 +226,14 @@ def meal(m):
             f'<p class="mac"><b>{cal} calories</b> · {p} g protein · {c} g carbs · {f} g fat</p></div>')
 
 
-nutrition = page(7, "Nutrition", f'''
+nutrition = page(8, "Nutrition", f'''
 <p class="eyebrow" style="margin-top:0.4in">Nutrition</p><h2>The 1,800-calorie meal plan</h2>
 <p class="lead">This meal plan is 1,800 calories, and it's made to get you shredded fast. It's not sustainable long term, but follow it exactly and you will get lean.</p>
 <p>Same four meals every day: about <b>1,820 calories</b> and <b>166 g of protein</b>. Amounts are cooked weights unless it says dry.</p>
 {"".join(meal(m) for m in MEALS)}
 <p class="small" style="margin-top:10px">Season everything however you like. Spices, hot sauce, mustard and salsa are free.</p>''')
 
-grocery = page(8, "Nutrition", '''
+grocery = page(9, "Nutrition", '''
 <p class="eyebrow">Grocery list</p><h2>What to buy<br>for one week</h2>
 <p class="lead">Everything for 7 days of the meal plan. Raw meat shrinks about 25% when you cook it, and these amounts already account for that.</p>
 <div class="cols"><div>
@@ -226,7 +257,7 @@ grocery = page(8, "Nutrition", '''
 </ol>
 <p>Each night, mix tomorrow's oats, protein powder and chia with about 1 cup of water or milk. Add the kiwi and almond butter in the morning.</p>''')
 
-recovery = page(9, "Recovery", '''
+recovery = page(10, "Recovery", '''
 <p class="eyebrow">Recovery</p><h2>Recovery, supplements<br>and sleep</h2>
 <p class="lead">You don't get leaner in the gym. You get leaner when you recover from it.</p>
 <h3>Recovery</h3>
@@ -247,7 +278,7 @@ recovery = page(9, "Recovery", '''
 <tr><td class="n">1</td><td class="x"><b>Magnesium glycinate</b></td><td class="s">400–600 mg</td></tr>
 <tr><td class="n">2</td><td class="x"><b>L-theanine</b></td><td class="s">400 mg</td></tr></table>''')
 
-cta = page(10, "What's next", f'''
+cta = page(11, "What's next", f'''
 <p class="eyebrow">What's next</p><h2>Want this built<br>around you?</h2>
 <p class="lead">The Blueprint works if you follow it. Following it by yourself, with a full-time job, is the hard part.</p>
 <p>With 1:1 coaching, I build the plan around your schedule and check in with you every week:</p>
@@ -262,7 +293,7 @@ cta = page(10, "What's next", f'''
 <p style="margin-top:40px">Tyler<br><span class="small">Vital Fusion Coaching</span></p>''')
 
 html = (f'<!doctype html><html><head><meta charset="utf-8"><title>The Blueprint · Vital Fusion Coaching</title>'
-        f'<style>{CSS}</style></head><body>{cover}{overview}{day1}{day2}{day3}{cardio}{nutrition}{grocery}{recovery}{cta}</body></html>')
+        f'<style>{CSS}</style></head><body>{cover}{overview}{day1}{day2}{day3}{cardio}{week}{nutrition}{grocery}{recovery}{cta}</body></html>')
 open(os.path.join(HERE, "blueprint.html"), "w").write(html)
 
 with sync_playwright() as p:

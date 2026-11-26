@@ -55,7 +55,7 @@ export function blueprintEmail(lead: BlueprintLead, siteUrl: string): { subject:
   const name = esc(lead.firstName || "there");
   const steps = [
     "Do Day 1 in the next 48 hours. It's on page 3.",
-    "Buy the week's groceries from the list on page 8.",
+    "Buy the week's groceries from the list on page 9.",
     "Pick the 3 to 4 days you'll do your 20 minutes of cardio.",
   ];
   const subject = "The Blueprint is here 💪";
