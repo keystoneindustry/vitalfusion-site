@@ -703,6 +703,39 @@ body:has(.apply-lp) {
   .bp-stat span { font-size: 11px; }
 }
 
+/* Pinned "What's inside" tour on /blueprint: scrolling steps through the parts of the plan. */
+.bp-tour { height: calc(var(--bp-steps, 6) * 85svh + 100svh); margin: 0 0 10px; }
+.bp-tour-pin { position: sticky; top: 0; height: 100svh; padding: 76px 0 18px; display: flex; flex-direction: column; }
+.bp-tour-head .bp-h2 { margin-bottom: 12px; }
+.bp-tour-bar { display: flex; gap: 6px; }
+.bp-tour-bar span { flex: 1; height: 3px; border-radius: 3px; background: #232a36; transition: background 0.35s ease, box-shadow 0.35s ease; }
+.bp-tour-bar span.on { background: var(--accent-hi); box-shadow: 0 0 12px rgba(143, 189, 223, 0.7); }
+.bp-tour-stage { position: relative; flex: 1; min-height: 0; margin-top: 16px; }
+.bp-step { position: absolute; inset: 0; display: flex; flex-direction: column; opacity: 0; transform: translateY(46px) scale(0.97); transition: opacity 0.45s ease, transform 0.55s cubic-bezier(0.2, 0.7, 0.2, 1); pointer-events: none; }
+.bp-step.is-past { transform: translateY(-46px) scale(0.97); }
+.bp-step.is-on { opacity: 1; transform: none; pointer-events: auto; }
+.bp-step-shot { flex: 1 1 0; min-height: 0; max-height: 44svh; margin: 0 0 16px; border-radius: 14px; overflow: hidden; border: 1px solid rgba(143, 189, 223, 0.4); background: #fff; box-shadow: 0 30px 80px -30px rgba(106, 159, 198, 0.8);
+  -webkit-mask-image: linear-gradient(#000 55%, transparent 100%); mask-image: linear-gradient(#000 55%, transparent 100%); }
+.bp-step-shot img { display: block; width: 100%; height: auto; }
+.bp-step-count { margin: 0 0 4px; font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent-hi); }
+.bp-step-count b { font-family: var(--font-serif, Georgia), Georgia, serif; font-style: italic; font-weight: 400; font-size: 22px; letter-spacing: 0; text-transform: none; }
+.bp-step-name { margin: 0 0 6px; font-size: clamp(24px, 6.8vw, 32px); line-height: 1.1; font-weight: 800; letter-spacing: -0.02em; }
+.bp-step-line { margin: 0 0 10px; color: var(--text-2); font-size: 16px; line-height: 1.45; }
+.bp-step ul { list-style: none; margin: 0; padding: 0; }
+.bp-step li { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-top: 1px solid var(--lp-line); color: var(--text-2); font-size: 15px; }
+.bp-step .mp-blur { flex: none; white-space: nowrap; }
+.bp-tour-hint { margin: 10px 0 0; text-align: center; font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.bp-tour-hint span { color: var(--accent-hi); }
+@media (max-height: 640px) { .bp-step li:nth-child(n + 3) { display: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .bp-tour { height: auto; }
+  .bp-tour-pin { position: static; height: auto; padding: 0; }
+  .bp-tour-stage { display: grid; gap: 26px; }
+  .bp-step { position: static; opacity: 1; transform: none; pointer-events: auto; }
+  .bp-step-shot { flex: none; max-height: 240px; }
+  .bp-tour-bar, .bp-tour-hint { display: none; }
+}
+
 /* Terms / Privacy (hidden pages, linked from the footer) */
 .footer-legal { margin: 10px 0 6px; }
 .footer-legal a { color: var(--text-2, #c9ced6); text-decoration: underline; }

@@ -17,12 +17,12 @@ export const BLUEPRINT = {
   ],
   // The page shows these with the right-hand detail blurred, as a teaser.
   sections: [
-    { label: "Day 1", name: "Chest, shoulders and triceps", items: [["Cable chest fly", "3 × 12"], ["Incline dumbbell bench press", "3 × 10"], ["Lateral raise", "3 × 12"], ["Machine shoulder press", "2 × 8"], ["Triceps rope extension", "4 × 12"]] },
-    { label: "Day 2", name: "Back and biceps", items: [["Lat pulldown", "3 × 12"], ["Seated cable row", "3 × 10"], ["Straight-arm pulldown", "3 × 12"], ["Rear delt fly", "3 × 12"], ["Barbell biceps curl", "2 × 12"], ["Hammer curl", "2 × 12"]] },
-    { label: "Day 3", name: "Legs and abs", items: [["Leg press", "3 × 10"], ["Leg extension", "3 × 10"], ["Leg curl", "3 × 10"], ["Ab circuit", "3 rounds"]] },
-    { label: "Cardio", name: "The fastest way to get shredded", items: [["How often", "3 times"], ["How long", "20 min"], ["Machine and settings", "Incline 10"]] },
-    { label: "Nutrition", name: "1,800-calorie meal plan", items: [["4 meals with exact amounts", "550 cal"], ["Grocery list for the week", "7 days"], ["Meal prep steps", "2 days"]] },
-    { label: "Recovery", name: "Supplements and sleep", items: [["Daily supplements", "5 g a day"], ["What to take before bed", "400 mg"]] },
+    { label: "Day 1", name: "Chest, shoulders and triceps", img: "day1", line: "5 exercises. In and out in 45 minutes or less.", items: [["Cable chest fly", "3 × 12"], ["Incline dumbbell bench press", "3 × 10"], ["Lateral raise", "3 × 12"], ["Machine shoulder press", "2 × 8"], ["Triceps rope extension", "4 × 12"]] },
+    { label: "Day 2", name: "Back and biceps", img: "day2", line: "6 exercises, with a picture of the straight-arm pulldown.", items: [["Lat pulldown", "3 × 12"], ["Seated cable row", "3 × 10"], ["Straight-arm pulldown", "3 × 12"], ["Rear delt fly", "3 × 12"], ["Barbell biceps curl", "2 × 12"], ["Hammer curl", "2 × 12"]] },
+    { label: "Day 3", name: "Legs and abs", img: "day3", line: "3 leg machines and a 3-round ab circuit.", items: [["Leg press", "3 × 10"], ["Leg extension", "3 × 10"], ["Leg curl", "3 × 10"], ["Ab circuit", "3 rounds"]] },
+    { label: "Cardio", name: "The fastest way to get shredded", img: "cardio", line: "20 minutes, 3 to 4 times a week, with the exact machine settings.", items: [["How often", "3 times"], ["How long", "20 min"], ["Machine and settings", "Incline 10"]] },
+    { label: "Nutrition", name: "1,800-calorie meal plan", img: "nutrition", line: "4 meals, 180 g of protein and a grocery list for the week.", items: [["4 meals with exact amounts", "550 cal"], ["Grocery list for the week", "7 days"], ["Meal prep steps", "2 days"]] },
+    { label: "Recovery", name: "Supplements and sleep", img: "recovery", line: "What to take every day and before bed, with amounts.", items: [["Daily supplements", "5 g a day"], ["What to take before bed", "400 mg"]] },
   ],
 } as const;
 

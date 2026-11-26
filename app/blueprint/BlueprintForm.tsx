@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BLUEPRINT as G } from "@/lib/blueprint";
 
 // Name + email form for the free Blueprint guide (same look as the meal plan pages). On submit the
@@ -107,24 +107,7 @@ export default function BlueprintForm({ source }: { source: string }) {
         <p className="hero-note">Free. Instant download, and a copy goes to your inbox.</p>
       </form>
 
-      <h2 className="bp-h2">What&apos;s <em>inside</em></h2>
-      <ol className="bp-list">
-        {G.sections.map((sec, i) => (
-          <li key={sec.name} className="bp-item">
-            <span className="bp-num" aria-hidden>{String(i + 1).padStart(2, "0")}</span>
-            <div className="bp-item-body">
-              <p className="bp-item-label">{sec.label}</p>
-              <p className="bp-item-name">{sec.name}</p>
-              <ul>
-                {sec.items.map(([item, hidden]) => (
-                  <li key={item}><span>{item}</span><span className="mp-blur" aria-hidden>{hidden}</span></li>
-                ))}
-              </ul>
-            </div>
-          </li>
-        ))}
-      </ol>
-      <p className="hero-note bp-center">Plus warm-up tips for every workout and two sample weeks.</p>
+      <BlueprintTour />
 
       <div className="bp-coach">
         <img src="/images/email/tyler-work.jpg" alt="Tyler" width={520} height={682} loading="lazy" />
@@ -136,5 +119,61 @@ export default function BlueprintForm({ source }: { source: string }) {
 
       <a className="btn-cta bp-bottom-cta" href="#get">Get the Blueprint free</a>
     </main>
+  );
+}
+
+// "What's inside" as a pinned tour: the section sticks under the header while the page scrolls, and each
+// stretch of scrolling moves to the next part of the plan (the way Apple's product pages step through
+// features). With reduced motion on, or without JavaScript, it falls back to a plain list (see .bp-tour CSS).
+function BlueprintTour() {
+  const outer = useRef<HTMLElement>(null);
+  const [active, setActive] = useState(0);
+  const n = G.sections.length;
+
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const el = outer.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const travel = rect.height - window.innerHeight;
+      const progress = travel > 0 ? Math.min(1, Math.max(0, -rect.top / travel)) : 0;
+      setActive(Math.min(n - 1, Math.floor(progress * n)));
+    };
+    const onScroll = () => { if (!frame) frame = requestAnimationFrame(update); };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (frame) cancelAnimationFrame(frame); };
+  }, [n]);
+
+  return (
+    <section ref={outer} className="bp-tour" style={{ ["--bp-steps" as string]: n }} aria-label="What's inside">
+      <div className="bp-tour-pin">
+        <div className="bp-tour-head">
+          <h2 className="bp-h2">What&apos;s <em>inside</em></h2>
+          <div className="bp-tour-bar" aria-hidden>
+            {G.sections.map((sec, i) => <span key={sec.name} className={i <= active ? "on" : ""} />)}
+          </div>
+        </div>
+        <div className="bp-tour-stage">
+          {G.sections.map((sec, i) => (
+            <article key={sec.name} className={`bp-step ${i === active ? "is-on" : i < active ? "is-past" : "is-next"}`} aria-hidden={i !== active}>
+              <div className="bp-step-shot"><img src={`/images/blueprint/tour-${sec.img}.jpg`} alt="" width={680} height={502} loading="lazy" /></div>
+              <p className="bp-step-count"><b>{String(i + 1).padStart(2, "0")}</b> / {String(n).padStart(2, "0")} · {sec.label}</p>
+              <h3 className="bp-step-name">{sec.name}</h3>
+              <p className="bp-step-line">{sec.line}</p>
+              <ul>
+                {sec.items.slice(0, 3).map(([item, hidden]) => (
+                  <li key={item}><span>{item}</span><span className="mp-blur" aria-hidden>{hidden}</span></li>
+                ))}
+              </ul>
+            </article>
+          ))}
+        </div>
+        <p className="bp-tour-hint" aria-hidden>{active < n - 1 ? "Keep scrolling" : "That's everything"}<span>{active < n - 1 ? " ↓" : " ✓"}</span></p>
+      </div>
+    </section>
   );
 }
