@@ -676,7 +676,7 @@ body:has(.apply-lp) {
 .bp-stat + .bp-stat { border-left: 1px solid var(--lp-line); }
 .bp-stat b { display: block; font-size: clamp(22px, 6.4vw, 30px); line-height: 1.1; font-weight: 800; color: var(--text); }
 .bp-stat span { display: block; margin-top: 4px; font-size: 9.5px; line-height: 1.3; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent-hi); }
-.bp-form { margin: 0 0 40px; padding: 22px 18px 18px; border-radius: 20px; border: 1px solid transparent; scroll-margin-top: 16px;
+.bp-form { margin: 0 0 40px; padding: 22px 18px 18px; border-radius: 20px; border: 1px solid transparent; scroll-margin-top: 96px;
   background: linear-gradient(#131822, #131822) padding-box, linear-gradient(160deg, rgba(143, 189, 223, 0.9), rgba(143, 189, 223, 0.12) 45%, rgba(143, 189, 223, 0.5)) border-box;
   box-shadow: 0 30px 80px -40px rgba(106, 159, 198, 0.8); }
 .bp-form-title { margin: 0 0 14px; font-size: 20px; font-weight: 800; }
