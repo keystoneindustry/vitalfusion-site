@@ -8,7 +8,7 @@ export const BLUEPRINT = {
   /** Starts the follow-up emails in Resend. */
   event: "blueprint.signed_up",
   title: "Get *The Blueprint*",
-  intro: "The full training, nutrition, cardio and recovery plan for men working a full-time job. The best way to get shredded in 60 days.",
+  intro: "The full training, nutrition, cardio and recovery plan for men working a full-time job. The best way to get shredded in 90 days.",
   stats: [
     { value: "3", label: "Gym days a week" },
     { value: "20 min", label: "Cardio sessions" },

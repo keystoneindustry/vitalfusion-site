@@ -94,7 +94,7 @@ def ex(rows):
 cover = f'''<section class="page cover"><img src="{LOGO}">
 <div class="mid"><h1>The<br>Blueprint</h1>
 <p class="sub">Training, nutrition, cardio and recovery for men working a full-time job.</p>
-<p class="desc">The best way to get shredded in 60 days.</p></div>
+<p class="desc">The best way to get shredded in 90 days.</p></div>
 <div class="foot">Tyler · Vital Fusion Coaching · vitalfusioncoaching.com</div></section>'''
 
 overview = page(2, "Start here", '''
@@ -106,7 +106,7 @@ overview = page(2, "Start here", '''
 <li><b>Eat the 1,800-calorie meal plan.</b> Same four meals every day, with a grocery list for the week.</li>
 <li><b>Recover.</b> Sleep, plus a few basic supplements.</li>
 </ol>
-<p>Do all four and this is the best way to get shredded in 60 days.</p>
+<p>Do all four and this is the best way to get shredded in 90 days.</p>
 <h3>How heavy should you go?</h3>
 <p>Pick a weight that makes the last 2 reps of every set hard while your form stays clean. Where it says <b>go heavy</b>, push it: the last rep should be a fight.</p>
 <p>When you hit the top of the rep range on every set, add a little weight next time.</p>

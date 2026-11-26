@@ -190,7 +190,7 @@ EMAILS = [
             f"Not feeling like {U('yourself')} when you look in the mirror",
         ]),
         p(B("The time will pass either way.")),
-        p(f"60 days from now you could be {U('leaner, stronger and confident with your shirt off.')}", 6),
+        p(f"90 days from now you could be {U('leaner, stronger and confident with your shirt off.')}", 6),
         p(f"Or you could be right here, {I('with the same PDF sitting in your downloads.')}"),
         p(f"{B('If you want help doing this for real, apply below.')} It takes about 60 seconds, and I review every application myself."),
         button("Apply for 1:1 coaching"),
