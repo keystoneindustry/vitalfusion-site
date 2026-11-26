@@ -706,10 +706,10 @@ body:has(.apply-lp) {
 /* Pinned page carousel on /blueprint: scrolling turns the fanned PDF pages to the left, one part at a time. */
 .bp-tour { height: calc((var(--bp-steps, 7) - 1) * 75svh + 100svh); margin: 6px 0 26px; }
 .bp-tour-pin { position: sticky; top: 0; height: 100svh; padding: 74px 0 16px; display: flex; flex-direction: column; }
-.bp-tour-bar { display: flex; gap: 6px; flex: none; }
+.bp-tour-bar { display: flex; gap: 6px; flex: none; margin-bottom: 6px; }
 .bp-tour-bar span { flex: 1; height: 3px; border-radius: 3px; background: #232a36; transition: background 0.35s ease, box-shadow 0.35s ease; }
 .bp-tour-bar span.on { background: var(--accent-hi); box-shadow: 0 0 12px rgba(143, 189, 223, 0.7); }
-.bp-fan { position: relative; flex: 1 1 0; min-height: 0; max-height: 52svh; margin: 22px 0 18px; }
+.bp-fan { position: relative; flex: none; height: min(46svh, 84vw, 430px); margin: auto 0 20px; }
 .bp-fan-page { position: absolute; left: 50%; top: 0; height: 100%; width: auto; border-radius: 8px; box-shadow: 0 24px 60px -18px rgba(0, 0, 0, 0.9); will-change: transform, opacity; }
 .bp-fan-page.is-on { box-shadow: 0 0 0 1px rgba(143, 189, 223, 0.45), 0 30px 80px -20px rgba(106, 159, 198, 0.75); }
 .bp-tour-stage { position: relative; flex: none; height: 178px; }
@@ -723,7 +723,7 @@ body:has(.apply-lp) {
 .bp-step ul { list-style: none; margin: 0 auto; padding: 0; max-width: 400px; text-align: left; }
 .bp-step li { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; border-top: 1px solid var(--lp-line); color: var(--text-2); font-size: 14.5px; }
 .bp-step .mp-blur { flex: none; white-space: nowrap; }
-.bp-tour-hint { flex: none; margin: 8px 0 0; text-align: center; font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.bp-tour-hint { flex: none; margin: 8px 0 auto; text-align: center; font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
 .bp-tour-hint span { color: var(--accent-hi); }
 @media (max-height: 700px) { .bp-step ul { display: none; } .bp-tour-stage { height: 112px; } }
 @media (prefers-reduced-motion: reduce) {
