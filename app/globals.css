@@ -712,7 +712,7 @@ body:has(.apply-lp) {
 .bp-fan { position: relative; flex: none; height: min(46svh, 84vw, 430px); margin: auto 0 20px; }
 .bp-fan-page { position: absolute; left: 50%; top: 0; height: 100%; width: auto; border-radius: 8px; box-shadow: 0 24px 60px -18px rgba(0, 0, 0, 0.9); will-change: transform, opacity; }
 .bp-fan-page.is-on { box-shadow: 0 0 0 1px rgba(143, 189, 223, 0.45), 0 30px 80px -20px rgba(106, 159, 198, 0.75); }
-.bp-tour-stage { position: relative; flex: none; height: 178px; }
+.bp-tour-stage { position: relative; flex: none; height: 216px; }
 .bp-step { position: absolute; inset: 0; opacity: 0; transform: translateX(34px); transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1); pointer-events: none; text-align: center; }
 .bp-step.is-past { transform: translateX(-34px); }
 .bp-step.is-on { opacity: 1; transform: none; pointer-events: auto; }
