@@ -725,7 +725,7 @@ body:has(.apply-lp) {
 .bp-step .mp-blur { flex: none; white-space: nowrap; }
 .bp-tour-hint { flex: none; margin: 8px 0 auto; text-align: center; font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
 .bp-tour-hint span { color: var(--accent-hi); }
-@media (max-height: 700px) { .bp-step ul { display: none; } .bp-tour-stage { height: 112px; } }
+@media (max-height: 700px) { .bp-step ul { display: none; } .bp-tour-stage { height: 138px; } }
 @media (prefers-reduced-motion: reduce) {
   .bp-tour { height: auto; }
   .bp-tour-pin { position: static; height: auto; padding: 0; }
