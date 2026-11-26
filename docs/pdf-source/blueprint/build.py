@@ -62,6 +62,17 @@ td.s span { display: block; font-weight: 500; font-size: 12px; color: #5b6370 }
 .photo img { width: 100%; display: block; border-radius: 6px }
 .photo .ph { height: 2.2in; border: 1.5px dashed #b9c0cc; border-radius: 6px; display: flex; align-items: center; justify-content: center; text-align: center; color: #8a91a0; font-size: 11px; padding: 10px }
 .photo p { font-size: 10.5px; color: #8a91a0; margin: 5px 0 0; line-height: 1.35 }
+.wk { display: grid; grid-template-columns: repeat(7, 1fr); gap: 7px; margin: 10px 0 0 }
+.wk .d { border: 1.5px solid #dfe3ea; border-radius: 8px; padding: 9px 8px 10px; min-height: 1.5in }
+.wk .dn { display: block; font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; font-weight: 700; color: #8a91a0; margin-bottom: 10px }
+.wk b { display: block; font-size: 15px; line-height: 1.2 }
+.wk .ds { display: block; font-size: 11.5px; line-height: 1.4; color: #5b6370; margin-top: 5px }
+.wk .ds i { display: block; font-style: normal; font-weight: 700; margin-top: 6px }
+.wk .lift { background: #0f1216; border-color: #0f1216 }
+.wk .lift b { color: #fff } .wk .lift .dn { color: #8fbddf } .wk .lift .ds { color: #c3c9d4 } .wk .lift .ds i { color: #8fbddf }
+.wk .cardio { background: #eaf2f9; border-color: #c9dcec }
+.wk .cardio .dn { color: #3d72a3 }
+.wk .rest b { color: #8a91a0 }
 .btn { display: inline-block; margin: 14px 0 10px; background: #0f1216; color: #fff; font-weight: 700; font-size: 16px; padding: 15px 28px; border-radius: 8px; text-decoration: none }
 .small { font-size: 12px; color: #6b7280 }
 """
@@ -180,34 +191,41 @@ cardio = page(6, "Cardio", '''
 <p>Right after you lift, or on a day you don't lift. Either works, so do whichever fits your schedule. The next page has two sample weeks.</p>''')
 
 
-def wk(rows):
-    out = '<table><tr><th style="width:1.3in">Day</th><th>What to do</th></tr>'
-    for d, what in rows:
-        out += f'<tr><td class="x" style="padding:9px 0"><b>{d}</b></td><td style="padding:9px 0">{what}</td></tr>'
-    return out + "</table>"
+def wk(days):
+    out = '<div class="wk">'
+    for d, kind, title, sub in days:
+        out += f'<div class="d {kind}"><span class="dn">{d}</span><b>{title}</b><span class="ds">{sub}</span></div>'
+    return out + "</div>"
 
 
+L1, L2, L3 = "Chest, shoulders, triceps", "Back and biceps", "Legs and abs"
 week = page(7, "Sample week", f'''
-<p class="eyebrow" style="margin-top:0.4in">Sample week</p><h2>Two ways to fit it in</h2>
+<p class="eyebrow">Sample week</p><h2>Two ways to fit it in</h2>
 <p class="lead">Each workout shouldn't take longer than 45 minutes. Cardio is 20 minutes. Pick the week that fits your job.</p>
-<h3 style="margin-top:18px">Option 1: Monday, Wednesday, Friday</h3>
+<h3 style="margin-top:30px">Option 1: Monday, Wednesday, Friday</h3>
+<p>Lift three days, and do your cardio on the days in between.</p>
 {wk([
-    ("Monday", "<b>Day 1:</b> chest, shoulders and triceps"),
-    ("Tuesday", "Cardio, 20 minutes"),
-    ("Wednesday", "<b>Day 2:</b> back and biceps"),
-    ("Thursday", "Cardio, 20 minutes"),
-    ("Friday", "<b>Day 3:</b> legs and abs"),
-    ("Saturday", "Cardio, 20 minutes"),
-    ("Sunday", "Rest, or a 4th cardio session"),
+    ("Mon", "lift", "Day 1", L1),
+    ("Tue", "cardio", "Cardio", "20 minutes"),
+    ("Wed", "lift", "Day 2", L2),
+    ("Thu", "cardio", "Cardio", "20 minutes"),
+    ("Fri", "lift", "Day 3", L3),
+    ("Sat", "cardio", "Cardio", "20 minutes"),
+    ("Sun", "rest", "Rest", "Or a 4th cardio session"),
 ])}
-<h3 style="margin-top:20px">Option 2: Weekends, if your work week is busy</h3>
+<h3 style="margin-top:38px">Option 2: Weekends, if your work week is busy</h3>
+<p>Lift Saturday and Sunday, then pick one weekday for Day 3. Do your cardio right after each workout.</p>
 {wk([
-    ("Saturday", "<b>Day 1:</b> chest, shoulders and triceps, then 20 minutes of cardio"),
-    ("Sunday", "<b>Day 2:</b> back and biceps, then 20 minutes of cardio"),
-    ("One weekday", "<b>Day 3:</b> legs and abs, then 20 minutes of cardio. Pick whichever day is lightest at work."),
-    ("Any other day", "A 4th cardio session, if you have 20 minutes"),
+    ("Mon", "rest", "Rest", ""),
+    ("Tue", "rest", "Rest", "Or a 4th cardio session"),
+    ("Wed", "lift", "Day 3", L3 + "<i>+ 20 min cardio</i>"),
+    ("Thu", "rest", "Rest", ""),
+    ("Fri", "rest", "Rest", ""),
+    ("Sat", "lift", "Day 1", L1 + "<i>+ 20 min cardio</i>"),
+    ("Sun", "lift", "Day 2", L2 + "<i>+ 20 min cardio</i>"),
 ])}
-<p class="small" style="margin-top:12px">These are examples. Any 3 days work, as long as you get all 3 workouts and 3 to 4 cardio sessions in every week.</p>''')
+<p class="small" style="margin-top:12px">Wednesday is an example. Use whichever weekday is lightest at work.</p>
+<p style="margin-top:30px">These are examples. Any 3 days work, as long as you get all 3 workouts and 3 to 4 cardio sessions in every week.</p>''')
 
 MEALS = [
     ("Meal 1", "Overnight oats", "Make it the night before.", [("Rolled oats (dry)", "60 g · about ⅔ cup"), ("Whey protein", "1 scoop (30 g)"), ("Chia seeds", "12 g · 1 tbsp"), ("Kiwi, sliced", "1 medium"), ("Almond butter", "16 g · 1 tbsp")], (550, 38, 63, 18)),
