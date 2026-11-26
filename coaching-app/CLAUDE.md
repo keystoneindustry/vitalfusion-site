@@ -239,3 +239,6 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   PRs, recent sessions, shared `app/components/WorkoutHistory.tsx` + `LiftChart.tsx`). Logged workouts show as done on Today,
   Calendar and coach Home/Calendar (`DayTasks.workouts[].done`). Coach Training tab has "Logged workouts" at the bottom. Logging
   counts as activity for at-risk; the check-in AI gets workouts logged vs scheduled, best sets and new PRs (`weekNumbers`).
+- Saved assistant answers (Nov 26): each AI answer has "☆ Save"; the assistant page has Ask / ⭐ Saved tabs. Saved answers
+  (title = the question asked, max 50) live only on the phone in localStorage `vf-assistant-<clientId>-saved`, like the chats;
+  "Clear chat" doesn't remove them.

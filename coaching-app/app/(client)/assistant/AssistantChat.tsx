@@ -4,6 +4,9 @@ import { Fragment, useEffect, useRef, useState, type ReactNode } from "react";
 
 type Source = { title: string; url: string };
 type Msg = { role: "user" | "assistant"; text: string; sources?: Source[] };
+/** An answer the client starred to keep. Like the chat, it only lives on their phone. */
+type Saved = { id: string; title: string; text: string; sources?: Source[]; savedAt: string };
+const MAX_SAVED = 50;
 
 const EXAMPLES = [
   "What should I order at Chick-fil-A?",
@@ -47,6 +50,33 @@ export default function AssistantChat({ storageKey, initialLeft, limit }: { stor
   const [error, setError] = useState("");
   const [left, setLeft] = useState(initialLeft);
   const endRef = useRef<HTMLDivElement>(null);
+  const [saved, setSaved] = useState<Saved[]>([]);
+  const [view, setView] = useState<"chat" | "saved">("chat");
+  const savedKey = `${storageKey}-saved`;
+
+  useEffect(() => {
+    try {
+      const list = JSON.parse(localStorage.getItem(savedKey) || "[]");
+      if (Array.isArray(list)) setSaved(list.slice(0, MAX_SAVED));
+    } catch {}
+  }, [savedKey]);
+
+  function storeSaved(next: Saved[]) {
+    setSaved(next);
+    try {
+      localStorage.setItem(savedKey, JSON.stringify(next));
+    } catch {}
+  }
+  const isSaved = (text: string) => saved.some((x) => x.text === text);
+  /** Star / unstar answer i. Its title is the question that came right before it. */
+  function toggleSave(i: number) {
+    const m = messages[i];
+    if (!m || m.role !== "assistant") return;
+    if (isSaved(m.text)) return storeSaved(saved.filter((x) => x.text !== m.text));
+    const question = [...messages.slice(0, i)].reverse().find((x) => x.role === "user")?.text ?? "Saved answer";
+    const item: Saved = { id: `${Date.now()}`, title: question.slice(0, 140), text: m.text, sources: m.sources, savedAt: new Date().toISOString() };
+    storeSaved([item, ...saved].slice(0, MAX_SAVED));
+  }
 
   useEffect(() => {
     try {
@@ -59,8 +89,8 @@ export default function AssistantChat({ storageKey, initialLeft, limit }: { stor
     try {
       localStorage.setItem(storageKey, JSON.stringify(messages.slice(-40)));
     } catch {}
-    endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [messages, storageKey, busy]);
+    if (view === "chat") endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [messages, storageKey, busy, view]);
 
   async function send(question: string) {
     const q = question.trim();
@@ -103,8 +133,64 @@ export default function AssistantChat({ storageKey, initialLeft, limit }: { stor
     setError("");
   }
 
+  const sourcesLine = (sources?: Source[]) =>
+    sources && sources.length > 0 ? (
+      <p className="bubble-sources">
+        Sources:{" "}
+        {sources.map((s, j) => (
+          <Fragment key={s.url}>
+            {j > 0 && " · "}
+            <a href={s.url} target="_blank" rel="noopener noreferrer">
+              {s.title}
+            </a>
+          </Fragment>
+        ))}
+      </p>
+    ) : null;
+
+  const tabs = (
+    <div className="chat-tabs" role="tablist">
+      <button type="button" role="tab" aria-selected={view === "chat"} onClick={() => setView("chat")}>
+        Ask
+      </button>
+      <button type="button" role="tab" aria-selected={view === "saved"} onClick={() => setView("saved")}>
+        ⭐ Saved{saved.length ? ` (${saved.length})` : ""}
+      </button>
+    </div>
+  );
+
+  if (view === "saved") {
+    return (
+      <div className="chat">
+        {tabs}
+        {saved.length === 0 ? (
+          <div className="card">
+            <p style={{ margin: 0 }}>Nothing saved yet. Tap “☆ Save” under any answer (like your go-to restaurant order) and it stays here.</p>
+          </div>
+        ) : (
+          <div className="saved-list">
+            {saved.map((x, i) => (
+              <details key={x.id} className="card saved-item" open={i === 0 && saved.length === 1}>
+                <summary>{x.title}</summary>
+                <div className="saved-body">
+                  <Formatted text={x.text} />
+                  {sourcesLine(x.sources)}
+                  <button type="button" className="btn-link muted" onClick={() => storeSaved(saved.filter((y) => y.id !== x.id))}>
+                    Remove
+                  </button>
+                </div>
+              </details>
+            ))}
+          </div>
+        )}
+        <p className="small muted chat-note">Saved answers stay on this phone. Restaurant menus change, so ask again if something looks out of date.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="chat">
+      {tabs}
       {messages.length === 0 && (
         <div className="card">
           <p className="small muted" style={{ marginTop: 0 }}>Try one of these:</p>
@@ -122,18 +208,11 @@ export default function AssistantChat({ storageKey, initialLeft, limit }: { stor
         {messages.map((m, i) => (
           <div key={i} className={m.role === "user" ? "bubble bubble-me" : "bubble bubble-ai"}>
             {m.role === "user" ? <p>{m.text}</p> : <Formatted text={m.text} />}
-            {m.sources && m.sources.length > 0 && (
-              <p className="bubble-sources">
-                Sources:{" "}
-                {m.sources.map((s, j) => (
-                  <Fragment key={s.url}>
-                    {j > 0 && " · "}
-                    <a href={s.url} target="_blank" rel="noopener noreferrer">
-                      {s.title}
-                    </a>
-                  </Fragment>
-                ))}
-              </p>
+            {sourcesLine(m.sources)}
+            {m.role === "assistant" && (
+              <button type="button" className={`save-btn ${isSaved(m.text) ? "on" : ""}`} onClick={() => toggleSave(i)} aria-pressed={isSaved(m.text)}>
+                {isSaved(m.text) ? "⭐ Saved" : "☆ Save"}
+              </button>
             )}
           </div>
         ))}

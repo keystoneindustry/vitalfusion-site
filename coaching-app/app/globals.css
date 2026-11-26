@@ -845,3 +845,15 @@ input, select, textarea { font-size: max(16px, 1em); }
 .lift-chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin: 4px 0 10px; }
 .lift-chips a { flex: 0 0 auto; padding: 8px 12px; border-radius: 99px; border: 1px solid #3a3e48; color: var(--text-2); font-size: 14px; text-decoration: none; }
 .lift-chips a[aria-current="true"] { background: #1c2a3d; border-color: var(--accent); color: #fff; }
+
+/* Assistant: saved answers */
+.chat-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 4px; margin-bottom: 12px; border-radius: 14px; background: #14171e; border: 1px solid #23262f; }
+.chat-tabs button { min-height: 42px; border: 0; border-radius: 10px; background: transparent; color: var(--muted); font-weight: 700; font-size: 15px; }
+.chat-tabs button[aria-selected="true"] { background: #1c2a3d; color: #fff; }
+.save-btn { margin-top: 8px; padding: 6px 12px; min-height: 36px; border-radius: 99px; border: 1px solid #3a3e48; background: transparent; color: var(--text-2); font-size: 14px; font-weight: 600; }
+.save-btn.on { border-color: #5a4a26; background: #211b0e; color: #ffe2a8; }
+.saved-list { display: flex; flex-direction: column; gap: 10px; }
+.saved-item { padding: 0; }
+.saved-item summary { padding: 14px; font-weight: 700; color: #fff; cursor: pointer; }
+.saved-body { padding: 0 14px 14px; }
+.saved-body ul { padding-left: 20px; }
