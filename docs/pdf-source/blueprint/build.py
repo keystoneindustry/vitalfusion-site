@@ -232,12 +232,12 @@ week = page(7, "Sample week", f'''
 
 MEALS = [
     ("Meal 1", "Overnight oats", "Make it the night before.", [("Rolled oats (dry)", "60 g · about ⅔ cup"), ("Whey protein", "1 scoop (30 g)"), ("Chia seeds", "12 g · 1 tbsp"), ("Kiwi, sliced", "1 medium"), ("Almond butter", "16 g · 1 tbsp")], (550, 38, 63, 18)),
-    ("Meal 2", "Desk lunch", "Pack it ahead.", [("Chicken breast (cooked)", "150 g · about 5.3 oz"), ("White rice (cooked)", "140 g · about ¾ cup"), ("Veggies of your choice", "150 g · about 1½ cups")], (482, 54, 50, 6)),
+    ("Meal 2", "Desk lunch", "Pack it ahead.", [("Chicken breast (cooked)", "200 g · about 7 oz"), ("White rice (cooked)", "75 g · just over ⅓ cup"), ("Veggies of your choice", "150 g · about 1½ cups")], (480, 68, 32, 8)),
     ("Meal 3", "Dinner", "", [("93/7 lean ground beef (cooked)", "150 g · about 5.3 oz"), ("Sweet potato (baked)", "200 g · 1 medium"), ("Veggies of your choice", "150 g · about 1½ cups")], (522, 48, 52, 15)),
     ("Meal 4", "Greek yogurt bowl", "", [("2% plain Greek yogurt", "250 g · about 1 cup"), ("Mixed berries", "125 g · about ¾ cup"), ("Honey", "1 tsp")], (269, 26, 30, 5)),
 ]
 tot = [sum(m[4][i] for m in MEALS) for i in range(4)]
-assert tot == [1823, 166, 195, 44], tot  # the 9-to-5 PDF rounds these to 1,820 / 166 / 196 / 45
+assert tot == [1821, 180, 177, 46], tot  # the 9-to-5 plan with more chicken and less rice at lunch (Tyler, Nov 26): 180 g protein
 
 
 def meal(m):
@@ -250,7 +250,7 @@ def meal(m):
 nutrition = page(8, "Nutrition", f'''
 <p class="eyebrow" style="margin-top:0.4in">Nutrition</p><h2>The 1,800-calorie meal plan</h2>
 <p class="lead">This meal plan is 1,800 calories, and it's made to get you shredded fast. It's not sustainable long term, but follow it exactly and you will get lean.</p>
-<p>Same four meals every day: about <b>1,820 calories</b> and <b>166 g of protein</b>. Amounts are cooked weights unless it says dry.</p>
+<p>Same four meals every day: about <b>1,820 calories</b> and <b>180 g of protein</b>. Amounts are cooked weights unless it says dry.</p>
 {"".join(meal(m) for m in MEALS)}
 <p class="small" style="margin-top:10px">Season everything however you like. Spices, hot sauce, mustard and salsa are free.</p>''')
 
@@ -259,9 +259,9 @@ grocery = page(9, "Nutrition", '''
 <p class="lead">Everything for 7 days of the meal plan. Raw meat shrinks about 25% when you cook it, and these amounts already account for that.</p>
 <div class="cols"><div>
 <h3>Protein</h3>
-<ul><li>Chicken breast: about 3 lb raw</li><li>93/7 lean ground beef: about 3 lb raw</li><li>Whey protein: 7 scoops</li><li>2% plain Greek yogurt: two 32 oz tubs</li></ul>
+<ul><li>Chicken breast: about 4 lb raw</li><li>93/7 lean ground beef: about 3 lb raw</li><li>Whey protein: 7 scoops</li><li>2% plain Greek yogurt: two 32 oz tubs</li></ul>
 <h3>Carbs</h3>
-<ul><li>Rolled oats: one 18 oz canister</li><li>White rice: about 1 lb dry</li><li>Sweet potatoes: 7 medium (about 3 lb)</li></ul>
+<ul><li>Rolled oats: one 18 oz canister</li><li>White rice: about ½ lb dry</li><li>Sweet potatoes: 7 medium (about 3 lb)</li></ul>
 </div><div>
 <h3>Fruit and veggies</h3>
 <ul><li>Kiwis: 7</li><li>Mixed berries: about 2 lb (frozen is fine)</li><li>Veggies of your choice: about 4½ lb (fresh or frozen)</li></ul>
