@@ -53,7 +53,7 @@ def wrap(body):
 {p("Tyler", 0)}
 </td></tr>
 <tr><td align="center" style="padding-top:16px;padding-bottom:0;padding-left:12px;padding-right:12px;">
-<p style="margin-top:0;margin-bottom:0;font-family:Arial, Helvetica, sans-serif;font-size:12px;line-height:18px;color:#8d939e;">Vital Fusion Coaching &middot; 1802 Charolais Court, Bel Air, MD 21015<br>You're getting this because you asked for The Blueprint at vitalfusioncoaching.com.<br><a href="{{{{{{RESEND_UNSUBSCRIBE_URL}}}}}}" style="color:#8d939e;text-decoration:underline;">Unsubscribe</a></p>
+<p style="margin-top:0;margin-bottom:0;font-family:Arial, Helvetica, sans-serif;font-size:12px;line-height:18px;color:#8d939e;">Vital Fusion Coaching &middot; 1802 Charolais Court, Bel Air, MD 21015<br>You're getting this because you asked for The Busy Professional Blueprint at vitalfusioncoaching.com.<br><a href="{{{{{{RESEND_UNSUBSCRIBE_URL}}}}}}" style="color:#8d939e;text-decoration:underline;">Unsubscribe</a></p>
 </td></tr>
 </table>
 </td></tr>
@@ -79,7 +79,7 @@ def me():
 EMAILS = [
     ("💪 Did you do Day 1 yet?", "".join([
         HI,
-        p("You've had The Blueprint for two days.", 6),
+        p("You've had The Busy Professional Blueprint for two days.", 6),
         p(B("So, did you do Day 1 yet?")),
         p("If you did, good. Keep going."),
         p("If you didn't, let me guess why.", 6),
@@ -100,7 +100,7 @@ EMAILS = [
         p("Most guys I talk to tell me the same thing:", 6),
         p(I("“I just don’t have time.”")),
         p("I get it. Full-time job, a commute, maybe kids."),
-        p("But look at what The Blueprint actually asks for:", 8),
+        p("But look at what The Busy Professional Blueprint actually asks for:", 8),
         bullets([
             "3 workouts, 45 minutes or less",
             "3 to 4 cardio sessions, 20 minutes each",
@@ -140,7 +140,7 @@ EMAILS = [
         p(I("And you wonder why you look the same.")),
         p("None of that makes you weak.", 6),
         p(f"It means you need {B('a plan for those moments')}, not just a plan for the perfect day."),
-        p("The Blueprint is the fast version. Coaching is the version built around your life.", 6),
+        p("The Busy Professional Blueprint is the fast version. Coaching is the version built around your life.", 6),
         p(f"Charlie lost {B('16 lbs in 8 weeks')} without extreme dieting, still eating the foods he loves. {I('He had a plan for the messy days too.')}"),
         graph(),
         button("Apply for 1:1 coaching"),
@@ -172,7 +172,7 @@ EMAILS = [
     ])),
     ("📅 Two weeks in. Where are you at?", "".join([
         HI,
-        p("It's been two weeks since you got The Blueprint.", 6),
+        p("It's been two weeks since you got The Busy Professional Blueprint.", 6),
         p(B("Be straight with yourself: where are you at?")),
         p("If you've followed it, keep going. You're on the right track."),
         p("If you started strong and fell off, or never started, you're not the only one.", 6),
@@ -194,7 +194,7 @@ EMAILS = [
         p(f"Or you could be right here, {I('with the same PDF sitting in your downloads.')}"),
         p(f"{B('If you want help doing this for real, apply below.')} It takes about 60 seconds, and I review every application myself."),
         button("Apply for 1:1 coaching"),
-        p("This is the last email I'll send you about The Blueprint. Keep it, use it, and you can always just hit reply."),
+        p("This is the last email I'll send you about the Blueprint. Keep it, use it, and you can always just hit reply."),
     ])),
 ]
 

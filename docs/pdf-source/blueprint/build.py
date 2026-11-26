@@ -1,4 +1,4 @@
-"""Build The Blueprint PDF (Letter) from HTML with headless Chrome. Plain, readable layout: no cards or tiles."""
+"""Build The Busy Professional Blueprint PDF (Letter) from HTML with headless Chrome. Plain, readable layout: no cards or tiles."""
 import base64, os, sys
 from playwright.sync_api import sync_playwright
 
@@ -18,7 +18,7 @@ body { font-family: Inter, Arial, sans-serif; color: #2b3038; font-size: 14.5px;
 .page:last-child { page-break-after: auto }
 .cover { background: #0b0d12; color: #fff; padding: 0.8in 0.9in }
 .cover img { width: 50px; height: 50px; border-radius: 11px; display: block }
-.cover .mid { position: absolute; left: 0.9in; right: 0.9in; top: 3.4in }
+.cover .mid { position: absolute; left: 0.9in; right: 0.9in; top: 2.9in }
 .cover h1 { font-family: "Inter Display", Inter, sans-serif; font-size: 84px; line-height: .95; letter-spacing: -0.04em; font-weight: 800; margin: 0 0 26px }
 .cover .sub { font-size: 20px; line-height: 1.4; color: #fff; font-weight: 600; margin: 0 0 10px; max-width: 5.2in }
 .cover .desc { color: #9aa3b2; font-size: 15px; margin: 0 }
@@ -79,7 +79,7 @@ td.s span { display: block; font-weight: 500; font-size: 12px; color: #5b6370 }
 
 
 def page(n, section, body):
-    return (f'<section class="page"><div class="hdr"><img src="{LOGO}"><span>The Blueprint</span><span>{section}</span></div>'
+    return (f'<section class="page"><div class="hdr"><img src="{LOGO}"><span>The Busy Professional Blueprint</span><span>{section}</span></div>'
             f'{body}<div class="ftr"><span>{DISCLAIMER}</span><span>{n}</span></div></section>')
 
 
@@ -92,7 +92,7 @@ def ex(rows):
 
 
 cover = f'''<section class="page cover"><img src="{LOGO}">
-<div class="mid"><h1>The<br>Blueprint</h1>
+<div class="mid"><h1>The Busy<br>Professional<br>Blueprint</h1>
 <p class="sub">Training, nutrition, cardio and recovery for men working a full-time job.</p>
 <p class="desc">The best way to get shredded in 90 days.</p></div>
 <div class="foot">Tyler · Vital Fusion Coaching · vitalfusioncoaching.com</div></section>'''
@@ -301,7 +301,7 @@ recovery = page(10, "Recovery", '''
 
 cta = page(11, "What's next", f'''
 <p class="eyebrow">What's next</p><h2>Want this built<br>around you?</h2>
-<p class="lead">The Blueprint works if you follow it. Following it by yourself, with a full-time job, is the hard part.</p>
+<p class="lead">The Busy Professional Blueprint works if you follow it. Following it by yourself, with a full-time job, is the hard part.</p>
 <p>With 1:1 coaching, I build the plan around your schedule and check in with you every week:</p>
 <ul>
 <li>Training that fits the days and time you actually have</li>
@@ -313,7 +313,7 @@ cta = page(11, "What's next", f'''
 <p class="small">Takes about 60 seconds. I review every application myself.</p>
 <p style="margin-top:40px">Tyler<br><span class="small">Vital Fusion Coaching</span></p>''')
 
-html = (f'<!doctype html><html><head><meta charset="utf-8"><title>The Blueprint · Vital Fusion Coaching</title>'
+html = (f'<!doctype html><html><head><meta charset="utf-8"><title>The Busy Professional Blueprint · Vital Fusion Coaching</title>'
         f'<style>{CSS}</style></head><body>{cover}{overview}{day1}{day2}{day3}{cardio}{week}{nutrition}{grocery}{recovery}{cta}</body></html>')
 open(os.path.join(HERE, "blueprint.html"), "w").write(html)
 

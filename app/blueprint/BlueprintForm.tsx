@@ -51,8 +51,8 @@ export default function BlueprintForm({ source }: { source: string }) {
       <main className="wrap lp apply-lp mp mp-done">
         <p className="mp-check" aria-hidden>✓</p>
         <h1 className="title">You&apos;re in{first ? `, ${first}` : ""}! 🎉</h1>
-        <p className="lead">The Blueprint is ready. Download it below, and we&apos;ve also sent a copy to your inbox.</p>
-        <a className="btn-cta" href={G.pdf} target="_blank" rel="noopener">Download The Blueprint (PDF)</a>
+        <p className="lead">Your copy of The Busy Professional Blueprint is ready. Download it below, and we&apos;ve also sent a copy to your inbox.</p>
+        <a className="btn-cta" href={G.pdf} target="_blank" rel="noopener">Download the Blueprint (PDF)</a>
         <p className="hero-note">Can&apos;t find the email? Check your spam or promotions folder for an email from Vital Fusion Coaching.</p>
         <div className="card-lp mp-next">
           <p className="mp-next-title">Start here</p>
@@ -92,7 +92,7 @@ export default function BlueprintForm({ source }: { source: string }) {
           <label htmlFor="mp-company">Company</label>
           <input id="mp-company" tabIndex={-1} autoComplete="off" value={company} onChange={(e) => setCompany(e.target.value)} />
         </div>
-        <button type="submit" className="btn-cta" disabled={busy}>{busy ? "Sending…" : "Send me The Blueprint"}</button>
+        <button type="submit" className="btn-cta" disabled={busy}>{busy ? "Sending…" : "Send me the Blueprint"}</button>
         <p className="hero-note">Free. Instant download, and a copy goes to your inbox.</p>
       </form>
 

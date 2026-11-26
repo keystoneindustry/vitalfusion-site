@@ -1,4 +1,4 @@
-// Free "The Blueprint" guide (/blueprint): 3-day training split, cardio, the 1,800-calorie 9-to-5 meal plan with a
+// Free "The Busy Professional Blueprint" guide (/blueprint): 3-day training split, cardio, the 1,800-calorie 9-to-5 meal plan with a
 // grocery list, recovery and supplements, for men working a full-time job. Same flow as the grocery list:
 // name + email, instant PDF download, a copy by email, follow-ups on day 2, 4, 7, 10 and 14 (Resend Automation
 // on the event below), lead saved for the dashboard.
@@ -7,7 +7,7 @@ export const BLUEPRINT = {
   pdf: "/plans/the-blueprint.pdf",
   /** Starts the follow-up emails in Resend. */
   event: "blueprint.signed_up",
-  title: "Get *The Blueprint*",
+  title: "Get *The Busy Professional Blueprint*",
   intro: "The full training, nutrition, cardio and recovery plan for men working a full-time job. The best way to get shredded in 90 days.",
   stats: [
     { value: "3", label: "Gym days a week" },
@@ -47,9 +47,9 @@ function esc(s: string): string {
 }
 
 const P = "margin-top:0;margin-bottom:16px;font-family:Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;color:#1f2328;";
-const FOOT = "You're getting this because you asked for The Blueprint at vitalfusioncoaching.com.";
+const FOOT = "You're getting this because you asked for The Busy Professional Blueprint at vitalfusioncoaching.com.";
 
-/** The "here's The Blueprint" email, sent right away by /api/blueprint. */
+/** The "here's The Busy Professional Blueprint" email, sent right away by /api/blueprint. */
 export function blueprintEmail(lead: BlueprintLead, siteUrl: string): { subject: string; html: string; text: string } {
   const pdfUrl = `${siteUrl.replace(/\/$/, "")}${BLUEPRINT.pdf}`;
   const name = esc(lead.firstName || "there");
@@ -58,7 +58,7 @@ export function blueprintEmail(lead: BlueprintLead, siteUrl: string): { subject:
     "Buy the week's groceries from the list on page 9.",
     "Pick the 3 to 4 days you'll do your 20 minutes of cardio.",
   ];
-  const subject = "The Blueprint is here 💪";
+  const subject = "The Busy Professional Blueprint is here 💪";
   const html = `<!DOCTYPE html>
 <html>
 <head>
@@ -73,9 +73,9 @@ export function blueprintEmail(lead: BlueprintLead, siteUrl: string): { subject:
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;">
 <tr><td bgcolor="#ffffff" style="background-color:#ffffff;border-radius:12px;padding-top:28px;padding-bottom:28px;padding-left:24px;padding-right:24px;">
 <p style="${P}">Hi ${name},</p>
-<p style="${P}">Here's The Blueprint. It has your 3-day training split, cardio, the 1,800-calorie meal plan with a grocery list, and what to take for recovery and sleep.</p>
+<p style="${P}">Here's The Busy Professional Blueprint. It has your 3-day training split, cardio, the 1,800-calorie meal plan with a grocery list, and what to take for recovery and sleep.</p>
 <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;"><tr><td bgcolor="#5a8bb3" style="background-color:#5a8bb3;border-radius:10px;">
-<a href="${pdfUrl}" style="display:inline-block;padding-top:14px;padding-bottom:14px;padding-left:24px;padding-right:24px;font-family:Arial, Helvetica, sans-serif;font-size:16px;line-height:20px;font-weight:bold;color:#ffffff;text-decoration:none;">Download The Blueprint (PDF) &rarr;</a>
+<a href="${pdfUrl}" style="display:inline-block;padding-top:14px;padding-bottom:14px;padding-left:24px;padding-right:24px;font-family:Arial, Helvetica, sans-serif;font-size:16px;line-height:20px;font-weight:bold;color:#ffffff;text-decoration:none;">Download the Blueprint (PDF) &rarr;</a>
 </td></tr></table>
 <p style="margin-top:0;margin-bottom:8px;font-family:Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;color:#1f2328;font-weight:bold;">Start here:</p>
 ${steps.map((s, i) => `<p style="margin-top:0;margin-bottom:8px;font-family:Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;color:#1f2328;">${i + 1}. ${esc(s)}</p>`).join("\n")}
@@ -93,9 +93,9 @@ ${steps.map((s, i) => `<p style="margin-top:0;margin-bottom:8px;font-family:Aria
   const text = [
     `Hi ${lead.firstName || "there"},`,
     "",
-    "Here's The Blueprint. It has your 3-day training split, cardio, the 1,800-calorie meal plan with a grocery list, and what to take for recovery and sleep.",
+    "Here's The Busy Professional Blueprint. It has your 3-day training split, cardio, the 1,800-calorie meal plan with a grocery list, and what to take for recovery and sleep.",
     "",
-    `Download The Blueprint (PDF): ${pdfUrl}`,
+    `Download the Blueprint (PDF): ${pdfUrl}`,
     "",
     "Start here:",
     ...steps.map((s, i) => `${i + 1}. ${s}`),
@@ -114,6 +114,6 @@ ${steps.map((s, i) => `<p style="margin-top:0;margin-bottom:8px;font-family:Aria
 export function coachBlueprintEmail(lead: BlueprintLead): { subject: string; html: string; text: string } {
   const subject = `New blueprint lead: ${lead.name}`;
   const lines = [`Name: ${lead.name}`, `Email: ${lead.email}`, `Source: ${lead.source}`];
-  const html = `<div style="font-family:Arial, Helvetica, sans-serif;font-size:15px;line-height:22px;color:#1f2328">${lines.map((l) => `<p style="margin:0 0 6px">${esc(l)}</p>`).join("")}<p style="margin:12px 0 0;color:#8d939e">They got The Blueprint and are in its follow-up emails.</p></div>`;
+  const html = `<div style="font-family:Arial, Helvetica, sans-serif;font-size:15px;line-height:22px;color:#1f2328">${lines.map((l) => `<p style="margin:0 0 6px">${esc(l)}</p>`).join("")}<p style="margin:12px 0 0;color:#8d939e">They got The Busy Professional Blueprint and are in its follow-up emails.</p></div>`;
   return { subject, html, text: lines.join("\n") };
 }

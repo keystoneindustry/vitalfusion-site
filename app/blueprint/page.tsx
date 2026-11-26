@@ -5,7 +5,7 @@ import BlueprintForm from "./BlueprintForm";
 // Hidden page: only reachable by link (for example /blueprint?source=instagram).
 // Not in the menu, and search engines are told not to list it.
 export const metadata: Metadata = {
-  title: "The Blueprint | Vital Fusion Coaching",
+  title: "The Busy Professional Blueprint | Vital Fusion Coaching",
   description: "Training, nutrition, cardio and recovery for men working a full-time job.",
   robots: { index: false, follow: false },
 };
