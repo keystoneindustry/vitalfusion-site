@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Rich from "@/app/components/Rich";
 import { BLUEPRINT as G } from "@/lib/blueprint";
 
 // Name + email form for the free Blueprint guide (same look as the meal plan pages). On submit the
@@ -67,17 +66,29 @@ export default function BlueprintForm({ source }: { source: string }) {
   }
 
   return (
-    <main className="wrap lp apply-lp mp">
-      <h1 className="display"><Rich text={G.title} /></h1>
-      <p className="lead">{G.intro}</p>
+    <main className="wrap lp apply-lp mp bp">
+      <div className="bp-grid" aria-hidden />
+      <header className="bp-hero">
+        <p className="bp-pill"><span aria-hidden />Free guide · For men with full-time jobs</p>
+        <h1 className="bp-title">The Busy Professional <em>Blueprint</em></h1>
+        <p className="lead">Training, nutrition, cardio and recovery in one plan. <b>The best way to get shredded in 90 days.</b></p>
+        <a className="btn-cta bp-top-cta" href="#get">Get it free</a>
+      </header>
 
-      <div className="mp-stats">
+      <div className="bp-mock" aria-hidden>
+        <img className="bp-page bp-page-l" src="/images/blueprint/day1.jpg" alt="" width={680} height={880} />
+        <img className="bp-page bp-page-r" src="/images/blueprint/week.jpg" alt="" width={680} height={880} />
+        <img className="bp-page bp-page-c" src="/images/blueprint/cover.jpg" alt="" width={680} height={880} />
+      </div>
+
+      <div className="bp-stats">
         {G.stats.map((s) => (
-          <div key={s.label} className="mp-stat"><b>{s.value}</b><span>{s.label}</span></div>
+          <div key={s.label} className="bp-stat"><b>{s.value}</b><span>{s.label}</span></div>
         ))}
       </div>
 
-      <form className="card-lp mp-form" onSubmit={submit} noValidate>
+      <form id="get" className="bp-form" onSubmit={submit} noValidate>
+        <p className="bp-form-title">Where should I send it?</p>
         <div className="field">
           <label htmlFor="mp-name">First name</label>
           <input id="mp-name" autoComplete="given-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your first name" />
@@ -96,21 +107,34 @@ export default function BlueprintForm({ source }: { source: string }) {
         <p className="hero-note">Free. Instant download, and a copy goes to your inbox.</p>
       </form>
 
-      <h2 className="mp-h2">What&apos;s inside</h2>
-      <div className="mp-meals">
-        {G.sections.map((sec) => (
-          <div key={sec.name} className="card-lp mp-meal">
-            <p className="mp-meal-label">{sec.label}</p>
-            <p className="mp-meal-name">{sec.name}</p>
-            <ul>
-              {sec.items.map(([item, hidden]) => (
-                <li key={item}><span>{item}</span><span className="mp-blur" aria-hidden>{hidden}</span></li>
-              ))}
-            </ul>
-          </div>
+      <h2 className="bp-h2">What&apos;s <em>inside</em></h2>
+      <ol className="bp-list">
+        {G.sections.map((sec, i) => (
+          <li key={sec.name} className="bp-item">
+            <span className="bp-num" aria-hidden>{String(i + 1).padStart(2, "0")}</span>
+            <div className="bp-item-body">
+              <p className="bp-item-label">{sec.label}</p>
+              <p className="bp-item-name">{sec.name}</p>
+              <ul>
+                {sec.items.map(([item, hidden]) => (
+                  <li key={item}><span>{item}</span><span className="mp-blur" aria-hidden>{hidden}</span></li>
+                ))}
+              </ul>
+            </div>
+          </li>
         ))}
+      </ol>
+      <p className="hero-note bp-center">Plus warm-up tips for every workout and two sample weeks.</p>
+
+      <div className="bp-coach">
+        <img src="/images/email/tyler-work.jpg" alt="Tyler" width={520} height={682} loading="lazy" />
+        <div>
+          <p className="bp-coach-quote">I work a desk job in sales. Long days, work lunches, happy hours. This is the plan I&apos;d give a guy in the same spot.</p>
+          <p className="bp-coach-name">Tyler · Vital Fusion Coaching</p>
+        </div>
       </div>
-      <p className="hero-note">Plus warm-up tips for every workout.</p>
+
+      <a className="btn-cta bp-bottom-cta" href="#get">Get the Blueprint free</a>
     </main>
   );
 }

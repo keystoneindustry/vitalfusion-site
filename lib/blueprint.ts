@@ -11,7 +11,8 @@ export const BLUEPRINT = {
   intro: "The full training, nutrition, cardio and recovery plan for men working a full-time job. The best way to get shredded in 90 days.",
   stats: [
     { value: "3", label: "Gym days a week" },
-    { value: "20 min", label: "Cardio sessions" },
+    { value: "45", label: "Minute workouts" },
+    { value: "20", label: "Minute cardio" },
     { value: "1,800", label: "Calories a day" },
   ],
   // The page shows these with the right-hand detail blurred, as a teaser.
