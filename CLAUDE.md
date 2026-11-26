@@ -75,6 +75,17 @@ is not a developer; explain changes plainly and keep the site simple.
   `docs/email-templates/grocery-list/`, buttons go to `/?source=grocery-list-email`), saves a `grocery_list` funnel lead
   and emails the coach. No Resend segment (all 3 used). Subjects are set on each automation step (they override the
   template's subject), so change both.
+- The Blueprint (free guide, drafted Nov 26, 2026; NOT live until Tyler approves): hidden page `/blueprint`
+  (`/blueprint?source=instagram`), form `app/blueprint/BlueprintForm.tsx`, config, validation and emails in
+  `lib/blueprint.ts`, PDF `public/plans/the-blueprint.pdf` (source `docs/pdf-source/blueprint/build.py`, run with Python +
+  Playwright; drop Tyler's photo in as `straight-arm-pulldown.jpg` next to it; its coaching button goes to
+  `/?source=blueprint`). For men with full-time jobs: 3-day split, cardio, the 9-to-5 plan's 1,800-calorie meals + grocery
+  list, recovery, supplements. Tyler wants this PDF plain (no cards, tiles or pills) and no "results vary" line next to the
+  meal plan. `/api/blueprint` emails the PDF link, sends `blueprint.signed_up` (Resend Automation "Blueprint follow-up
+  (day 2, 4, 7, 10, 14)", stopped by `coaching.applied`, duplicate guard contact property `blueprint_sequence = started`;
+  templates "Blueprint 1–5", copies + generator in `docs/email-templates/blueprint/`, buttons go to
+  `/?source=blueprint-email`), saves a `blueprint` funnel lead (Supabase `record_funnel_lead` + `funnel_leads_kind_check`
+  must allow 'blueprint') and emails the coach ("New blueprint lead: Name"). No Resend segment.
 - Conversion tracking: every live calculator signup, meal plan request, grocery list request and application is also saved to the coaching app's Supabase
   (project bcwytsuqudwghxctxoef) table `funnel_leads` via the insert-only RPC `record_funnel_lead` (`lib/funnel.ts`,
   publishable key + FUNNEL_TOKEN env, production only). The business dashboard joins it with `clients` by email.
