@@ -75,11 +75,7 @@ export default function BlueprintForm({ source }: { source: string }) {
         <a className="btn-cta bp-top-cta" href="#get">Get it free</a>
       </header>
 
-      <div className="bp-mock" aria-hidden>
-        <img className="bp-page bp-page-l" src="/images/blueprint/day1.jpg" alt="" width={680} height={880} />
-        <img className="bp-page bp-page-r" src="/images/blueprint/week.jpg" alt="" width={680} height={880} />
-        <img className="bp-page bp-page-c" src="/images/blueprint/cover.jpg" alt="" width={680} height={880} />
-      </div>
+      <BlueprintTour />
 
       <div className="bp-stats">
         {G.stats.map((s) => (
@@ -107,8 +103,6 @@ export default function BlueprintForm({ source }: { source: string }) {
         <p className="hero-note">Free. Instant download, and a copy goes to your inbox.</p>
       </form>
 
-      <BlueprintTour />
-
       <div className="bp-coach">
         <img src="/images/email/tyler-work.jpg" alt="Tyler" width={520} height={682} loading="lazy" />
         <div>
@@ -122,13 +116,18 @@ export default function BlueprintForm({ source }: { source: string }) {
   );
 }
 
-// "What's inside" as a pinned tour: the section sticks under the header while the page scrolls, and each
-// stretch of scrolling moves to the next part of the plan (the way Apple's product pages step through
-// features). With reduced motion on, or without JavaScript, it falls back to a plain list (see .bp-tour CSS).
+// The PDF pages as a pinned carousel (Apple-style): the section sticks under the header while the page
+// scrolls, and scrolling turns the fanned-out pages to the left, one part of the plan at a time, with its
+// caption underneath. With reduced motion on it falls back to a plain list (see .bp-tour in globals.css).
+const TOUR = [
+  { img: "cover", label: "The guide", name: "The Busy Professional Blueprint", line: "11 pages. Keep scrolling to look inside.", items: [] as readonly (readonly [string, string])[] },
+  ...G.sections.map((sec) => ({ img: `page-${sec.img}`, label: sec.label, name: sec.name, line: sec.line, items: sec.items as readonly (readonly [string, string])[] })),
+];
+
 function BlueprintTour() {
   const outer = useRef<HTMLElement>(null);
-  const [active, setActive] = useState(0);
-  const n = G.sections.length;
+  const [pos, setPos] = useState(0); // 0 = cover centered, 1 = Day 1 centered, ... (fractions while turning)
+  const n = TOUR.length;
 
   useEffect(() => {
     let frame = 0;
@@ -139,7 +138,11 @@ function BlueprintTour() {
       const rect = el.getBoundingClientRect();
       const travel = rect.height - window.innerHeight;
       const progress = travel > 0 ? Math.min(1, Math.max(0, -rect.top / travel)) : 0;
-      setActive(Math.min(n - 1, Math.floor(progress * n)));
+      // Each page holds in the middle for a moment, then turns: ease the fraction between two pages.
+      const raw = progress * (n - 1);
+      const whole = Math.floor(raw);
+      const f = Math.min(1, Math.max(0, (raw - whole - 0.25) / 0.5));
+      setPos(Math.min(n - 1, whole + f * f * (3 - 2 * f)));
     };
     const onScroll = () => { if (!frame) frame = requestAnimationFrame(update); };
     update();
@@ -148,27 +151,42 @@ function BlueprintTour() {
     return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); if (frame) cancelAnimationFrame(frame); };
   }, [n]);
 
+  const active = Math.round(pos);
+
   return (
     <section ref={outer} className="bp-tour" style={{ ["--bp-steps" as string]: n }} aria-label="What's inside">
       <div className="bp-tour-pin">
-        <div className="bp-tour-head">
-          <h2 className="bp-h2">What&apos;s <em>inside</em></h2>
-          <div className="bp-tour-bar" aria-hidden>
-            {G.sections.map((sec, i) => <span key={sec.name} className={i <= active ? "on" : ""} />)}
-          </div>
+        <div className="bp-tour-bar" aria-hidden>
+          {TOUR.map((t, i) => <span key={t.img} className={i <= active ? "on" : ""} />)}
+        </div>
+        <div className="bp-fan" aria-hidden>
+          {TOUR.map((t, i) => {
+            const d = i - pos; // 0 = centered, -1 = one to the left, +1 = one to the right
+            const near = Math.min(1, Math.abs(d));
+            const far = Math.max(0, Math.abs(d) - 1);
+            return (
+              <img key={t.img} className={`bp-fan-page${i === active ? " is-on" : ""}`} src={`/images/blueprint/${t.img}.jpg`} alt="" width={680} height={880}
+                style={{
+                  transform: `translateX(calc(-50% + ${(d * 58).toFixed(2)}%)) rotate(${(Math.max(-2, Math.min(2, d)) * 7).toFixed(2)}deg) scale(${(1 - near * 0.14 - far * 0.06).toFixed(3)})`,
+                  opacity: Math.max(0, 1 - near * 0.25 - far * 0.9),
+                  zIndex: 20 - Math.round(Math.abs(d) * 4),
+                }} />
+            );
+          })}
         </div>
         <div className="bp-tour-stage">
-          {G.sections.map((sec, i) => (
-            <article key={sec.name} className={`bp-step ${i === active ? "is-on" : i < active ? "is-past" : "is-next"}`} aria-hidden={i !== active}>
-              <div className="bp-step-shot"><img src={`/images/blueprint/tour-${sec.img}.jpg`} alt="" width={680} height={502} loading="lazy" /></div>
-              <p className="bp-step-count"><b>{String(i + 1).padStart(2, "0")}</b> / {String(n).padStart(2, "0")} · {sec.label}</p>
-              <h3 className="bp-step-name">{sec.name}</h3>
-              <p className="bp-step-line">{sec.line}</p>
-              <ul>
-                {sec.items.slice(0, 3).map(([item, hidden]) => (
-                  <li key={item}><span>{item}</span><span className="mp-blur" aria-hidden>{hidden}</span></li>
-                ))}
-              </ul>
+          {TOUR.map((t, i) => (
+            <article key={t.img} className={`bp-step ${i === active ? "is-on" : i < active ? "is-past" : "is-next"}`} aria-hidden={i !== active}>
+              <p className="bp-step-count">{i === 0 ? t.label : <><b>{String(i).padStart(2, "0")}</b> / {String(n - 1).padStart(2, "0")} · {t.label}</>}</p>
+              <h3 className="bp-step-name">{t.name}</h3>
+              <p className="bp-step-line">{t.line}</p>
+              {t.items.length > 0 && (
+                <ul>
+                  {t.items.slice(0, 2).map(([item, hidden]) => (
+                    <li key={item}><span>{item}</span><span className="mp-blur" aria-hidden>{hidden}</span></li>
+                  ))}
+                </ul>
+              )}
             </article>
           ))}
         </div>
