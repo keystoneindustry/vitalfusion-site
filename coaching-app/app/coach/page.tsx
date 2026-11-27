@@ -86,27 +86,6 @@ export default async function HomeBase() {
       <p className="eyebrow">{formatDate(today)}</p>
       <h1 className="h1">{greeting()}, Tyler</h1>
 
-      <section className="card card-accent">
-        <h2 className="h2" style={{ marginTop: 0 }}>Do today</h2>
-        {todos.length === 0 ? (
-          <p className="muted" style={{ margin: 0 }}>You're all caught up ✓</p>
-        ) : (
-          <ul className="do-list">
-            {todos.map((t, i) => (
-              <li key={i}>
-                <Link href={t.href}>
-                  <span className="do-ico" aria-hidden="true">{t.icon}</span>
-                  <span className="do-text">
-                    <b>{t.title}</b>
-                    <span>{t.note}</span>
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
       <section className="card">
         <h2 className="h2" style={{ marginTop: 0 }}>How the business is running</h2>
         <div className="kpi-grid">
@@ -133,6 +112,27 @@ export default async function HomeBase() {
             </em>
           </Link>
         </div>
+      </section>
+
+      <section className="card card-accent">
+        <h2 className="h2" style={{ marginTop: 0 }}>Do today</h2>
+        {todos.length === 0 ? (
+          <p className="muted" style={{ margin: 0 }}>You're all caught up ✓</p>
+        ) : (
+          <ul className="do-list">
+            {todos.map((t, i) => (
+              <li key={i}>
+                <Link href={t.href}>
+                  <span className="do-ico" aria-hidden="true">{t.icon}</span>
+                  <span className="do-text">
+                    <b>{t.title}</b>
+                    <span>{t.note}</span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       <div className="section-links">
