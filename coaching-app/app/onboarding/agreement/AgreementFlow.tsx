@@ -199,7 +199,7 @@ export default function AgreementFlow({
 
       {error && <div className="notice notice-error">{error}</div>}
 
-      <div className="row" style={{ gap: 10 }}>
+      <div className="row" style={{ gap: 10, marginTop: 22 }}>
         {at > 0 && (
           <button type="button" className="btn btn-ghost" onClick={() => go(at - 1)} disabled={pending}>
             Back
