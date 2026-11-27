@@ -79,13 +79,13 @@ is not a developer; explain changes plainly and keep the site simple.
   (`/blueprint?source=instagram`), form `app/blueprint/BlueprintForm.tsx`, config, validation and emails in
   `lib/blueprint.ts`, PDF `public/plans/the-blueprint.pdf` (source `docs/pdf-source/blueprint/build.py`, run with Python +
   Playwright; the pulldown picture is `straight-arm-pulldown.jpg` next to it; page 7 is a sample week; its coaching button goes to
-  `/?source=blueprint`). For men with full-time jobs: 3-day split, cardio, the 9-to-5 plan's 1,800-calorie meals + grocery
+  `/apply?source=blueprint` (straight to the application)). For men with full-time jobs: 3-day split, cardio, the 9-to-5 plan's 1,800-calorie meals + grocery
   list (Blueprint only: lunch is 200 g chicken + 75 g rice, so the day is 180 g protein, about 1,820 calories; the 9-to-5
   meal plan PDF itself is unchanged at 166 g), recovery, supplements. Tyler wants this PDF plain (no cards, tiles or pills) and no "results vary" line next to the
   meal plan. `/api/blueprint` emails the PDF link, sends `blueprint.signed_up` (Resend Automation "Blueprint follow-up
   (day 2, 4, 7, 10, 14)", stopped by `coaching.applied`, duplicate guard contact property `blueprint_sequence = started`;
   templates "Blueprint 1–5", copies + generator in `docs/email-templates/blueprint/`, buttons go to
-  `/?source=blueprint-email`), saves a `blueprint` funnel lead (Supabase `record_funnel_lead` + `funnel_leads_kind_check`
+  `/apply?source=blueprint-email` for "Apply" buttons (emails 3 to 5) and `/?source=blueprint-email` for "See how 1:1 coaching works" (emails 1 and 2)), saves a `blueprint` funnel lead (Supabase `record_funnel_lead` + `funnel_leads_kind_check`
   must allow 'blueprint') and emails the coach ("New blueprint lead: Name"). No Resend segment.
 - Conversion tracking: every live calculator signup, meal plan request, grocery list request and application is also saved to the coaching app's Supabase
   (project bcwytsuqudwghxctxoef) table `funnel_leads` via the insert-only RPC `record_funnel_lead` (`lib/funnel.ts`,

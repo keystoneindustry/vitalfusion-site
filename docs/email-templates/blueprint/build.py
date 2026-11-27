@@ -5,7 +5,8 @@ import json, os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SITE = "https://vitalfusioncoaching.com"
-APPLY = f"{SITE}/?source=blueprint-email"
+HOME = f"{SITE}/?source=blueprint-email"  # "See how 1:1 coaching works" buttons (emails 1 and 2)
+APPLY = f"{SITE}/apply?source=blueprint-email"  # "Apply for 1:1 coaching" buttons go straight to the application
 GRAPH = f"{SITE}/images/email/charlie-graph.jpg"
 FONT = "font-family:Arial, Helvetica, sans-serif;font-size:16px;line-height:24px;color:#1f2328;"
 
@@ -14,9 +15,10 @@ def p(t, mb=16):
     return f'<p style="margin-top:0;margin-bottom:{mb}px;{FONT}">{t}</p>'
 
 
-def button(label):
+def button(label, href=None):
+    href = href or (APPLY if label.startswith("Apply") else HOME)
     return f'''<table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:20px;"><tr><td bgcolor="#5a8bb3" style="background-color:#5a8bb3;border-radius:10px;">
-<a href="{APPLY}" style="display:inline-block;padding-top:14px;padding-bottom:14px;padding-left:24px;padding-right:24px;font-family:Arial, Helvetica, sans-serif;font-size:16px;line-height:20px;font-weight:bold;color:#ffffff;text-decoration:none;">{label} &rarr;</a>
+<a href="{href}" style="display:inline-block;padding-top:14px;padding-bottom:14px;padding-left:24px;padding-right:24px;font-family:Arial, Helvetica, sans-serif;font-size:16px;line-height:20px;font-weight:bold;color:#ffffff;text-decoration:none;">{label} &rarr;</a>
 </td></tr></table>'''
 
 

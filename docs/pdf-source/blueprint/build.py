@@ -4,7 +4,7 @@ from playwright.sync_api import sync_playwright
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "The-Blueprint.pdf")
-APPLY = "https://vitalfusioncoaching.com/?source=blueprint"
+APPLY = "https://vitalfusioncoaching.com/apply?source=blueprint"  # straight to the application
 LOGO = "data:image/png;base64," + base64.b64encode(open(os.path.join(HERE, "vf-logo.png"), "rb").read()).decode()
 PHOTO = os.path.join(HERE, "straight-arm-pulldown.jpg")  # Tyler's photo; a placeholder shows until it exists
 DISCLAIMER = "General information, not medical advice. Check with your doctor before starting a new training, diet or supplement plan."
