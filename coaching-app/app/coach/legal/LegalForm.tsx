@@ -118,11 +118,11 @@ export default function LegalForm({ action, today }: { action: (prev: LegalFormS
       </p>
 
       <label className="row" style={{ alignItems: "flex-start", fontSize: 15, color: "var(--text-2)", margin: "0 0 16px", gap: 10 }}>
-        <input type="checkbox" name="includeParq" style={{ width: 22, height: 22, flex: "0 0 auto", appearance: "auto", marginTop: 2 }} />
+        <input type="checkbox" name="skipParq" style={{ width: 22, height: 22, flex: "0 0 auto", appearance: "auto", marginTop: 2 }} />
         <span>
-          Also include the health questions (PAR-Q)
+          Leave out the health questions (PAR-Q)
           <br />
-          <span className="muted small">Leave off if they already answer these in your other coaching app.</span>
+          <span className="muted small">They're included unless you tick this. Tick it if they already answer these in your other coaching app.</span>
         </span>
       </label>
 

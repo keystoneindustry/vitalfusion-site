@@ -41,7 +41,7 @@ export default async function LegalPage() {
               </div>
               <p className="small muted">
                 {r.email} · {coachingSummary(r)}
-                {r.include_parq ? " · with health questions" : ""}
+                {r.include_parq ? "" : " · no health questions"}
                 <br />
                 Sent {timeAgo(r.last_sent_at)}
               </p>

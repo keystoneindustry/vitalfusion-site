@@ -244,7 +244,7 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   "Clear chat" doesn't remove them.
 - Coach → Legal (Nov 26): `/coach/legal` (☰ More + desktop menu) sends the coaching agreement to someone who is NOT an app client
   (Tyler also coaches people in another app). Form (`LegalForm.tsx`, validated by `parseClientForm`): name, email, phone, package
-  (weeks + start/end) or monthly, optional "include the health questions (PAR-Q)" (off by default). `sendLegalAction` saves a
+  (weeks + start/end) or monthly, health questions (PAR-Q) included by default, with a "Leave out the health questions" checkbox (`skipParq`). `sendLegalAction` saves a
   `legal_requests` row (unguessable `token`) and emails `legalRequestEmail` with `/sign/<token>`. `/sign/[token]` is PUBLIC (no
   sign-in, noindex): reuses `AgreementFlow` (`includeParq`, `onSign` props) → `signLegalAction` re-validates, `markSigned`
   (only once), builds the PDF (`agreementPdf` with `withParq` / `signedWhere`; without PAR-Q the sections number II–VII via

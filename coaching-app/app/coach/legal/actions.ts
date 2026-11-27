@@ -30,7 +30,7 @@ export async function sendLegalAction(_prev: LegalFormState, form: FormData): Pr
     coaching_weeks: input.coachingWeeks,
     start_date: input.startDate,
     end_date: input.billing === "monthly" ? null : input.endDate,
-    include_parq: form.get("includeParq") === "on",
+    include_parq: form.get("skipParq") !== "on",
   });
   try {
     await sendLink(row);
