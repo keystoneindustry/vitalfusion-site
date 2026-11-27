@@ -39,7 +39,13 @@ export async function POST(req: Request) {
     saveApplication(app),
     sendEmail({ to: notifyTo, replyTo: app.email, ...coachEmail(app) }),
     // Saved for the dashboard's conversion tracking (lead → application → client).
-    recordFunnelLead("application", { email: app.email, name: app.fullName, source: app.source }),
+    // Phone, Instagram and goal go along so the coach portal's CRM can show them next to the lead.
+    recordFunnelLead("application", {
+      email: app.email,
+      name: app.fullName,
+      source: app.source,
+      details: { phone: app.phone, ...(app.instagram ? { instagram: app.instagram } : {}), goal: String(app.goal ?? "").slice(0, 140) },
+    }),
   ]);
   if (funnel.status === "rejected") console.error("Funnel save failed:", funnel.reason);
   if (saved.status === "rejected") console.error("Save failed:", saved.reason);
