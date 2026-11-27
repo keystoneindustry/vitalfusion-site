@@ -23,6 +23,7 @@ const MORE = [
   { href: "/coach/exercises", label: "Exercise library", emoji: "🏋️" },
   { href: "/coach/habits", label: "Habit library", emoji: "✅" },
   { href: "/coach/resources", label: "Resources", emoji: "📚" },
+  { href: "/coach/legal", label: "Legal", emoji: "📝" },
   { href: "/coach/clients/new", label: "Add a client", emoji: "➕" },
   { href: "/coach/settings", label: "Settings", emoji: "⚙️" },
 ];

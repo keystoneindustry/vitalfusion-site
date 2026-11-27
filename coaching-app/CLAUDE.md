@@ -242,3 +242,12 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
 - Saved assistant answers (Nov 26): each AI answer has "☆ Save"; the assistant page has Ask / ⭐ Saved tabs. Saved answers
   (title = the question asked, max 50) live only on the phone in localStorage `vf-assistant-<clientId>-saved`, like the chats;
   "Clear chat" doesn't remove them.
+- Coach → Legal (Nov 26): `/coach/legal` (☰ More + desktop menu) sends the coaching agreement to someone who is NOT an app client
+  (Tyler also coaches people in another app). Form (`LegalForm.tsx`, validated by `parseClientForm`): name, email, phone, package
+  (weeks + start/end) or monthly, optional "include the health questions (PAR-Q)" (off by default). `sendLegalAction` saves a
+  `legal_requests` row (unguessable `token`) and emails `legalRequestEmail` with `/sign/<token>`. `/sign/[token]` is PUBLIC (no
+  sign-in, noindex): reuses `AgreementFlow` (`includeParq`, `onSign` props) → `signLegalAction` re-validates, `markSigned`
+  (only once), builds the PDF (`agreementPdf` with `withParq` / `signedWhere`; without PAR-Q the sections number II–VII via
+  `agreementSections(p, { withParq: false })`), stores it at `agreements/legal/<id>.pdf`, emails it to the signer and to the
+  coach ("[LEGAL] ✅ … signed", flags PAR-Q yes). The list shows waiting (opened / not opened, Resend email, Copy link, Cancel)
+  and signed (Open PDF via `/coach/legal/[id]/pdf`, Delete). Helpers in `lib/legal.ts`.

@@ -59,8 +59,24 @@ function packageParagraph(p: PackageTerms): string {
   return `The Client is purchasing ${length} of online coaching, beginning ${start} and ending ${end} (the “Term”). Payment for the Term is due in advance according to the agreed-upon schedule. Failure to maintain payment may result in suspension or termination of services. All payments are non-refundable once paid, including if the Client stops using the services or ends coaching early, unless otherwise stated in writing. If the Client pays in installments, the Client agrees to pay every installment for the full Term. Coaching services end on the end date unless the Client and Coach agree in writing to renew. Any pause, extension or change to the Term must be agreed in writing, including by email, and will be recorded in an updated version of this Agreement.`;
 }
 
-/** Sections III–VIII, with the client's package filled in. */
-export function agreementSections(p: PackageTerms): AgreementSection[] {
+const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
+
+/**
+ * Sections III–VIII, with the client's package filled in. `withParq: false` (the coach's standalone Legal form
+ * without health questions) numbers them II–VII and points the health representation at what the client told the coach.
+ */
+export function agreementSections(p: PackageTerms, opts: { withParq?: boolean } = {}): AgreementSection[] {
+  const withParq = opts.withParq !== false;
+  const sections = baseSections(p);
+  if (withParq) return sections;
+  return sections.map((s, i) => ({
+    ...s,
+    number: ROMAN[i + 1],
+    paragraphs: s.id === "health" ? s.paragraphs.map((t) => t.replace("except as disclosed in this Agreement", "except as disclosed to the Coach in writing")) : s.paragraphs,
+  }));
+}
+
+function baseSections(p: PackageTerms): AgreementSection[] {
   return [
     {
       id: "consent",

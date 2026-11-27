@@ -23,6 +23,10 @@ export type SignedAgreement = {
   signerIp: string | null;
   package: PackageTerms;
   version?: string;
+  /** false = the standalone Legal form sent without the health questions. */
+  withParq?: boolean;
+  /** Where it was signed, for the record line. Default: the coaching app. */
+  signedWhere?: string;
 };
 
 function stamp(iso: string): string {
@@ -51,17 +55,20 @@ export function agreementPdf(a: SignedAgreement): Uint8Array {
     blocks.push({ kind: "pair", label: f.label, value: f.key === "dob" ? formatDate(v) : v });
   }
 
-  blocks.push({ kind: "space", size: 6 }, { kind: "heading", text: "SECTION II: PHYSICAL ACTIVITY READINESS QUESTIONNAIRE (PAR-Q)" });
-  PARQ_QUESTIONS.forEach((q, i) => {
-    blocks.push({ kind: "text", text: `${i + 1}. ${q}`, gap: 2 });
-    blocks.push({ kind: "text", text: `Answer: ${a.parq[i] ? "YES" : "NO"}`, bold: true, gap: 8 });
-  });
-  if (a.parq.some(Boolean)) {
-    blocks.push({ kind: "pair", label: "Explanation", value: a.parqExplanation || "-" });
+  const withParq = a.withParq !== false;
+  if (withParq) {
+    blocks.push({ kind: "space", size: 6 }, { kind: "heading", text: "SECTION II: PHYSICAL ACTIVITY READINESS QUESTIONNAIRE (PAR-Q)" });
+    PARQ_QUESTIONS.forEach((q, i) => {
+      blocks.push({ kind: "text", text: `${i + 1}. ${q}`, gap: 2 });
+      blocks.push({ kind: "text", text: `Answer: ${a.parq[i] ? "YES" : "NO"}`, bold: true, gap: 8 });
+    });
+    if (a.parq.some(Boolean)) {
+      blocks.push({ kind: "pair", label: "Explanation", value: a.parqExplanation || "-" });
+    }
+    blocks.push({ kind: "text", text: PARQ_STATEMENT, size: 9, gap: 10 });
   }
-  blocks.push({ kind: "text", text: PARQ_STATEMENT, size: 9, gap: 10 });
 
-  for (const s of agreementSections(a.package)) {
+  for (const s of agreementSections(a.package, { withParq })) {
     blocks.push({ kind: "space", size: 4 }, { kind: "heading", text: `SECTION ${s.number}: ${s.title.toUpperCase()}` });
     for (const p of s.paragraphs) blocks.push({ kind: "text", text: p, gap: 8 });
     blocks.push({ kind: "text", text: "Agreed by the Client.", bold: true, size: 9, gap: 8 });
@@ -85,7 +92,7 @@ export function agreementPdf(a: SignedAgreement): Uint8Array {
     {
       kind: "text",
       size: 8,
-      text: `Electronic record: signed in the Vital Fusion coaching app on ${stamp(a.signedAt)}${
+      text: `Electronic record: signed ${a.signedWhere ?? "in the Vital Fusion coaching app"} on ${stamp(a.signedAt)}${
         a.signerIp ? ` from IP address ${a.signerIp}` : ""
       }. Agreement version ${a.version ?? AGREEMENT_VERSION}. Each section was agreed to individually before signing.`,
     },

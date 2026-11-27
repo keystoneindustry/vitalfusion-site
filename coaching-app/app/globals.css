@@ -857,3 +857,12 @@ input, select, textarea { font-size: max(16px, 1em); }
 .saved-item summary { padding: 14px; font-weight: 700; color: #fff; cursor: pointer; }
 .saved-body { padding: 0 14px 14px; }
 .saved-body ul { padding-left: 20px; }
+
+/* Coach → Legal */
+.legal-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 8px; }
+.legal-item { padding: 14px; }
+.legal-item p { margin: 6px 0 10px; }
+.legal-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.legal-head b { font-size: 17px; color: #fff; }
+.legal-actions { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.legal-msg { flex-basis: 100%; margin: 0 !important; word-break: break-all; }

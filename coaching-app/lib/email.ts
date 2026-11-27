@@ -179,6 +179,52 @@ export function agreementCoachEmail(opts: { clientName: string; parqYes: string[
   };
 }
 
+/** Coach → Legal: asks someone (not an app client) to sign the coaching agreement online. */
+export function legalRequestEmail(firstName: string, link: string) {
+  return {
+    subject: "Please sign your Vital Fusion coaching agreement",
+    html: card(
+      `Welcome, ${firstName}!`,
+      `<p style="margin:0 0 12px">Before we get started, please read and sign your coaching agreement. It takes about 5 minutes on your phone or computer.</p>
+       ${button("Read and sign", link)}
+       <p style="margin:14px 0 0">You'll get a PDF copy by email as soon as you sign. Any questions, just reply to this email.</p>
+       <p style="margin:12px 0 0">– Tyler</p>`,
+    ),
+    text: `Welcome, ${firstName}!\n\nBefore we get started, please read and sign your coaching agreement. It takes about 5 minutes:\n${link}\n\nYou'll get a PDF copy by email as soon as you sign. Any questions, just reply to this email.\n\n– Tyler`,
+  };
+}
+
+/** Receipt for a standalone (Legal tab) agreement, PDF attached. */
+export function legalSignedClientEmail(firstName: string) {
+  return {
+    subject: "Your signed Vital Fusion coaching agreement",
+    html: card(
+      `Thanks, ${firstName}!`,
+      `<p style="margin:0 0 12px">Your coaching agreement is signed. A copy is attached for your records.</p><p style="margin:0">– Tyler</p>`,
+    ),
+    text: `Thanks, ${firstName}!\n\nYour coaching agreement is signed. A copy is attached for your records.\n\n– Tyler`,
+  };
+}
+
+/** Notice to the coach when a standalone (Legal tab) agreement is signed. */
+export function legalSignedCoachEmail(opts: { clientName: string; parqYes: string[]; explanation: string; link: string }) {
+  const flagged = opts.parqYes.length > 0;
+  const heading = flagged ? `${opts.clientName} signed and answered YES on the health questions` : `${opts.clientName} signed their coaching agreement`;
+  const subject = `[LEGAL] ${flagged ? "⚠️" : "✅"} ${heading}`;
+  const flagHtml = flagged
+    ? `<div style="margin:0 0 14px;padding:12px 14px;border:1px solid #5a4a26;border-radius:12px;background:#211b0e;color:#ffe2a8">
+         <b>Answered YES to:</b><ul style="margin:6px 0 6px 18px;padding:0">${opts.parqYes.map((q) => `<li>${esc(q)}</li>`).join("")}</ul>
+         <b>Their explanation:</b> ${esc(opts.explanation || "—")}
+         <p style="margin:8px 0 0">Decide whether you need a doctor's clearance before they start.</p>
+       </div>`
+    : "";
+  return {
+    subject,
+    html: card(heading, `${flagHtml}<p style="margin:0">The signed agreement is attached and saved under Legal in your coach portal.</p>${button("Open Legal", opts.link)}`),
+    text: `${subject}\n\n${flagged ? `Answered YES to:\n- ${opts.parqYes.join("\n- ")}\nExplanation: ${opts.explanation || "-"}\n\n` : ""}The signed agreement is attached and saved under Legal in your coach portal:\n${opts.link}`,
+  };
+}
+
 /** Notice to the coach with the client's onboarding answers. */
 export function onboardingAnswersCoachEmail(opts: {
   clientName: string;

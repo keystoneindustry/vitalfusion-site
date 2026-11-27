@@ -15,7 +15,13 @@ export default function AgreementFlow({
   parqStatement,
   sections,
   signatureStatement,
+  includeParq = true,
+  onSign = signAgreement,
 }: {
+  /** false: skip the health questions (the coach's standalone Legal form can leave them out). */
+  includeParq?: boolean;
+  /** Where the signed agreement goes. Default: the onboarding step. */
+  onSign?: (input: { contact: Partial<Contact>; parq: (boolean | null)[]; explanation: string; agreed: string[]; signature: string }) => Promise<{ error?: string; screen?: string } | void>;
   intro: string;
   contactFields: Field[];
   prefill: Partial<Contact>;
@@ -24,7 +30,7 @@ export default function AgreementFlow({
   sections: AgreementSection[];
   signatureStatement: string;
 }) {
-  const screens = ["contact", "parq", ...sections.map((s) => s.id), "sign"];
+  const screens = ["contact", ...(includeParq ? ["parq"] : []), ...sections.map((s) => s.id), "sign"];
   const [at, setAt] = useState(0);
   const [contact, setContact] = useState<Partial<Contact>>(prefill);
   const [parq, setParq] = useState<(boolean | null)[]>(parqQuestions.map(() => null));
@@ -70,7 +76,7 @@ export default function AgreementFlow({
       return setError("Type your full name exactly as you entered it in your contact details.");
     setError(null);
     startTransition(async () => {
-      const result = await signAgreement({ contact, parq, explanation, agreed, signature });
+      const result = await onSign({ contact, parq, explanation, agreed, signature });
       if (result?.error) {
         setError(result.error);
         const i = result.screen ? screens.indexOf(result.screen) : -1;

@@ -18,6 +18,7 @@ export default function CoachLayout({ children }: { children: React.ReactNode })
           <Link href="/coach/exercises">Exercises</Link>
           <Link href="/coach/forms">Forms</Link>
           <Link href="/coach/resources">Resources</Link>
+          <Link href="/coach/legal">Legal</Link>
           <Link href="/coach/settings">Settings</Link>
           <form action="/auth/logout" method="post">
             <button className="btn-link" type="submit" style={{ color: "var(--muted)" }}>
