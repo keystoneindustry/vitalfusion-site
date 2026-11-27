@@ -22,6 +22,7 @@ const TABS = [
 
 /** Extra sections behind the ☰ tab. */
 const MORE = [
+  { id: "magnets", href: "/coach/magnets", label: "Lead magnets", emoji: "🧲" },
   { id: "business", href: "/coach/business", label: "Business", emoji: "📈" },
   { id: "social", href: "/coach/social", label: "Social media", emoji: "📱" },
 ];

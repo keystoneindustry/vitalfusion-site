@@ -144,6 +144,10 @@ export default async function HomeBase() {
           <b>CRM</b>
           <span>{people.filter((p) => p.status !== "client" && p.status !== "not_fit").length} open leads</span>
         </Link>
+        <Link href="/coach/magnets">
+          <b>Lead magnets</b>
+          <span>Signups and follow-up emails</span>
+        </Link>
         <Link href="/coach/legal">
           <b>Legal</b>
           <span>{waiting.length} waiting for a signature</span>

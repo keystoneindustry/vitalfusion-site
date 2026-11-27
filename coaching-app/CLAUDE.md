@@ -272,3 +272,13 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
     `social_snapshots` (one row per day). Written every morning (6:41 ET) by the scheduled Claude task "Instagram numbers for
     coach portal" (Ootto `account_insights` → Supabase insert); `lib/social.ts` reads it. The app never calls Instagram itself.
   The older Claude dashboards (Business Dashboard, Instagram Analytics artifacts) still exist separately.
+- Lead magnets tab (Nov 26): `/coach/magnets` (desktop top tab; phone ☰ More). One card per freebie on the website
+  (`MAGNETS` in `lib/lead-magnets.ts`: calculator, 60-day meal plan with its two versions, grocery list, blueprint; each
+  lists its funnel kind, the Resend event(s) the site sends, and the delivery email's subject): signups (live from
+  `funnel_leads`), delivery-email counts, and the Resend automation(s) whose trigger matches, with run counts and each
+  email step ("Day N: subject, X delivered of Y sent"). Pure logic + tests: `emailSteps` walks a Resend workflow and adds up
+  the waits, `countBySubject`, `buildMagnets` (`tests/lead-magnets.test.ts`). Resend data needs env `RESEND_READ_KEY`
+  (a FULL ACCESS key; the normal RESEND_API_KEY is send-only): `lib/resend-read.ts` copies sent emails (subject + last
+  event only, no recipients) into `email_log` and automations into `email_automations`, at most every 15 min
+  (`sync_state` row "resend"; first visit syncs inline, later ones in `after()`). Without the key the tab shows signups
+  and setup steps. Open/click tracking is off on the Resend domain, so only sent/delivered/bounced are meaningful.

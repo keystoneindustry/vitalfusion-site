@@ -933,3 +933,14 @@ input, select, textarea { font-size: max(16px, 1em); }
 .top-posts li { margin: 8px 0; }
 .top-posts a { display: flex; flex-direction: column; gap: 2px; color: var(--text); text-decoration: none; }
 .top-posts b { color: #fff; font-weight: 600; }
+
+/* Lead magnets */
+.mag-auto { margin-top: 12px; padding: 12px; border: 1px solid var(--card-border); border-radius: 14px; background: var(--card-2); }
+.mag-steps { list-style: none; margin: 0; padding: 0; }
+.mag-steps li { display: flex; gap: 10px; padding: 8px 0; border-top: 1px solid var(--card-border); align-items: flex-start; }
+.mag-day { flex: 0 0 74px; font-size: 12.5px; font-weight: 700; color: var(--accent); padding-top: 2px; }
+.mag-step-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.mag-step-text b { color: #fff; font-weight: 600; font-size: 15px; }
+.mag-step-text .small { color: var(--text-2); }
+.mag-bounce { color: var(--warn); }
+@media (min-width: 860px) { .coach-nav nav { gap: 12px; } .coach-nav nav a { font-size: 14.5px; } }

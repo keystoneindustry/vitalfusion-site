@@ -5,6 +5,7 @@ export const SECTIONS = [
   { id: "home", href: "/coach", label: "Home" },
   { id: "coaching", href: "/coach/app", label: "Coaching app" },
   { id: "crm", href: "/coach/crm", label: "CRM" },
+  { id: "magnets", href: "/coach/magnets", label: "Lead magnets" },
   { id: "legal", href: "/coach/legal", label: "Legal" },
   { id: "business", href: "/coach/business", label: "Business" },
   { id: "social", href: "/coach/social", label: "Social media" },
