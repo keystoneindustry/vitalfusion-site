@@ -1,32 +1,22 @@
 import Link from "next/link";
 import CoachTabBar from "./CoachTabBar";
+import { CoachingSubNav, SectionTabs } from "./CoachNav";
 
-/** Shell for the coach's side of the app: top menu on desktop, bottom tab bar on phones. */
+/**
+ * Shell for Tyler's home base. Sections: Home, Coaching app (clients who use this app), CRM, Legal, Business, Social media.
+ * Top tabs on desktop, bottom tab bar on phones; the Coaching app section has its own row of pages.
+ */
 export default function CoachLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="coach-shell">
       <header className="coach-nav">
         <Link href="/coach" className="coach-brand">
           <img src="/icons/logo.png" alt="" />
-          <span className="brand">Coach</span>
+          <span className="brand">Vital Fusion</span>
         </Link>
-        <nav aria-label="Coach menu" className="coach-desktop-nav">
-          <Link href="/coach">Home</Link>
-          <Link href="/coach/clients">Clients</Link>
-          <Link href="/coach/check-ins">Check-ins</Link>
-          <Link href="/coach/habits">Habits</Link>
-          <Link href="/coach/exercises">Exercises</Link>
-          <Link href="/coach/forms">Forms</Link>
-          <Link href="/coach/resources">Resources</Link>
-          <Link href="/coach/legal">Legal</Link>
-          <Link href="/coach/settings">Settings</Link>
-          <form action="/auth/logout" method="post">
-            <button className="btn-link" type="submit" style={{ color: "var(--muted)" }}>
-              Sign out
-            </button>
-          </form>
-        </nav>
+        <SectionTabs />
       </header>
+      <CoachingSubNav />
       <main className="page page-wide">{children}</main>
       <CoachTabBar />
     </div>

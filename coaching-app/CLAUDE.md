@@ -251,3 +251,24 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   `agreementSections(p, { withParq: false })`), stores it at `agreements/legal/<id>.pdf`, emails it to the signer and to the
   coach ("[LEGAL] ✅ … signed", flags PAR-Q yes). The list shows waiting (opened / not opened, Resend email, Copy link, Cancel)
   and signed (Open PDF via `/coach/legal/[id]/pdf`, Delete). Helpers in `lib/legal.ts`.
+- Home base (Nov 26): the coach portal is now Tyler's home base for the whole business (he mainly coaches in another app,
+  HubFit). Sections (`app/coach/sections.ts`; desktop top tabs `CoachNav.tsx` `SectionTabs`, phone bar `CoachTabBar.tsx`: Home,
+  Coaching, CRM, Legal, ☰ Business / Social media):
+  - **Home** `/coach`: "Do today" (calls, lead follow-ups, check-ins to reply, agreements unsigned 2+ days, at-risk clients,
+    other coaching flags) + "How the business is running" (leads and applications last 7 days, revenue, followers) + section cards.
+  - **Coaching app** `/coach/app` = the old coach home (flags, calls, clients today, activity). Its pages (Clients, Check-ins,
+    Habits, Exercises, Forms, Resources, Settings) keep their URLs and get a second row of links (`CoachingSubNav`).
+  - **CRM** `/coach/crm`: one row per person from `funnel_leads` (the website writes every calculator, meal plan, grocery list,
+    blueprint signup and application there; applications carry phone/instagram/goal in `details`) joined by email with
+    `crm_leads` (Tyler's status new/contacted/talking/call_booked/client/not_fit, notes, follow-up date, last contacted; also
+    leads added by hand, email optional). "Client" is automatic when the email is an app client (stage not lead) or signed a
+    Legal agreement. Pure logic + follow-up rules in `lib/crm-logic.ts` (`buildPeople`, `followUps`: applied and not contacted →
+    follow-up date due → hot calculator lead this week → 2+ freebies in 2 weeks → reached out 4+ days ago; tests
+    `tests/crm.test.ts`); DB in `lib/crm.ts`; `LeadCard.tsx`, `AddLead.tsx`, `actions.ts`.
+  - **Business** `/coach/business`: Stripe revenue (`lib/stripe.ts`, restricted read-only key in env `STRIPE_READ_KEY`, charges
+    for the last 6 months net of refunds; shows setup steps until the key exists), leads per week, lead → applied → client,
+    sources, signup types, AI costs this month (`ai_usage`).
+  - **Social media** `/coach/social`: Instagram account totals (28 days), follower chart and recent posts from
+    `social_snapshots` (one row per day). Written every morning (6:41 ET) by the scheduled Claude task "Instagram numbers for
+    coach portal" (Ootto `account_insights` → Supabase insert); `lib/social.ts` reads it. The app never calls Instagram itself.
+  The older Claude dashboards (Business Dashboard, Instagram Analytics artifacts) still exist separately.
