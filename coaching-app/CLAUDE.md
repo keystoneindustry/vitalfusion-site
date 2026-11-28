@@ -290,3 +290,11 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   webhook is still only for app clients' kickoff / check-in calls. Resend's REST automation shape is `steps` + `connections`
   ({from,to,type}; config keys snake_case), not `next`/`branches`: `emailSteps(steps, connections)` handles both. The hourly
   reminders cron also runs `syncResend()` so Lead magnets numbers stay fresh.
+- Ads report (Nov 27): Business tab → "📣 Ads" (`lib/ads.ts`, tests `tests/ads.test.ts`). The website saves which Meta ad
+  each lead came from in `funnel_leads.details` (campaign, adset, ad, ad_id; see the site's `lib/attribution.ts`; the line to
+  paste into each ad's URL parameters is `AD_URL_PARAMETERS`). `buildPeople` gives each Person `ad` (from their earliest
+  signup that has ad details) and `firstSource`. `adsReport(people, spend, bookedEmails)`: one row per ad (by ad id, else
+  campaign + ad name) with leads → qualified (applied, or CRM status talking+, or booked) → booked a call (CRM status
+  call_booked, or their email has a Cal.com booking: `loadBookedEmails()` in lib/cal.ts) → clients; plus a row for Facebook-ad
+  leads from before per-ad tracking, and a total. Spend comes from table `ad_spend` (day, ad_id, names, spend, impressions,
+  clicks), meant to be filled daily by a scheduled Claude task once Meta Ads is connected; until then costs show "–".

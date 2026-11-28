@@ -74,7 +74,13 @@ export type Person = {
   applied: boolean;
   rating: string | null;
   goal: string | null;
+  /** The ad they first came from, when the ad link carried its details (see the website's lib/attribution.ts). */
+  ad: AdRef | null;
+  /** Where we first saw them (the source of their earliest signup). */
+  firstSource: string | null;
 };
+
+export type AdRef = { adId: string | null; ad: string | null; adset: string | null; campaign: string | null };
 
 function text(v: unknown): string | null {
   return typeof v === "string" && v.trim() ? v.trim() : null;
@@ -109,6 +115,11 @@ export function buildPeople(funnel: FunnelLead[], crm: CrmRow[], clientEmails: I
     const isClient = email ? clients.has(email) : false;
     const stored = c?.status ?? "new";
     const dates = [...sorted.map((l) => l.created_at), ...(c ? [c.created_at] : [])].sort();
+    const oldestFirst = [...sorted].reverse();
+    const adLead = oldestFirst.find((l) => text(l.details?.ad_id) || text(l.details?.ad) || text(l.details?.campaign));
+    const ad: AdRef | null = adLead
+      ? { adId: text(adLead.details?.ad_id), ad: text(adLead.details?.ad), adset: text(adLead.details?.adset), campaign: text(adLead.details?.campaign) }
+      : null;
     return {
       key,
       crmId: c?.id ?? null,
@@ -129,6 +140,8 @@ export function buildPeople(funnel: FunnelLead[], crm: CrmRow[], clientEmails: I
       applied: Boolean(application),
       rating: text(calc?.details?.rating),
       goal: rawGoal ? (GOAL_LABEL[rawGoal] ?? rawGoal) : null,
+      ad,
+      firstSource: text(oldestFirst.find((l) => text(l.source))?.source) ?? text(c?.source),
     };
   };
 

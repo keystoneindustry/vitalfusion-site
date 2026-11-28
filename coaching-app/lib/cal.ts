@@ -82,3 +82,26 @@ export function byDay(calls: Call[], timeZone = "America/New_York"): { day: stri
   }
   return out;
 }
+
+/** Emails of everyone with a call booked in Cal.com (upcoming or past, not cancelled), for the Ads report. Empty without a key. */
+export async function loadBookedEmails(): Promise<string[]> {
+  const key = process.env.CAL_API_KEY;
+  if (!key) return [];
+  const out = new Set<string>();
+  for (const status of ["upcoming", "past"]) {
+    try {
+      const res = await fetch(`https://api.cal.com/v2/bookings?status=${status}&take=100`, { headers: { Authorization: `Bearer ${key}`, "cal-api-version": "2024-08-13" }, cache: "no-store" });
+      if (!res.ok) continue;
+      const body = (await res.json()) as { data?: ApiBooking[] | { bookings?: ApiBooking[] } };
+      const list = Array.isArray(body.data) ? body.data : (body.data?.bookings ?? []);
+      for (const b of list) {
+        const st = (b.status ?? "").toLowerCase();
+        if (st === "cancelled" || st === "rejected") continue;
+        for (const a of b.attendees ?? []) if (a.email) out.add(a.email.toLowerCase());
+      }
+    } catch (err) {
+      console.error("Cal.com booked emails failed", err);
+    }
+  }
+  return [...out];
+}

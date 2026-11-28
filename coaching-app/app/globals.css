@@ -954,3 +954,17 @@ input, select, textarea { font-size: max(16px, 1em); }
 .call-text { display: flex; flex-direction: column; min-width: 0; flex: 1; }
 .call-text b { color: #fff; font-weight: 600; }
 .call-text span { color: var(--muted); font-size: 13.5px; }
+
+/* Ads report */
+.ad-list { display: flex; flex-direction: column; gap: 10px; }
+.ad-row { padding: 12px; border: 1px solid var(--card-border); border-radius: 14px; background: var(--card-2); }
+.ad-row .legal-head b { color: #fff; font-size: 16px; }
+.ad-total { border-color: #2c4763; background: #131c28; }
+.ad-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-top: 10px; }
+.ad-steps div { text-align: center; padding: 8px 2px; border-radius: 10px; background: #12151b; }
+.ad-steps b { display: block; font-size: 20px; color: #fff; }
+.ad-steps span { display: block; font-size: 11.5px; color: var(--muted); line-height: 1.2; }
+.ad-steps em { display: block; font-style: normal; font-size: 11.5px; color: var(--gold); margin-top: 3px; }
+.ad-setup { margin-top: 12px; }
+.ad-setup summary { cursor: pointer; font-weight: 600; color: var(--accent); font-size: 14.5px; }
+.ad-params { display: block; padding: 10px; border-radius: 10px; background: #12151b; border: 1px solid var(--card-border); font-size: 12.5px; word-break: break-all; user-select: all; }
