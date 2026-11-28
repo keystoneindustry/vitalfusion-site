@@ -3,7 +3,8 @@ import { validateApplication } from "@/lib/application";
 import { applicantEmail, coachEmail, sendEmail } from "@/lib/email";
 import { saveApplication } from "@/lib/store";
 import { sendResendEvent } from "@/lib/resend-events";
-import { recordFunnelLead } from "@/lib/funnel";
+import { recordFunnelLead, withAttribution } from "@/lib/funnel";
+import { sourceLabel } from "@/lib/application";
 
 export const runtime = "nodejs";
 
@@ -40,12 +41,12 @@ export async function POST(req: Request) {
     sendEmail({ to: notifyTo, replyTo: app.email, ...coachEmail(app) }),
     // Saved for the dashboard's conversion tracking (lead → application → client).
     // Phone, Instagram and goal go along so the coach portal's CRM can show them next to the lead.
-    recordFunnelLead("application", {
+    recordFunnelLead("application", withAttribution({
       email: app.email,
       name: app.fullName,
       source: app.source,
       details: { phone: app.phone, ...(app.instagram ? { instagram: app.instagram } : {}), goal: String(app.goal ?? "").slice(0, 140) },
-    }),
+    }, body, sourceLabel)),
   ]);
   if (funnel.status === "rejected") console.error("Funnel save failed:", funnel.reason);
   if (saved.status === "rejected") console.error("Save failed:", saved.reason);

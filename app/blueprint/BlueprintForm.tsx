@@ -1,5 +1,6 @@
 "use client";
 
+import { readAttribution } from "@/app/components/Attribution";
 import { useState } from "react";
 import { BLUEPRINT as G } from "@/lib/blueprint";
 
@@ -26,7 +27,7 @@ export default function BlueprintForm({ source }: { source: string }) {
       const res = await fetch("/api/blueprint", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, company, source }),
+        body: JSON.stringify({ name, email, company, source, attr: readAttribution() }),
         keepalive: true,
       });
       if (res.status === 422) {

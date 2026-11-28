@@ -1,5 +1,6 @@
 "use client";
 
+import { readAttribution } from "@/app/components/Attribution";
 import { useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import Rich from "../components/Rich";
@@ -245,7 +246,7 @@ export default function MacroQuiz({ source }: { source: string }) {
       const resp = await fetch("/api/macros", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...payload(), company, mealsPending: true }),
+        body: JSON.stringify({ ...payload(), company, mealsPending: true, attr: readAttribution() }),
       });
       if (resp.status === 422) {
         const json = await resp.json().catch(() => ({}));

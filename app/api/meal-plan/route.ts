@@ -3,7 +3,8 @@ import { mealPlanFor, validateMealPlanLead } from "@/lib/meal-plans";
 import { coachMealPlanEmail, mealPlanEmail } from "@/lib/meal-plan-email";
 import { sendEmail } from "@/lib/email";
 import { addToSegment, MEAL_PLAN_SEGMENT_ID, sendResendEvent } from "@/lib/resend-events";
-import { recordFunnelLead } from "@/lib/funnel";
+import { recordFunnelLead, withAttribution } from "@/lib/funnel";
+import { sourceLabel } from "@/lib/application";
 
 export const runtime = "nodejs";
 
@@ -43,7 +44,7 @@ export async function POST(req: Request) {
     sendResendEvent(plan.event, lead.email, { first_name: lead.firstName, plan: plan.slug, plan_name: plan.name }),
     addToSegment(MEAL_PLAN_SEGMENT_ID, lead.email, lead.firstName),
     // Saved for the dashboard's conversion tracking (lead → application → client).
-    recordFunnelLead("meal_plan", { email: lead.email, name: lead.name, source: lead.source, details: { plan: plan.slug } }),
+    recordFunnelLead("meal_plan", withAttribution({ email: lead.email, name: lead.name, source: lead.source, details: { plan: plan.slug } }, body, sourceLabel)),
     notifyTo ? sendEmail({ to: notifyTo, replyTo: lead.email, ...coachMealPlanEmail(lead, plan) }) : Promise.resolve("skipped"),
   ]);
   if (delivery.status === "rejected") console.error("Meal plan: PDF email failed:", delivery.reason);

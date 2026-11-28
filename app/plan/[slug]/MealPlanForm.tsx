@@ -1,5 +1,6 @@
 "use client";
 
+import { readAttribution } from "@/app/components/Attribution";
 import { useState } from "react";
 import Rich from "@/app/components/Rich";
 import type { MealPlan } from "@/lib/meal-plans";
@@ -26,7 +27,7 @@ export default function MealPlanForm({ plan, source }: { plan: MealPlan; source:
       const res = await fetch("/api/meal-plan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, company, plan: plan.slug, source }),
+        body: JSON.stringify({ name, email, company, plan: plan.slug, source, attr: readAttribution() }),
         keepalive: true,
       });
       if (res.status === 422) {

@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { BLUEPRINT, coachBlueprintEmail, blueprintEmail, validateBlueprintLead } from "@/lib/blueprint";
 import { sendEmail } from "@/lib/email";
 import { sendResendEvent } from "@/lib/resend-events";
-import { recordFunnelLead } from "@/lib/funnel";
+import { recordFunnelLead, withAttribution } from "@/lib/funnel";
+import { sourceLabel } from "@/lib/application";
 
 export const runtime = "nodejs";
 
@@ -40,7 +41,7 @@ export async function POST(req: Request) {
     // Follow-ups on day 2, 4, 7, 10 and 14 (content and timing live in Resend).
     sendResendEvent(BLUEPRINT.event, lead.email, { first_name: lead.firstName }),
     // Saved for the dashboard's conversion tracking (lead → application → client).
-    recordFunnelLead("blueprint", { email: lead.email, name: lead.name, source: lead.source }),
+    recordFunnelLead("blueprint", withAttribution({ email: lead.email, name: lead.name, source: lead.source }, body, sourceLabel)),
     notifyTo ? sendEmail({ to: notifyTo, replyTo: lead.email, ...coachBlueprintEmail(lead) }) : Promise.resolve("skipped"),
   ]);
   if (delivery.status === "rejected") console.error("Blueprint: PDF email failed:", delivery.reason);

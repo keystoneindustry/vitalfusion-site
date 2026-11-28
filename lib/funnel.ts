@@ -1,3 +1,4 @@
+import { cleanAttribution } from "./attribution";
 // Saves each Nutrition Plan Calculator signup, free meal plan request and coaching application to the coaching app's
 // Supabase (table funnel_leads) so the business dashboard can follow lead → application → client
 // by email and source. Insert-only, through the record_funnel_lead() function: the key below is the
@@ -29,4 +30,16 @@ export async function recordFunnelLead(
   });
   const body = await res.text();
   if (!res.ok || body.trim() !== "true") throw new Error(`Funnel save failed ${res.status}: ${body.slice(0, 200)}`);
+}
+
+/**
+ * Adds the ad a lead came from (see lib/attribution.ts) to what gets saved: the ad details go into `details`, and the
+ * ad link's own source tag (e.g. "facebook-ad") wins over the page's default source, so someone who clicked an ad and
+ * signed up on a later page is still filed under the ad.
+ */
+export function withAttribution<T extends { source?: string; details?: Record<string, unknown> }>(lead: T, body: unknown, label: (s: string) => string): T {
+  const attr = cleanAttribution(body && typeof body === "object" ? (body as Record<string, unknown>).attr : null);
+  if (!attr) return lead;
+  const { src, ...ad } = attr;
+  return { ...lead, source: src ? label(src) : lead.source, details: { ...(lead.details ?? {}), ...ad } };
 }

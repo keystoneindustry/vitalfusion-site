@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { GROCERY_LIST, coachGroceryListEmail, groceryListEmail, validateGroceryListLead } from "@/lib/grocery-list";
 import { sendEmail } from "@/lib/email";
 import { sendResendEvent } from "@/lib/resend-events";
-import { recordFunnelLead } from "@/lib/funnel";
+import { recordFunnelLead, withAttribution } from "@/lib/funnel";
+import { sourceLabel } from "@/lib/application";
 
 export const runtime = "nodejs";
 
@@ -40,7 +41,7 @@ export async function POST(req: Request) {
     // Follow-ups on day 2, 4 and 7 (content and timing live in Resend).
     sendResendEvent(GROCERY_LIST.event, lead.email, { first_name: lead.firstName }),
     // Saved for the dashboard's conversion tracking (lead → application → client).
-    recordFunnelLead("grocery_list", { email: lead.email, name: lead.name, source: lead.source }),
+    recordFunnelLead("grocery_list", withAttribution({ email: lead.email, name: lead.name, source: lead.source }, body, sourceLabel)),
     notifyTo ? sendEmail({ to: notifyTo, replyTo: lead.email, ...coachGroceryListEmail(lead) }) : Promise.resolve("skipped"),
   ]);
   if (delivery.status === "rejected") console.error("Grocery list: PDF email failed:", delivery.reason);

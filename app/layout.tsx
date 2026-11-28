@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Instrument_Serif } from "next/font/google";
 import { SiteFooter, SiteHeader } from "./components/SiteChrome";
+import AttributionCapture from "./components/Attribution";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${sans.variable} ${serif.variable}`}>
       <body>
+        <AttributionCapture />
         <SiteHeader />
         {children}
         <SiteFooter />

@@ -1,5 +1,6 @@
 "use client";
 
+import { readAttribution } from "@/app/components/Attribution";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import {
@@ -129,7 +130,7 @@ export default function ApplyForm({ source, initialAge = "" }: { source: string;
       const r = await fetch("/api/apply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...a, company, source }),
+        body: JSON.stringify({ ...a, company, source, attr: readAttribution() }),
       });
       const json = await r.json().catch(() => ({}));
       if (r.ok) {

@@ -109,3 +109,9 @@ is not a developer; explain changes plainly and keep the site simple.
   "not medical advice" disclaimer; the application's last step says "By applying, you agree to our Terms of Service and
   Privacy Policy." The coaching app's sign-in screen links them too. Keep them in sync with the app's coaching agreement
   (coaching-app/lib/agreement.ts): no refunds once paid, monthly cancel by email, Maryland law. No "last updated" line is shown (Tyler's call); LEGAL_UPDATED is kept for reference only.
+- Ad tracking (Nov 27): `lib/attribution.ts` + `app/components/Attribution.tsx` (in the root layout). An ad link tagged with
+  `source=facebook-ad&utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&ad_id={{ad.id}}&adset_id={{adset.id}}&campaign_id={{campaign.id}}`
+  (Meta fills in the braces) is remembered on the device for 90 days (localStorage `vf-ad`, last ad click wins). Every form
+  sends it as `attr`; the API routes save it with `withAttribution()` (lib/funnel.ts) into `funnel_leads.details`
+  (campaign, adset, ad, ad_id, …) and file the lead under the ad link's source ("Facebook Ad"). The coach portal's Ads report reads it.
+  No Meta Pixel yet.

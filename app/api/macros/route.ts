@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { calculate, leadRating, validateQuiz } from "@/lib/macros";
 import { sequencePayload } from "@/lib/sequence";
 import { sendResendEvent, addToCalculatorSegment } from "@/lib/resend-events";
-import { recordFunnelLead } from "@/lib/funnel";
+import { recordFunnelLead, withAttribution } from "@/lib/funnel";
+import { sourceLabel } from "@/lib/application";
 import { coachLeadEmail, leadRow, macroResultsEmail } from "@/lib/macro-email";
 import { sendEmail } from "@/lib/email";
 import { appendLeadRow } from "@/lib/sheets";
@@ -48,7 +49,7 @@ export async function POST(req: Request) {
     // Adds them to the "Nutrition Plan Calculator" segment in Resend (for manual Broadcasts).
     addToCalculatorSegment(q.email, q.name.trim().split(/\s+/)[0] || ""),
     // Saved for the dashboard's conversion tracking (lead → application → client).
-    recordFunnelLead("calculator", { email: q.email, name: q.name, source: q.source, details: { goal: q.goal, rating: leadRating(q) } }),
+    recordFunnelLead("calculator", withAttribution({ email: q.email, name: q.name, source: q.source, details: { goal: q.goal, rating: leadRating(q) } }, body, sourceLabel)),
   ];
   const [sheet, sequence, coach, lead, segment, funnel] = await Promise.allSettled(tasks);
   if (sequence.status === "rejected") console.error("Macro lead: sequence event failed:", sequence.reason);

@@ -1,5 +1,6 @@
 "use client";
 
+import { readAttribution } from "@/app/components/Attribution";
 import { useState } from "react";
 import Rich from "@/app/components/Rich";
 import { GROCERY_LIST as G } from "@/lib/grocery-list";
@@ -27,7 +28,7 @@ export default function GroceryListForm({ source }: { source: string }) {
       const res = await fetch("/api/grocery-list", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, company, source }),
+        body: JSON.stringify({ name, email, company, source, attr: readAttribution() }),
         keepalive: true,
       });
       if (res.status === 422) {
