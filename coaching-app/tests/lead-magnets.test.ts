@@ -23,6 +23,27 @@ assert.equal(parsed.trigger, "macro_quiz.completed");
 assert.deepEqual(parsed.steps, [{ day: 2, subject: "Email one" }, { day: 4, subject: "Email two" }, { day: 7, subject: "Email three" }]);
 assert.deepEqual(emailSteps(null), { trigger: null, steps: [] });
 
+// The REST API shape: steps + connections, snake_case config.
+const rest = emailSteps(
+  [
+    { key: "start", type: "trigger", config: { event_name: "blueprint.signed_up" } },
+    { key: "guard", type: "condition", config: {} },
+    { key: "w1", type: "wait_for_event", config: { timeout: "2 days", event_name: "coaching.applied" } },
+    { key: "e1", type: "send_email", config: { subject: "First" } },
+    { key: "d2", type: "delay", config: { duration: "2 days" } },
+    { key: "e2", type: "send_email", config: { subject: "Second" } },
+  ],
+  [
+    { from: "start", to: "guard", type: "default" },
+    { from: "guard", to: "w1", type: "condition_not_met" },
+    { from: "w1", to: "e1", type: "timeout" },
+    { from: "e1", to: "d2", type: "default" },
+    { from: "d2", to: "e2", type: "default" },
+  ],
+);
+assert.equal(rest.trigger, "blueprint.signed_up");
+assert.deepEqual(rest.steps, [{ day: 2, subject: "First" }, { day: 4, subject: "Second" }]);
+
 const counts = countBySubject([
   { subject: "Email one", last_event: "delivered" },
   { subject: "Email one", last_event: "bounced" },

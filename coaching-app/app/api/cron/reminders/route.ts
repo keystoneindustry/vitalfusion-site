@@ -1,3 +1,5 @@
+import { after } from "next/server";
+import { resendReadConfigured, syncResend } from "@/lib/resend-read";
 import { runReminders, sendReminderNow } from "@/lib/reminders";
 import { sendAtRiskDigest } from "@/lib/at-risk";
 import { env } from "@/lib/env";
@@ -26,5 +28,7 @@ export async function GET(request: Request): Promise<Response> {
     console.error("At-risk digest failed", err);
     return { sent: false, clients: 0 };
   });
+  // Keep the Lead magnets numbers fresh even when nobody opens the tab.
+  if (resendReadConfigured()) after(() => syncResend().then(() => undefined));
   return Response.json({ ...result, atRisk });
 }

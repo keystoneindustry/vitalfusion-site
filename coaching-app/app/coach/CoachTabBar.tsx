@@ -10,21 +10,16 @@ import { sectionOf } from "./sections";
 
 const TABS = [
   { id: "home", href: "/coach", label: "Home", icon: "M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z" },
-  {
-    id: "coaching",
-    href: "/coach/app",
-    label: "Coaching",
-    icon: "M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 18.5V20M10 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM20 20v-1.5a3.5 3.5 0 0 0-2.5-3.35M15.5 4.15a3.5 3.5 0 0 1 0 6.7",
-  },
+  { id: "business", href: "/coach/business", label: "Business", icon: "M4 20V10M10 20V4M16 20v-7M21 20H3" },
   { id: "crm", href: "/coach/crm", label: "CRM", icon: "M4 6h16M7 12h10M10 18h4" },
-  { id: "legal", href: "/coach/legal", label: "Legal", icon: "M8 4h8M9 2.5h6v3H9zM6 4H5a1 1 0 0 0-1 1v15a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1h-1M8 11h8M8 15h5" },
+  { id: "social", href: "/coach/social", label: "Social", icon: "M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4zM12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zM17.2 6.8h.01" },
 ];
 
-/** Extra sections behind the ☰ tab. */
+/** The rest of the sections, behind the ☰ tab (same order as the desktop tabs). */
 const MORE = [
+  { id: "legal", href: "/coach/legal", label: "Legal", emoji: "📝" },
   { id: "magnets", href: "/coach/magnets", label: "Lead magnets", emoji: "🧲" },
-  { id: "business", href: "/coach/business", label: "Business", emoji: "📈" },
-  { id: "social", href: "/coach/social", label: "Social media", emoji: "📱" },
+  { id: "coaching", href: "/coach/app", label: "Coaching app", emoji: "🏋️" },
 ];
 
 /** Bottom tab bar for the coach side on phones (desktop uses the top menu). */

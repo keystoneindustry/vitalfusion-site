@@ -54,30 +54,55 @@ export function waitDays(text: unknown): number | null {
 }
 
 type RawStep = { key?: string; type?: string; config?: Record<string, unknown>; next?: string | null; branches?: Record<string, string | null> };
+type RawConnection = { from?: string; to?: string; type?: string };
 
 /**
  * Walks a Resend workflow from the trigger and returns its email steps in order, each with the day it goes out
- * (adding up the waits before it). Follows the "keep going" branch of waits and conditions.
+ * (adding up the waits before it). Follows the "keep going" path: a wait's timeout branch, a condition's branch that
+ * leads on. Handles both shapes Resend uses: steps with `next` / `branches`, and (the REST API) steps plus a
+ * `connections` list of { from, to, type }.
  */
-export function emailSteps(raw: unknown): { trigger: string | null; steps: EmailStep[] } {
+export function emailSteps(raw: unknown, connections?: unknown): { trigger: string | null; steps: EmailStep[] } {
   const list: RawStep[] = Array.isArray(raw) ? (raw as RawStep[]) : [];
+  const conns: RawConnection[] = Array.isArray(connections) ? (connections as RawConnection[]) : [];
   const byKey = new Map(list.filter((s) => s && typeof s.key === "string").map((s) => [s.key!, s]));
+  const cfg = (s: RawStep | undefined, ...names: string[]) => {
+    for (const n of names) if (s?.config && s.config[n] !== undefined && s.config[n] !== null) return s.config[n];
+    return undefined;
+  };
+  /** Where a step leads, preferring the given branch names in order. */
+  const follow = (s: RawStep, prefer: string[]): string | null => {
+    for (const name of prefer) {
+      if (s.branches && name in s.branches) {
+        if (s.branches[name]) return s.branches[name]!;
+        continue;
+      }
+      const c = conns.find((x) => x.from === s.key && x.type === name && x.to);
+      if (c) return c.to!;
+    }
+    if (s.next) return s.next;
+    const fallback = conns.find((x) => x.from === s.key && x.to && (x.type === "default" || !x.type)) ?? (prefer.length === 0 ? conns.find((x) => x.from === s.key && x.to) : undefined);
+    return fallback?.to ?? null;
+  };
   const start = list.find((s) => s?.type === "trigger");
-  const trigger = typeof start?.config?.eventName === "string" ? (start.config.eventName as string) : null;
+  const eventName = cfg(start, "eventName", "event_name");
+  const trigger = typeof eventName === "string" ? eventName : null;
   const steps: EmailStep[] = [];
   let day: number | null = 0;
   let cur: RawStep | undefined = start;
   for (let guard = 0; cur && guard < 100; guard++) {
-    let next: string | null | undefined = cur.next;
+    let next: string | null;
     if (cur.type === "send_email") {
-      steps.push({ day: day === null ? null : Math.round(day * 10) / 10, subject: String(cur.config?.subject ?? "").trim() });
+      steps.push({ day: day === null ? null : Math.round(day * 10) / 10, subject: String(cfg(cur, "subject") ?? "").trim() });
+      next = follow(cur, []);
     } else if (cur.type === "delay" || cur.type === "wait_for_event") {
-      const d = waitDays(cur.config?.timeout ?? cur.config?.duration ?? cur.config?.delay);
+      const d = waitDays(cfg(cur, "timeout", "duration", "delay"));
       day = d === null || day === null ? null : day + d;
-      if (cur.type === "wait_for_event") next = cur.branches?.timeout ?? next;
+      next = follow(cur, cur.type === "wait_for_event" ? ["timeout"] : []);
     } else if (cur.type === "condition") {
-      // The branch that continues the sequence is whichever one leads somewhere.
-      next = cur.branches?.condition_not_met ?? cur.branches?.condition_met ?? next;
+      next = follow(cur, ["condition_not_met", "condition_met"]);
+    } else {
+      next = follow(cur, []);
     }
     cur = next ? byKey.get(next) : undefined;
   }

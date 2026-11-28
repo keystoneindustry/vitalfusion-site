@@ -59,7 +59,7 @@ export async function syncEmails(maxPages = 40): Promise<number> {
   return saved;
 }
 
-type ApiAutomation = { id: string; name?: string; status?: string; created_at?: string; workflow?: { steps?: unknown } | null; steps?: unknown };
+type ApiAutomation = { id: string; name?: string; status?: string; created_at?: string; workflow?: { steps?: unknown; connections?: unknown } | null; steps?: unknown; connections?: unknown };
 type ApiRun = { id: string; status?: string };
 
 async function runCounts(id: string): Promise<RunCounts> {
@@ -88,7 +88,7 @@ export async function syncAutomations(): Promise<number> {
   for (const a of list.data ?? []) {
     await sleep(350);
     const full = await api<ApiAutomation>(`/automations/${a.id}`).catch(() => a);
-    const { trigger, steps } = emailSteps(full.workflow?.steps ?? full.steps ?? []);
+    const { trigger, steps } = emailSteps(full.workflow?.steps ?? full.steps ?? [], full.workflow?.connections ?? full.connections ?? []);
     await sleep(350);
     const runs = await runCounts(a.id).catch(() => ({ total: 0, running: 0, completed: 0, stopped: 0 }));
     rows.push({ id: a.id, name: full.name ?? a.name ?? "", status: full.status ?? a.status ?? "", trigger_event: trigger, steps, runs, created_at: full.created_at ?? a.created_at ?? null, synced_at: new Date().toISOString() });

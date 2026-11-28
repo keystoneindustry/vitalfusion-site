@@ -12,6 +12,8 @@ import { planSummaries } from "@/lib/plans";
 import { loadAtRisk } from "@/lib/at-risk";
 import { followerHistory, latestSnapshot } from "@/lib/social";
 import { loadRevenue, money } from "@/lib/stripe";
+import { loadUpcomingCalls } from "@/lib/cal";
+import CallSchedule from "./CallSchedule";
 
 export const metadata = { title: "Home · Vital Fusion" };
 
@@ -32,7 +34,7 @@ export default async function HomeBase() {
       return fallback;
     });
 
-  const [{ people, funnel }, legal, clients, plans, unreplied, snap, history, revenue] = await Promise.all([
+  const [{ people, funnel }, legal, clients, plans, unreplied, snap, history, revenue, schedule] = await Promise.all([
     safe(loadPeople(), { people: [], funnel: [] }, "leads"),
     safe(listLegalRequests(), [], "legal"),
     safe(listClients(), [] as ClientRow[], "clients"),
@@ -41,6 +43,7 @@ export default async function HomeBase() {
     safe(latestSnapshot(), null, "social"),
     safe(followerHistory(8), [], "followers"),
     safe(loadRevenue(), null, "revenue"),
+    loadUpcomingCalls(),
   ]);
   const current = clients.filter((c) => c.stage !== "finished");
   const flags = coachFlags(current, plans, unreplied, today);
@@ -114,6 +117,8 @@ export default async function HomeBase() {
         </div>
       </section>
 
+      <CallSchedule result={schedule} limit={6} />
+
       <section className="card card-accent">
         <h2 className="h2" style={{ marginTop: 0 }}>Do today</h2>
         {todos.length === 0 ? (
@@ -136,29 +141,29 @@ export default async function HomeBase() {
       </section>
 
       <div className="section-links">
-        <Link href="/coach/app">
-          <b>Coaching app</b>
-          <span>{current.length} client{current.length === 1 ? "" : "s"} · {unreplied.length} check-in{unreplied.length === 1 ? "" : "s"} to reply</span>
+        <Link href="/coach/business">
+          <b>Business</b>
+          <span>Revenue, calls, leads, conversion</span>
         </Link>
         <Link href="/coach/crm">
           <b>CRM</b>
           <span>{people.filter((p) => p.status !== "client" && p.status !== "not_fit").length} open leads</span>
         </Link>
-        <Link href="/coach/magnets">
-          <b>Lead magnets</b>
-          <span>Signups and follow-up emails</span>
+        <Link href="/coach/social">
+          <b>Social media</b>
+          <span>Instagram numbers and best posts</span>
         </Link>
         <Link href="/coach/legal">
           <b>Legal</b>
           <span>{waiting.length} waiting for a signature</span>
         </Link>
-        <Link href="/coach/business">
-          <b>Business</b>
-          <span>Revenue, leads, conversion</span>
+        <Link href="/coach/magnets">
+          <b>Lead magnets</b>
+          <span>Signups and follow-up emails</span>
         </Link>
-        <Link href="/coach/social">
-          <b>Social media</b>
-          <span>Instagram numbers and best posts</span>
+        <Link href="/coach/app">
+          <b>Coaching app</b>
+          <span>{current.length} client{current.length === 1 ? "" : "s"} · {unreplied.length} check-in{unreplied.length === 1 ? "" : "s"} to reply</span>
         </Link>
       </div>
     </>

@@ -4,6 +4,8 @@ import { bySource, kindLabel, leadsByWeek } from "@/lib/crm-logic";
 import { formatDate, todayIn } from "@/lib/dates";
 import { loadRevenue, money, stripeConfigured, type Revenue } from "@/lib/stripe";
 import { db } from "@/lib/supabase";
+import { loadUpcomingCalls } from "@/lib/cal";
+import CallSchedule from "../CallSchedule";
 
 export const metadata = { title: "Business · Vital Fusion" };
 
@@ -42,6 +44,7 @@ export default async function BusinessPage() {
     revenueError = true;
   }
 
+  const schedule = await loadUpcomingCalls();
   const weeks = leadsByWeek(funnel, today, 8);
   const kinds = new Map<string, number>();
   for (const f of funnel) kinds.set(f.kind, (kinds.get(f.kind) ?? 0) + 1);
@@ -121,6 +124,8 @@ export default async function BusinessPage() {
           </>
         )}
       </section>
+
+      <CallSchedule result={schedule} limit={20} setup />
 
       <section className="card">
         <h2 className="h2" style={{ marginTop: 0 }}>🧲 Leads per week</h2>

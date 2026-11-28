@@ -282,3 +282,11 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   event only, no recipients) into `email_log` and automations into `email_automations`, at most every 15 min
   (`sync_state` row "resend"; first visit syncs inline, later ones in `after()`). Without the key the tab shows signups
   and setup steps. Open/click tracking is off on the Resend domain, so only sent/delivered/bounced are meaningful.
+- Nov 27: tab order is Home, Business, CRM, Social media, Legal, Lead magnets, Coaching app (phone bar: Home, Business, CRM,
+  Social; ☰: Legal, Lead magnets, Coaching app). Upcoming calls: `lib/cal.ts` reads Cal.com's API
+  (`GET /v2/bookings?status=upcoming`, env `CAL_API_KEY`, header `cal-api-version: 2024-08-13`; `toCalls` / `byDay` pure,
+  `tests/cal.test.ts`); `app/coach/CallSchedule.tsx` shows them by day on Home (under the business numbers) and on Business
+  (with setup steps until the key exists), always with an "Open Cal.com" link (app.cal.com/bookings/upcoming). The Cal.com
+  webhook is still only for app clients' kickoff / check-in calls. Resend's REST automation shape is `steps` + `connections`
+  ({from,to,type}; config keys snake_case), not `next`/`branches`: `emailSteps(steps, connections)` handles both. The hourly
+  reminders cron also runs `syncResend()` so Lead magnets numbers stay fresh.
