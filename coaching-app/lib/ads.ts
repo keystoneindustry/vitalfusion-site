@@ -18,6 +18,7 @@ export type AdRow = {
   /** null = no spend recorded for this ad. */
   spend: number | null;
   clicks: number | null;
+  impressions: number | null;
   names: { lead: string; stage: "client" | "booked" | "qualified" | "lead" }[];
 };
 
@@ -39,7 +40,7 @@ export const UNTRACKED_KEY = "untracked";
 export function adsReport(people: Person[], spend: SpendRow[], bookedEmails: Iterable<string>): { rows: AdRow[]; total: AdRow } {
   const booked = new Set([...bookedEmails].map((e) => e.toLowerCase()));
   const rows = new Map<string, AdRow>();
-  const blank = (key: string, ad: string, adset: string | null, campaign: string | null): AdRow => ({ key, ad, adset, campaign, leads: 0, qualified: 0, booked: 0, clients: 0, spend: null, clicks: null, names: [] });
+  const blank = (key: string, ad: string, adset: string | null, campaign: string | null): AdRow => ({ key, ad, adset, campaign, leads: 0, qualified: 0, booked: 0, clients: 0, spend: null, clicks: null, impressions: null, names: [] });
   const nameKey = (campaign: string | null, ad: string | null) => `name:${(campaign ?? "").toLowerCase()}|${(ad ?? "").toLowerCase()}`;
 
   for (const p of people) {
@@ -68,7 +69,9 @@ export function adsReport(people: Person[], spend: SpendRow[], bookedEmails: Ite
     }
     row.spend = Math.round(((row.spend ?? 0) + amount) * 100) / 100;
     row.clicks = (row.clicks ?? 0) + (s.clicks ?? 0);
-    row.ad = row.ad === "(ad name not sent)" && s.ad_name ? s.ad_name : row.ad;
+    row.impressions = (row.impressions ?? 0) + (s.impressions ?? 0);
+    // Meta's current name wins over the name the link carried (which stays as first published).
+    if (s.ad_name) row.ad = s.ad_name;
     row.adset ??= s.adset_name;
     row.campaign ??= s.campaign_name;
   }
@@ -81,6 +84,8 @@ export function adsReport(people: Person[], spend: SpendRow[], bookedEmails: Ite
     total.booked += r.booked;
     total.clients += r.clients;
     if (r.spend !== null) total.spend = Math.round(((total.spend ?? 0) + r.spend) * 100) / 100;
+    if (r.clicks !== null) total.clicks = (total.clicks ?? 0) + r.clicks;
+    if (r.impressions !== null) total.impressions = (total.impressions ?? 0) + r.impressions;
   }
   return { rows: list, total };
 }
@@ -95,3 +100,27 @@ export function costPer(spend: number | null, count: number): string {
 /** The line to paste into an ad's "URL parameters" box in Meta Ads Manager. */
 export const AD_URL_PARAMETERS =
   "source=facebook-ad&utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&ad_id={{ad.id}}&adset_id={{adset.id}}&campaign_id={{campaign.id}}";
+
+/** Rolls ad rows up by campaign (ads without a campaign name are left out). */
+export function byCampaign(rows: AdRow[]): AdRow[] {
+  const map = new Map<string, AdRow>();
+  for (const r of rows) {
+    if (!r.campaign) continue;
+    const c = map.get(r.campaign) ?? map.set(r.campaign, { key: `c:${r.campaign}`, ad: r.campaign, adset: null, campaign: null, leads: 0, qualified: 0, booked: 0, clients: 0, spend: null, clicks: null, impressions: null, names: [] }).get(r.campaign)!;
+    c.leads += r.leads;
+    c.qualified += r.qualified;
+    c.booked += r.booked;
+    c.clients += r.clients;
+    if (r.spend !== null) c.spend = Math.round(((c.spend ?? 0) + r.spend) * 100) / 100;
+    if (r.clicks !== null) c.clicks = (c.clicks ?? 0) + r.clicks;
+    if (r.impressions !== null) c.impressions = (c.impressions ?? 0) + r.impressions;
+  }
+  return [...map.values()].sort((a, b) => b.leads - a.leads || (b.spend ?? 0) - (a.spend ?? 0));
+}
+
+/** Time ranges for the Ads tab. `since` is a YYYY-MM-DD day (inclusive), or null for all time. */
+export const AD_RANGES = [
+  { value: "7", label: "Last 7 days", days: 7 },
+  { value: "30", label: "Last 30 days", days: 30 },
+  { value: "all", label: "All time", days: null },
+] as const;

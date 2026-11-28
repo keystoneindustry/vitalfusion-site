@@ -11,12 +11,13 @@ import { sectionOf } from "./sections";
 const TABS = [
   { id: "home", href: "/coach", label: "Home", icon: "M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z" },
   { id: "business", href: "/coach/business", label: "Business", icon: "M4 20V10M10 20V4M16 20v-7M21 20H3" },
+  { id: "ads", href: "/coach/ads", label: "Ads", icon: "M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1zM15 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12" },
   { id: "crm", href: "/coach/crm", label: "CRM", icon: "M4 6h16M7 12h10M10 18h4" },
-  { id: "social", href: "/coach/social", label: "Social", icon: "M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4zM12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zM17.2 6.8h.01" },
 ];
 
 /** The rest of the sections, behind the ☰ tab (same order as the desktop tabs). */
 const MORE = [
+  { id: "social", href: "/coach/social", label: "Social media", emoji: "📱" },
   { id: "legal", href: "/coach/legal", label: "Legal", emoji: "📝" },
   { id: "magnets", href: "/coach/magnets", label: "Lead magnets", emoji: "🧲" },
   { id: "coaching", href: "/coach/app", label: "Coaching app", emoji: "🏋️" },

@@ -145,6 +145,10 @@ export default async function HomeBase() {
           <b>Business</b>
           <span>Revenue, calls, leads, conversion</span>
         </Link>
+        <Link href="/coach/ads">
+          <b>Ads</b>
+          <span>Every ad: leads, calls, clients, cost</span>
+        </Link>
         <Link href="/coach/crm">
           <b>CRM</b>
           <span>{people.filter((p) => p.status !== "client" && p.status !== "not_fit").length} open leads</span>

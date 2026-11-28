@@ -4,6 +4,7 @@ export const COACHING_PATHS = ["/coach/app", "/coach/clients", "/coach/check-ins
 export const SECTIONS = [
   { id: "home", href: "/coach", label: "Home" },
   { id: "business", href: "/coach/business", label: "Business" },
+  { id: "ads", href: "/coach/ads", label: "Ads" },
   { id: "crm", href: "/coach/crm", label: "CRM" },
   { id: "social", href: "/coach/social", label: "Social media" },
   { id: "legal", href: "/coach/legal", label: "Legal" },

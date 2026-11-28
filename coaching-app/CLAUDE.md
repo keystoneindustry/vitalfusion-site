@@ -298,3 +298,9 @@ Production deploys automatically from the `coaching-app` branch (Vercel producti
   call_booked, or their email has a Cal.com booking: `loadBookedEmails()` in lib/cal.ts) → clients; plus a row for Facebook-ad
   leads from before per-ad tracking, and a total. Spend comes from table `ad_spend` (day, ad_id, names, spend, impressions,
   clicks), meant to be filled daily by a scheduled Claude task once Meta Ads is connected; until then costs show "–".
+- Ads tab (Nov 27): the Ads report moved off Business to its own section `/coach/ads` (tab right after Business; phone
+  bar is now Home, Business, Ads, CRM with Social media, Legal, Lead magnets, Coaching app under ☰). Ranges: last 7 / 30
+  days / all time (`AD_RANGES`; a lead counts by first signup date, spend by day). Shows totals, by campaign
+  (`byCampaign`), each ad with funnel steps + cost per step, impressions / clicks / cost per click when `ad_spend` has
+  rows, lead names, and the URL-parameters line for new ads. Ad names from `ad_spend` (Meta's current name) win over the
+  name the link carried.

@@ -4,8 +4,7 @@ import { bySource, kindLabel, leadsByWeek } from "@/lib/crm-logic";
 import { formatDate, todayIn } from "@/lib/dates";
 import { loadRevenue, money, stripeConfigured, type Revenue } from "@/lib/stripe";
 import { db } from "@/lib/supabase";
-import { loadBookedEmails, loadUpcomingCalls } from "@/lib/cal";
-import { AD_URL_PARAMETERS, adsReport, costPer, UNTRACKED_KEY, type SpendRow } from "@/lib/ads";
+import { loadUpcomingCalls } from "@/lib/cal";
 import CallSchedule from "../CallSchedule";
 
 export const metadata = { title: "Business · Vital Fusion" };
@@ -45,13 +44,7 @@ export default async function BusinessPage() {
     revenueError = true;
   }
 
-  const [schedule, bookedEmails, spend] = await Promise.all([
-    loadUpcomingCalls(),
-    loadBookedEmails(),
-    db<SpendRow[]>("ad_spend?select=day,ad_id,ad_name,adset_name,campaign_name,spend,impressions,clicks&limit=20000").catch(() => [] as SpendRow[]),
-  ]);
-  const ads = adsReport(people, spend, bookedEmails);
-  const spendUpdated = spend.reduce((m, s) => (s.day > m ? s.day : m), "");
+  const schedule = await loadUpcomingCalls();
   const weeks = leadsByWeek(funnel, today, 8);
   const kinds = new Map<string, number>();
   for (const f of funnel) kinds.set(f.kind, (kinds.get(f.kind) ?? 0) + 1);
@@ -133,63 +126,6 @@ export default async function BusinessPage() {
       </section>
 
       <CallSchedule result={schedule} limit={20} setup />
-
-      <section className="card" id="ads">
-        <h2 className="h2" style={{ marginTop: 0 }}>📣 Ads</h2>
-        <p className="small muted" style={{ marginTop: -4 }}>
-          Each Meta ad: the leads it brought and how far they got. Qualified = applied, or you marked them “In conversation” or further, or they
-          booked a call. {spendUpdated ? `Spend is through ${formatDate(spendUpdated, false)}.` : "Spend isn't connected yet, so costs show “–”."}
-        </p>
-        {ads.rows.length === 0 ? (
-          <p className="muted" style={{ margin: "0 0 10px" }}>No leads from ads yet.</p>
-        ) : (
-          <div className="ad-list">
-            {[...(ads.rows.length > 1 ? [ads.total] : []), ...ads.rows].map((r) => (
-              <div className={`ad-row${r.key === "total" ? " ad-total" : ""}`} key={r.key}>
-                <div className="legal-head">
-                  <b>{r.ad}</b>
-                  <span className="small muted">{r.spend === null ? "spend –" : `${money(r.spend)} spent`}</span>
-                </div>
-                {(r.campaign || r.adset) && <p className="small muted" style={{ margin: "2px 0 0" }}>{[r.campaign, r.adset].filter(Boolean).join(" · ")}</p>}
-                <div className="ad-steps">
-                  {(
-                    [
-                      ["Leads", r.leads],
-                      ["Qualified", r.qualified],
-                      ["Booked a call", r.booked],
-                      ["Clients", r.clients],
-                    ] as [string, number][]
-                  ).map(([label, n]) => (
-                    <div key={label}>
-                      <b>{n}</b>
-                      <span>{label}</span>
-                      <em>{costPer(r.spend, n) === "–" ? "–" : `${costPer(r.spend, n)} each`}</em>
-                    </div>
-                  ))}
-                </div>
-                {r.key !== "total" && r.names.length > 0 && (
-                  <p className="small muted" style={{ margin: "8px 0 0" }}>
-                    {r.names
-                      .slice(0, 12)
-                      .map((x) => `${x.lead}${x.stage === "lead" ? "" : ` (${x.stage === "booked" ? "call booked" : x.stage})`}`)
-                      .join(" · ")}
-                    {r.names.length > 12 ? ` · +${r.names.length - 12} more` : ""}
-                  </p>
-                )}
-                {r.key === UNTRACKED_KEY && <p className="small muted" style={{ margin: "6px 0 0" }}>These came in before your ad links carried the ad's name.</p>}
-              </div>
-            ))}
-          </div>
-        )}
-        <details className="ad-setup">
-          <summary>How each ad gets tracked</summary>
-          <p className="small" style={{ margin: "8px 0 6px" }}>
-            In Meta Ads Manager, open each ad → <b>Tracking → URL parameters</b> and paste this line. Meta fills in the campaign, ad set and ad for
-            every click, and your website saves them with the lead.
-          </p>
-          <code className="ad-params">{AD_URL_PARAMETERS}</code>
-        </details>
-      </section>
 
       <section className="card">
         <h2 className="h2" style={{ marginTop: 0 }}>🧲 Leads per week</h2>
